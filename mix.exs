@@ -1,4 +1,4 @@
-defmodule GenAI.MixProject do
+defmodule GenAICore.MixProject do
   use Mix.Project
 
   def project do
