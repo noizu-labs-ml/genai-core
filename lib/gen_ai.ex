@@ -6,8 +6,7 @@ defmodule GenAI do
   def chat(thread_provider \\ :default)
   def chat(:default), do: %GenAI.Thread.Standard{}
   def chat(:standard), do: %GenAI.Thread.Standard{}
-
-
+  
   # Delegate function calls to the GenAI.ThreadProtocol implementation for the current context.
   defdelegate with_model(context, model), to: GenAI.ThreadProtocol
   defdelegate with_tool(context, tool), to: GenAI.ThreadProtocol
@@ -26,10 +25,5 @@ defmodule GenAI do
         {:ok, completion}
     end
   end
-
-
-
-
-
 
 end

@@ -127,7 +127,7 @@ defmodule GenAI.ModelDetail.FineTuning do
   Tracks fine tuning details for the model, if any.
   - Type of fine tuning
   - Fine Tuning Date
- - Fine Tuning Notes
+  - Fine Tuning Notes
   """
 
   @vsn 1.0
@@ -213,7 +213,7 @@ defmodule GenAI.Model do
   - Rate Limits/ Capacity
       - Requests Per Minute
       - Token Cap
- - Speed
+  - Speed
       - Throughput (tokens per minute)
   - Cost
       - system memory - base + per context size costs

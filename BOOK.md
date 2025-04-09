@@ -2,7 +2,7 @@
 
 ```elixir
 Mix.install([
-  {:genai, "~> 0.0.1"},
+  {:genai_core, "~> 0.1.0"},
   {:kino, "~> 0.12.0"}
 ])
 
