@@ -1,0 +1,728 @@
+defmodule VNextGenAI.Graph do
+  @vsn 1.0
+  @moduledoc """
+  A graph data structure for representing AI graphs, threads, conversations, uml, etc. Utility Class
+  """
+
+  use VNextGenAI.Graph.NodeBehaviour
+
+  alias VNextGenAI.Graph.Link
+  alias VNextGenAI.Graph.NodeProtocol
+  alias VNextGenAI.Records, as: R
+  alias VNextGenAI.Types, as: T
+  # alias VNextGenAI.Session.NodeProtocol.Records, as: Node
+  require VNextGenAI.Records.Link
+  require VNextGenAI.Types.Graph
+  # require VNextGenAI.Session.NodeProtocol.Records
+
+  @derive VNextGenAI.Graph.NodeProtocol
+  # @derive VNextGenAI.Session.NodeProtocol
+  defnodetype(
+    nodes: %{T.Graph.graph_node_id() => T.Graph.graph_node()},
+    node_handles: %{T.handle() => T.Graph.graph_node_id()},
+    links: %{T.Graph.graph_link_id() => T.Graph.graph_link()},
+    link_handles: %{T.handle() => T.Graph.graph_link_id()},
+    head: T.Graph.graph_node_id() | nil,
+    last_node: T.Graph.graph_node_id() | nil,
+    last_link: T.Graph.graph_link_id() | nil
+  )
+
+  defnodestruct(
+    nodes: %{},
+    node_handles: %{},
+    links: %{},
+    link_handles: %{},
+    head: nil,
+    last_node: nil,
+    last_link: nil,
+    settings: nil
+  )
+
+  #
+  #  def node_type(%__MODULE__{}), do: VNextGenAI.Graph
+  #
+  #  @doc """
+  #  Process node and proceed to next step.
+  #  """
+  #  def process_node(graph_node, scope, context, options)
+  #  def process_node(
+  #        graph_node,
+  #        Node.scope(
+  #          graph_node: graph_node,
+  #          graph_link: graph_link,
+  #          graph_container: graph_container,
+  #          session_state: session_state,
+  #          session_runtime: session_runtime
+  #        ),
+  #        context,
+  #        options) do
+  #    with {:ok, head} <- VNextGenAI.Graph.head(graph_node) do
+  #      # Run graph and then pass back to parent container if set based on end state.
+  #      with x <- VNextGenAI.Session.NodeProtocol.Runner.do_process_node(
+  #        head,
+  #        Node.scope(
+  #          graph_node: head,
+  #          graph_link: nil,
+  #          graph_container: graph_node,
+  #          session_state: session_state,
+  #          session_runtime: session_runtime
+  #        ),
+  #        context,
+  #        options) do
+  #        x
+  #      end
+  #    end
+  #  end
+
+  @spec new() :: __MODULE__.t()
+  @spec new(keyword) :: __MODULE__.t()
+  def new(options \\ nil)
+
+  def new(options) do
+    settings =
+      Keyword.merge(
+        [
+          auto_head: false,
+          update_last: true,
+          update_last_link: false,
+          auto_link: false
+        ],
+        options[:settings] || []
+      )
+
+    %__MODULE__{
+      id: options[:id] || UUID.uuid4(),
+      handle: options[:handle] || nil,
+      name: options[:name] || nil,
+      description: options[:description] || nil,
+      nodes: %{},
+      node_handles: %{},
+      links: %{},
+      link_handles: %{},
+      head: nil,
+      last_node: nil,
+      last_link: nil,
+      settings: settings
+    }
+  end
+
+  @spec setting(__MODULE__.t(), atom, keyword, any) :: any
+  def setting(%__MODULE__{settings: settings}, setting, options, default \\ nil) do
+    x = options[setting]
+
+    cond do
+      is_nil(x) or x == :default ->
+        x = settings[setting]
+
+        cond do
+          x == nil -> default
+          :else -> x
+        end
+
+      :else ->
+        x
+    end
+  end
+
+  # =============================================================================
+  # Graph Protocol
+  # =============================================================================
+
+  # -------------------------
+  # node/2
+  # -------------------------
+
+  @doc """
+  Obtain node by id.
+
+  ## Examples
+
+  ### When Found
+      iex> graph = VNextGenAI.Graph.new()
+      ...> node = VNextGenAI.Graph.Node.new(id: UUID.uuid4())
+      ...> graph = VNextGenAI.Graph.add_node(graph, node)
+      ...> VNextGenAI.Graph.node(graph, node.id)
+      {:ok, node}
+
+  ### When Not Found
+      iex> graph = VNextGenAI.Graph.new()
+      ...> VNextGenAI.Graph.node(graph, UUID.uuid4())
+      {:error, {:node, :not_found}}
+  """
+  @spec node(graph :: T.Graph.graph(), id :: T.Graph.graph_node_id()) ::
+          T.result(T.Graph.graph_node(), T.details())
+  def node(graph, graph_node)
+
+  def node(graph, R.Link.connector(node: id)) do
+    node(graph, id)
+  end
+
+  def node(graph, graph_node) when T.Graph.is_node_id(graph_node) do
+    if x = graph.nodes[graph_node] do
+      {:ok, x}
+    else
+      {:error, {:node, :not_found}}
+    end
+  end
+
+  def node(graph, graph_node) when is_struct(graph_node) do
+    with {:ok, id} <- NodeProtocol.id(graph_node) do
+      node(graph, id)
+    end
+  end
+
+  # -------------------------
+  # node/2
+  # -------------------------
+  @spec nodes(T.Graph.graph()) :: {:ok, list(T.Graph.graph_node())}
+  @spec nodes(T.Graph.graph(), keyword) :: {:ok, list(T.Graph.graph_node())}
+  def nodes(graph, options \\ nil)
+
+  def nodes(graph, _) do
+    nodes = Map.values(graph.nodes)
+    {:ok, nodes}
+  end
+
+  # -------------------------
+  # node!/2
+  # -------------------------
+  @spec nodes!(T.Graph.graph()) :: list(T.Graph.graph_node())
+  @spec nodes!(T.Graph.graph(), keyword) :: list(T.Graph.graph_node())
+  def nodes!(graph, options \\ nil)
+
+  def nodes!(graph, _) do
+    Map.values(graph.nodes)
+  end
+
+  # -------------------------
+  # link/2
+  # -------------------------
+
+  @doc """
+  Obtain link by id.
+
+  ## Examples
+
+  ### When Found
+      iex> graph = VNextGenAI.Graph.new()
+      ...> node1 = VNextGenAI.Graph.Node.new(id: UUID.uuid4())
+      ...> node2 = VNextGenAI.Graph.Node.new(id: UUID.uuid4())
+      ...> graph = VNextGenAI.Graph.add_node(graph, node1)
+      ...> graph = VNextGenAI.Graph.add_node(graph, node2)
+      ...> link = VNextGenAI.Graph.Link.new(node1.id, node2.id)
+      ...> graph = VNextGenAI.Graph.add_link(graph, link)
+      ...> VNextGenAI.Graph.link(graph, link.id)
+      {:ok, link}
+
+  ### When Not Found
+      iex> graph = VNextGenAI.Graph.new()
+      ...> VNextGenAI.Graph.link(graph, UUID.uuid4())
+      {:error, {:link, :not_found}}
+  """
+  @spec link(graph :: T.Graph.graph(), id :: T.Graph.graph_link_id()) ::
+          T.result(T.Graph.graph_link(), T.details())
+  def link(graph, graph_link)
+
+  def link(graph, graph_link) when T.Graph.is_link_id(graph_link) do
+    if x = graph.links[graph_link] do
+      {:ok, x}
+    else
+      {:error, {:link, :not_found}}
+    end
+  end
+
+  def link(graph, graph_link) when is_struct(graph_link) do
+    with {:ok, id} <- Link.id(graph_link) do
+      node(graph, id)
+    end
+  end
+
+  # -------------------------
+  # member?/2
+  # -------------------------
+
+  @doc """
+  Check if a node is a member of the graph.
+
+  ## Examples
+
+      iex> graph = VNextGenAI.Graph.new()
+      ...> node = VNextGenAI.Graph.Node.new(id: UUID.uuid4())
+      ...> graph = VNextGenAI.Graph.add_node(graph, node)
+      ...> VNextGenAI.Graph.member?(graph, node.id)
+      true
+
+      iex> graph = VNextGenAI.Graph.new()
+      ...> VNextGenAI.Graph.member?(graph, UUID.uuid4())
+      false
+  """
+  @spec member?(graph :: T.Graph.graph(), id :: T.Graph.graph_node_id()) :: boolean
+  def member?(graph, graph_node)
+
+  def member?(graph, graph_node) when T.Graph.is_node_id(graph_node) do
+    (graph.nodes[graph_node] && true) || false
+  end
+
+  def member?(graph, graph_node) when is_struct(graph_node) do
+    with {:ok, id} <- NodeProtocol.id(graph_node) do
+      member?(graph, id)
+    end
+  end
+
+  # -------------------------
+  # by_handle/2
+  # -------------------------
+
+  @doc """
+  Obtain node by handle.
+
+  ## Examples
+
+  ### When Found
+      iex> graph = VNextGenAI.Graph.new()
+      ...> node = VNextGenAI.Graph.Node.new(id: UUID.uuid4(), handle: :foo)
+      ...> graph = VNextGenAI.Graph.add_node(graph, node)
+      ...> VNextGenAI.Graph.by_handle(graph, :foo)
+      {:ok, node}
+
+  ### When Not Found
+      iex> graph = VNextGenAI.Graph.new()
+      ...> VNextGenAI.Graph.by_handle(graph, :foo)
+      {:error, {:handle, :not_found}}
+  """
+  @spec by_handle(graph :: T.Graph.graph(), handle :: T.handle()) ::
+          T.result(T.Graph.graph_node(), T.details())
+  def by_handle(graph, handle)
+
+  def by_handle(graph, handle) do
+    if x = graph.node_handles[handle] do
+      node(graph, x)
+    else
+      {:error, {:handle, :not_found}}
+    end
+  end
+
+  # -------------------------
+  # link_by_handle/2
+  # -------------------------
+
+  @doc """
+  Obtain link by handle.
+
+  ## Examples
+
+  ### When Found
+      iex> graph = VNextGenAI.Graph.new()
+      ...> node1 = VNextGenAI.Graph.Node.new(id: UUID.uuid4())
+      ...> node2 = VNextGenAI.Graph.Node.new(id: UUID.uuid4())
+      ...> graph = VNextGenAI.Graph.add_node(graph, node1)
+      ...> graph = VNextGenAI.Graph.add_node(graph, node2)
+      ...> link = VNextGenAI.Graph.Link.new(node1.id, node2.id, handle: :bar)
+      ...> graph = VNextGenAI.Graph.add_link(graph, link)
+      ...> VNextGenAI.Graph.link_by_handle(graph, :bar)
+      {:ok, link}
+
+  ### When Not Found
+      iex> graph = VNextGenAI.Graph.new()
+      ...> VNextGenAI.Graph.link_by_handle(graph, :bar)
+      {:error, {:handle, :not_found}}
+  """
+  @spec link_by_handle(graph :: T.Graph.graph(), handle :: T.handle()) ::
+          T.result(T.Graph.graph_link(), T.details())
+  def link_by_handle(graph, handle)
+
+  def link_by_handle(graph, handle) do
+    if x = graph.link_handles[handle] do
+      link(graph, x)
+    else
+      {:error, {:handle, :not_found}}
+    end
+  end
+
+  # -------------------------
+  # head/1
+  # -------------------------
+  @spec head(T.Graph.graph()) :: T.result(T.Graph.graph_node(), T.details())
+  def head(graph)
+  def head(%__MODULE__{head: nil}), do: {:error, {:head, :is_nil}}
+  def head(graph = %__MODULE__{head: x}), do: node(graph, x)
+
+  # -------------------------
+  # last_node/1
+  # -------------------------
+  @spec last_node(T.Graph.graph()) :: T.result(T.Graph.graph_node(), T.details())
+  def last_node(graph)
+  def last_node(%__MODULE__{last_node: nil}), do: {:error, {:last_node, :is_nil}}
+  def last_node(graph = %__MODULE__{last_node: x}), do: node(graph, x)
+
+  # -------------------------
+  # last_link/1
+  # -------------------------
+  @spec last_link(T.Graph.graph()) :: T.result(T.Graph.graph_link(), T.details())
+  def last_link(graph)
+  def last_link(%__MODULE__{last_link: nil}), do: {:error, {:last_link, :is_nil}}
+  def last_link(graph = %__MODULE__{last_link: x}), do: link(graph, x)
+
+  @spec attempt_set_handle(T.Graph.graph(), T.Graph.graph_node_id(), T.Graph.graph_node()) ::
+          T.Graph.graph()
+  defp attempt_set_handle(graph, id, node) do
+    with {:ok, handle} <- NodeProtocol.handle(node) do
+      if graph.node_handles[handle] do
+        raise VNextGenAI.Graph.Exception,
+          message: "Node with handle #{handle} already defined in graph",
+          details: {:handle_exists, handle}
+      end
+
+      put_in(graph, [Access.key(:node_handles), handle], id)
+    else
+      _ -> graph
+    end
+  end
+
+  @spec attempt_set_head(T.Graph.graph(), T.Graph.graph_node_id(), T.Graph.graph_node(), keyword) ::
+          T.Graph.graph()
+  defp attempt_set_head(graph, id, node, options)
+
+  defp attempt_set_head(graph, id, _, options) do
+    if setting(graph, :auto_head, options, false) || options[:head] == true do
+      update_in(graph, [Access.key(:head)], &(&1 || id))
+    else
+      graph
+    end
+  end
+
+  @spec attempt_set_last_node(
+          T.Graph.graph(),
+          T.Graph.graph_node_id(),
+          T.Graph.graph_node(),
+          keyword
+        ) :: T.Graph.graph()
+  defp attempt_set_last_node(graph, id, node, options)
+
+  defp attempt_set_last_node(graph, id, _, options) do
+    if setting(graph, :update_last, options, false) do
+      put_in(graph, [Access.key(:last_node)], id)
+    else
+      graph
+    end
+  end
+
+  @spec auto_link_setting(T.Graph.graph(), keyword) :: any
+  defp auto_link_setting(graph, options) do
+    case options[:link] do
+      true ->
+        graph.settings[:auto_link] || true
+
+      false ->
+        false
+
+      default when default in [nil, :default] ->
+        graph.settings[:auto_link] || false
+
+      {:template, template} ->
+        if x = graph.settings[:auto_link_templates][template] do
+          x
+        else
+          raise VNextGenAI.Graph.Exception,
+            message: "Auto Link Template #{inspect(template)} Not Found",
+            details: {:template_not_found, template}
+        end
+
+      x ->
+        x
+    end
+  end
+
+  @spec attempt_auto_link(
+          T.Graph.graph(),
+          T.Graph.graph_node_id(),
+          T.Graph.graph_node_id(),
+          T.Graph.graph_node(),
+          keyword
+        ) :: T.Graph.graph()
+  defp attempt_auto_link(graph, from_node, node_id, node, options)
+
+  defp attempt_auto_link(graph, from_node, node_id, _, options) do
+    auto_link = auto_link_setting(graph, options)
+
+    cond do
+      auto_link == false ->
+        graph
+
+      auto_link == true ->
+        link = Link.new(from_node, node_id)
+        VNextGenAI.Graph.add_link(graph, link, options)
+
+      is_struct(auto_link, Link) ->
+        link = auto_link
+
+        with {:ok, link} <- Link.putnew_source(link, from_node),
+             {:ok, link} <- Link.putnew_target(link, node_id),
+             {:ok, link} <- Link.with_id(link) do
+          VNextGenAI.Graph.add_link(graph, link, options)
+        else
+          {:error, details} ->
+            raise VNextGenAI.Graph.Exception,
+              message: "Auto Link Failed",
+              details: details
+        end
+
+      not is_struct(auto_link) and (is_map(auto_link) or is_list(auto_link)) ->
+        auto_link_options = auto_link
+        link = Link.new(from_node, node_id, auto_link_options)
+        VNextGenAI.Graph.add_link(graph, link, options)
+    end
+  end
+
+  @spec attempt_set_node(T.Graph.graph(), T.Graph.graph_node_id(), T.Graph.graph_node(), keyword) ::
+          T.Graph.graph()
+  def attempt_set_node(graph, node_id, graph_node, options)
+
+  def attempt_set_node(graph, node_id, graph_node, _) do
+    if member?(graph, node_id) do
+      raise VNextGenAI.Graph.Exception,
+        message: "Node with #{node_id} already defined in graph",
+        details: {:node_exists, node_id}
+    end
+
+    put_in(graph, [Access.key(:nodes), node_id], graph_node)
+  end
+
+  # -------------------------
+  # attach_node/3
+  # -------------------------
+
+  @doc """
+  Attach a node to the graph linked to last inserted item.
+
+  ## Examples
+
+      iex> graph = VNextGenAI.Graph.new()
+      ...> node = VNextGenAI.Graph.Node.new(id: UUID.uuid4())
+      ...> graph = VNextGenAI.Graph.attach_node(graph, node)
+      ...> VNextGenAI.Graph.member?(graph, node.id)
+      true
+  """
+  @spec attach_node(graph :: T.Graph.graph(), node :: T.Graph.graph_node(), options :: map) ::
+          T.result(T.Graph.graph(), T.details())
+  def attach_node(graph, graph_node, options \\ nil)
+
+  def attach_node(graph, graph_node, options) do
+    options =
+      Keyword.merge(
+        [auto_head: true, update_last: true, update_last_link: true, link: true],
+        options || []
+      )
+
+    add_node(graph, graph_node, options)
+  end
+
+  # -------------------------
+  # add_node/3
+  # -------------------------
+
+  @doc """
+  Add a node to the graph.
+
+  ## Examples
+
+      iex> graph = VNextGenAI.Graph.new()
+      ...> node = VNextGenAI.Graph.Node.new(id: UUID.uuid4())
+      ...> graph = VNextGenAI.Graph.add_node(graph, node)
+      ...> VNextGenAI.Graph.member?(graph, node.id)
+      true
+  """
+  @spec add_node(graph :: T.Graph.graph(), node :: T.Graph.graph_node(), options :: map) ::
+          T.result(T.Graph.graph(), T.details())
+  def add_node(graph, graph_node, options \\ nil)
+
+  def add_node(graph, graph_node, options) do
+    with {:ok, node_id} <- NodeProtocol.id(graph_node) do
+      graph
+      |> attempt_set_node(node_id, graph_node, options)
+      |> attempt_set_handle(node_id, graph_node)
+      |> attempt_set_head(node_id, graph_node, options)
+      |> attempt_set_last_node(node_id, graph_node, options)
+      |> attempt_auto_link(graph.last_node, node_id, graph_node, options)
+    else
+      x -> x
+    end
+  end
+
+  @spec local_reference?(T.Graph.graph_link(), T.Graph.graph_link()) :: boolean
+  defp local_reference?(source, target) do
+    if R.Link.connector(source, :external) && R.Link.connector(target, :external) do
+      false
+    else
+      true
+    end
+  end
+
+  # -------------------------
+  # add_node/3
+  # -------------------------
+
+  @doc """
+  Add a link to the graph.
+
+  ## Examples
+
+      iex> graph = VNextGenAI.Graph.new()
+      ...> node1 = VNextGenAI.Graph.Node.new(id: UUID.uuid4())
+      ...> node2 = VNextGenAI.Graph.Node.new(id: UUID.uuid4())
+      ...> graph = VNextGenAI.Graph.add_node(graph, node1)
+      ...> graph = VNextGenAI.Graph.add_node(graph, node2)
+      ...> link = VNextGenAI.Graph.Link.new(node1.id, node2.id)
+      ...> graph = VNextGenAI.Graph.add_link(graph, link)
+      ...> VNextGenAI.Graph.link(graph, link.id)
+      {:ok, link}
+  """
+  @spec add_link(graph :: T.Graph.graph(), link :: T.Graph.graph_link(), options :: map) ::
+          T.result(T.Graph.graph(), T.details())
+  def add_link(graph, graph_link, options \\ nil)
+
+  def add_link(graph, graph_link, options) do
+    with {:ok, link_id} <- Link.id(graph_link),
+         {:ok, source} <- Link.source_connector(graph_link),
+         {:ok, target} <- Link.target_connector(graph_link),
+         true <- local_reference?(source, target) || {:error, {:link, :local_reference_required}} do
+      graph
+      |> attempt_set_link(link_id, graph_link, options)
+      |> attempt_set_last_link(link_id, graph_link, options)
+      |> attempt_register_link(source, graph_link, options)
+      |> attempt_register_link(target, graph_link, options)
+    else
+      {:error, details} ->
+        raise VNextGenAI.Graph.Exception,
+          message: "Link Failure - #{inspect(details)}",
+          details: details
+    end
+  end
+
+  @spec attempt_set_link(T.Graph.graph(), T.Graph.graph_link_id(), T.Graph.graph_link(), keyword) ::
+          T.Graph.graph()
+  defp attempt_set_link(graph, link_id, graph_link, options)
+
+  defp attempt_set_link(graph, link_id, graph_link, _) do
+    if Map.has_key?(graph.links, link_id) do
+      raise VNextGenAI.Graph.Exception,
+        message: "Link with #{link_id} already defined in graph",
+        details: {:link_exists, link_id}
+    end
+
+    with {:ok, handle} <- Link.handle(graph_link) do
+      graph
+      |> put_in([Access.key(:link_handles), handle], link_id)
+      |> put_in([Access.key(:links), link_id], graph_link)
+    else
+      _ ->
+        put_in(graph, [Access.key(:links), link_id], graph_link)
+    end
+  end
+
+  @spec attempt_set_last_link(
+          T.Graph.graph(),
+          T.Graph.graph_link_id(),
+          T.Graph.graph_link(),
+          keyword
+        ) :: T.Graph.graph()
+  defp attempt_set_last_link(graph, link_id, graph_link, options)
+
+  defp attempt_set_last_link(graph, link_id, _, options) do
+    if setting(graph, :update_last_link, options, false) do
+      put_in(graph, [Access.key(:last_link)], link_id)
+    else
+      graph
+    end
+  end
+
+  @spec attempt_register_link(
+          T.Graph.graph(),
+          T.Graph.graph_link(),
+          T.Graph.graph_link(),
+          keyword
+        ) :: T.Graph.graph()
+  defp attempt_register_link(graph, connector, link, options) do
+    connector_node_id = R.Link.connector(connector, :node)
+
+    cond do
+      R.Link.connector(connector, :external) ->
+        graph
+
+      member?(graph, connector_node_id) ->
+        n = graph.nodes[connector_node_id]
+        {:ok, n} = NodeProtocol.register_link(n, graph, link, options)
+        put_in(graph, [Access.key(:nodes), connector_node_id], n)
+
+      :else ->
+        raise VNextGenAI.Graph.Exception,
+          message: "Node Not Found",
+          details: {:source_not_found, connector}
+    end
+  end
+end
+
+defimpl VNextGenAI.Graph.MermaidProtocol, for: VNextGenAI.Graph do
+  @spec mermaid_id(any) :: any
+  def mermaid_id(subject) do
+    VNextGenAI.Graph.MermaidProtocol.Helpers.mermaid_id(subject.id)
+  end
+
+  @spec encode(any) :: {:ok, String.t()} | {:error, any}
+  def encode(graph_element), do: encode(graph_element, [])
+
+  @spec encode(any, any) :: {:ok, String.t()} | {:error, any}
+  def encode(graph_element, options), do: encode(graph_element, options, %{})
+
+  @spec encode(any, any, any) :: {:ok, String.t()} | {:error, any}
+  def encode(graph_element, options, state) do
+    case VNextGenAI.Graph.MermaidProtocol.Helpers.diagram_type(options) do
+      :state_diagram_v2 -> state_diagram_v2(graph_element, options, state)
+      x -> {:error, {:unsupported_diagram, x}}
+    end
+  end
+
+  @spec state_diagram_v2(any, keyword, map) :: {:ok, String.t()} | {:error, any}
+  def state_diagram_v2(graph_element, options, state) do
+    identifier = mermaid_id(graph_element)
+
+    headline = """
+    stateDiagram-v2
+    """
+
+    if graph_element.nodes == %{} do
+      body =
+        VNextGenAI.Graph.MermaidProtocol.Helpers.indent("""
+        [*] --> #{identifier}
+        state "Empty Graph" as #{identifier}
+        """)
+
+      graph = headline <> body
+      {:ok, graph}
+    else
+      entry_point =
+        if head = graph_element.head do
+          """
+          [*] --> #{VNextGenAI.Graph.MermaidProtocol.Helpers.mermaid_id(head)}
+          """
+        else
+          ""
+        end
+
+      # We need expanded nodes with link details
+      state = update_in(state, [:container], &[graph_element | &1 || []])
+
+      contents =
+        graph_element.nodes
+        |> Enum.map(fn {_, n} ->
+          VNextGenAI.Graph.MermaidProtocol.encode(n, options, state)
+        end)
+        |> Enum.map_join("\n", fn {:ok, x} -> x end)
+
+      body = VNextGenAI.Graph.MermaidProtocol.Helpers.indent(entry_point <> contents)
+
+      graph = headline <> body
+      {:ok, graph}
+    end
+  end
+end

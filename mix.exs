@@ -75,7 +75,7 @@ defmodule GenAICore.MixProject do
     end
 
     [
-      extra_applications: [:logger, :finch, :jason] ++ dev_apps ++ test_apps
+      extra_applications: [:logger, :jason] ++ dev_apps ++ test_apps
     ]
   end
 
@@ -85,21 +85,39 @@ defmodule GenAICore.MixProject do
   
   # Run "mix help deps" to learn about dependencies.
   defp deps do
-    [
-      # {:dep_from_hexpm, "~> 0.3.0"},
-      # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
-      {:floki, ">= 0.30.0"},
-      {:elixir_uuid, "~> 1.2"},
-      {:shortuuid, "~> 3.0"},
+    test_deps = [
       {:junit_formatter, "~> 3.3", only: [:test]},
-      {:ex_doc, "~> 0.28.3", only: [:dev, :test], optional: true, runtime: false}, # Documentation Provider
-      {:finch, "~> 0.15", optional: true},
+      {:mimic, "~> 1.0.0", only: :test, optional: true},
+    ]
+    
+    hex_repo_deps = [
+      # Documentation Provider
+      {:ex_doc, "~> 0.28.3", only: [:dev, :test], optional: true, runtime: false},
+      
+      # Static Analysis: Type Checking
+      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false, optional: true},
+      #{:credo, "~> 1.0", runtime: false},
+    ]
+    
+    
+    common = [
+      # html parser and api client
+      {:floki, ">= 0.30.0", optional: true},
+      
+      # UUID Library
+      {:elixir_uuid, "~> 1.2", optional: true},
+      {:shortuuid, "~> 3.0", optional: true},
+      
+      # Core Libraries
+      {:noizu_labs_core, "~> 0.1", optional: true},
+      
+      # JSON/YAML
       {:jason, "~> 1.2", optional: true},
       {:ymlr, "~> 4.0", optional: true},
       {:yaml_elixir, "~> 2.9.0", optional: true},
-      {:mimic, "~> 1.0.0", only: :test, optional: true},
-      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false, optional: true},
-      {:sweet_xml, "~> 0.7", only: :test, optional: true}
+      {:sweet_xml, "~> 0.7", optional: true},
     ]
+    
+    common ++ hex_repo_deps ++ test_deps
   end
 end
