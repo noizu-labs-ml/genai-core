@@ -1,4 +1,11 @@
 defprotocol GenAI.Message.ContentProtocol do
+  @moduledoc """
+  A protocol for handling different types of content in messages.
+  """
+
+  @doc """
+  Return content of a message component.
+  """
   def content(message)
 end
 

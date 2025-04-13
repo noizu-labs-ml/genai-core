@@ -86,7 +86,7 @@ defmodule GenAI.Thread.Standard do
     """
     def run(context) do
       with {:prepare_state, {:ok, state}} <-
-             GenAi.Graph.NodeProtocol.apply(context.graph, context.state)
+             GenAI.Legacy.NodeProtocol.apply(context.graph, context.state)
              |> label(:prepare_state),
            {:effective_model, {:ok, model, state}} <-
              GenAI.Thread.StateProtocol.model(state)

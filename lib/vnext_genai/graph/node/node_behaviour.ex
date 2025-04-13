@@ -1,16 +1,18 @@
 # ===============================================================================
 # Copyright (c) 2024, Noizu Labs, Inc.
 # ===============================================================================
-defmodule VNextGenAI.Graph.NodeBehaviour do
+defmodule GenAI.Graph.NodeBehaviour do
   @moduledoc """
   Behaviour Graph Node Elements must adhere to.
   """
-  alias VNextGenAI.Graph.Types, as: G
-  alias VNextGenAI.Types, as: T
+  alias GenAI.Types.Graph, as: G
+  alias GenAI.Types, as: T
 
   # ==================================
   # Behaviour
   # ==================================
+  @callback new() :: struct
+  @callback new(options :: term) :: struct
   @callback id(graph_node :: term) :: {:ok, G.node_id()} | {:error, any}
   @callback handle(graph_node :: term) :: {:ok, G.node_handle()} | {:error, any}
   @callback handle(graph_node :: term, default :: any) :: {:ok, G.node_handle()} | {:error, any}
@@ -101,26 +103,37 @@ defmodule VNextGenAI.Graph.NodeBehaviour do
   # ==================================
   defmacro __using__(opts \\ nil) do
     quote do
-      @provider unquote(opts[:provider]) || VNextGenAI.Graph.NodeProtocol.DefaultProvider
-      require VNextGenAI.Graph.NodeBehaviour
-      import VNextGenAI.Graph.NodeBehaviour, only: [defnodestruct: 1, defnodetype: 1]
-      import VNextGenAI.Graph.NodeProtocol.DefaultProvider
-      @behaviour VNextGenAI.Graph.NodeBehaviour
+      @provider unquote(opts[:provider]) || GenAI.Graph.NodeProtocol.DefaultProvider
+      require GenAI.Graph.NodeBehaviour
+      import GenAI.Graph.NodeBehaviour, only: [defnodestruct: 1, defnodetype: 1]
+      import GenAI.Graph.NodeProtocol.DefaultProvider
+      @behaviour GenAI.Graph.NodeBehaviour
 
-      @defimpl VNextGenAI.Graph.NodeBehaviour
-      defdelegate id(graph), to: @provider, as: :do_id
-      @defimpl VNextGenAI.Graph.NodeBehaviour
-      defdelegate handle(graph), to: @provider, as: :do_handle
-      @defimpl VNextGenAI.Graph.NodeBehaviour
-      defdelegate handle(graph, default), to: @provider, as: :do_handle
-      @defimpl VNextGenAI.Graph.NodeBehaviour
-      defdelegate name(graph), to: @provider, as: :do_name
-      @defimpl VNextGenAI.Graph.NodeBehaviour
-      defdelegate name(graph, default), to: @provider, as: :do_name
-      @defimpl VNextGenAI.Graph.NodeBehaviour
-      defdelegate description(graph), to: @provider, as: :do_description
-      @defimpl VNextGenAI.Graph.NodeBehaviour
-      defdelegate description(graph, default), to: @provider, as: :do_description
+      @defimpl GenAI.Graph.NodeBehaviour
+      def new(options \\ nil) do
+        @provider.new(__MODULE__, options)
+      end
+
+      @defimpl GenAI.Graph.NodeBehaviour
+      defdelegate id(graph), to: @provider
+
+      @defimpl GenAI.Graph.NodeBehaviour
+      defdelegate handle(graph), to: @provider
+
+      @defimpl GenAI.Graph.NodeBehaviour
+      defdelegate handle(graph, default), to: @provider
+
+      @defimpl GenAI.Graph.NodeBehaviour
+      defdelegate name(graph), to: @provider
+
+      @defimpl GenAI.Graph.NodeBehaviour
+      defdelegate name(graph, default), to: @provider
+
+      @defimpl GenAI.Graph.NodeBehaviour
+      defdelegate description(graph), to: @provider
+
+      @defimpl GenAI.Graph.NodeBehaviour
+      defdelegate description(graph, default), to: @provider
     end
   end
 end

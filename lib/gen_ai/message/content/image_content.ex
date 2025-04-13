@@ -11,6 +11,9 @@ defmodule GenAI.Message.Content.ImageContent do
     vsn: @vsn
   ]
 
+  @doc """
+  Get image type based on file extension.
+  """
   def image_type(resource) when is_bitstring(resource) do
     cond do
       String.ends_with?(resource, ".png") ->:png
@@ -24,8 +27,14 @@ defmodule GenAI.Message.Content.ImageContent do
     end
   end
 
+  @doc """
+  Get image resolution.
+  """
   def resolution(_), do: :auto
 
+  @doc """
+  Base64 encode image content.
+  """
   def base64(image, options \\ nil)
   def base64(image, _) do
     binary = File.read!(image.resource)

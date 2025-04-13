@@ -1,4 +1,8 @@
 defmodule GenAI.Message.ToolCall do
+  @moduledoc """
+  Represents a tool call in a message thread.
+  """
+
   @vsn 1.0
   defstruct [
     role: nil,

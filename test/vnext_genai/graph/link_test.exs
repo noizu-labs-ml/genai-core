@@ -1,12 +1,12 @@
-defmodule VNextGenAI.Graph.LinkTest do
+defmodule GenAI.Graph.LinkTest do
   # import VNextGenAI.Test.Support.Common
   use ExUnit.Case,
     async: true
 
-  alias VNextGenAI.Records, as: R
+  alias GenAI.Records, as: R
 
   require Logger
-  require VNextGenAI.Records.Link
+  require GenAI.Records.Link
 
-  doctest VNextGenAI.Graph.Link
+  doctest GenAI.Graph.Link
 end

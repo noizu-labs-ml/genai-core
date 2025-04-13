@@ -25,6 +25,16 @@ defmodule GenAI.Provider do
     Map.put(body, field, value)
   end
 
+
+
+  def with_dynamic_setting(body, setting, model, settings, default \\ nil) do
+    with_setting(body, setting, settings, default)
+  end
+
+  def with_dynamic_setting_as(body, as_setting, setting,  model, settings, default \\ nil) do
+    with_setting_as(body, as_setting, setting, settings, default)
+  end
+
   def with_setting(body, setting, settings, default \\ nil) do
     case settings[setting] do
       nil ->

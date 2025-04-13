@@ -1,13 +1,13 @@
-defmodule VNextGenAI.GraphTest do
+defmodule GenAI.VNext.GraphTest do
   use ExUnit.Case,
     async: true
 
-  alias VNextGenAI.Graph
-  alias VNextGenAI.Graph.Link
-  alias VNextGenAI.Graph.MermaidProtocol
-  alias VNextGenAI.Graph.Node
+  alias GenAI.VNext.Graph
+  alias GenAI.Graph.Link
+  alias GenAI.Graph.MermaidProtocol
+  alias GenAI.Graph.Node
 
-  doctest VNextGenAI.Graph
+  doctest GenAI.VNext.Graph
 
   describe "Mermaid Render" do
     test "Empty Graph" do
