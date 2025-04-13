@@ -1,4 +1,4 @@
-defmodule VNextGenAI.Config do
+defmodule GenAI.Config do
   @moduledoc """
   Module for fetching, and setting global or per process default config settings.
   """

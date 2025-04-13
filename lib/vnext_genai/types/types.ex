@@ -1,4 +1,4 @@
-defmodule VNextGenAI.Types do
+defmodule GenAI.Types do
   @moduledoc """
   VNextGenAI Types
   """

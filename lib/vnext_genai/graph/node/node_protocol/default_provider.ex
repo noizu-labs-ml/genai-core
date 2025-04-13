@@ -1,23 +1,56 @@
-defmodule VNextGenAI.Graph.NodeProtocol.DefaultProvider do
+defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
   @moduledoc """
-  Default provider for VNextGenAI.Graph.NodeProtocol.
+  Default provider for GenAI.Graph.NodeProtocol.
   Uses function_exported? to invoke the passed module's implementation if any for calls.
   """
 
-  alias VNextGenAI.Graph.Link
-  alias VNextGenAI.Graph.Types, as: G
-  alias VNextGenAI.Records, as: R
-  alias VNextGenAI.Types, as: T
+  alias GenAI.Graph.Link
+  alias GenAI.Types.Graph, as: G
+  alias GenAI.Records, as: R
+  alias GenAI.Types, as: T
 
-  require VNextGenAI.Records.Link
+  require GenAI.Records.Link
+
+
+  # -------------------------
+  # new/2
+  # -------------------------
+  @spec new(module, any) :: struct
+  def new(module, options) do
+    if Code.ensure_loaded?(module) and function_exported?(module, :do_new, 1) do
+      module.do_new(options)
+    else
+      do_new(module, options)
+    end
+  end
+
+  @spec do_new(module, any) :: any
+  def do_new(module, nil) do
+    options = [
+      id: UUID.uuid4(),
+      inbound_links: %{},
+      outbound_links: %{}
+    ]
+    module.__struct__(options)
+  end
+  def do_new(module, options) do
+    core = [
+      id: options[:id] || UUID.uuid4(),
+      inbound_links: options[:inbound_links] || %{},
+      outbound_links: options[:outbound_links] || %{}
+    ]
+    options = Keyword.merge(Enum.to_list(options), core)
+    module.__struct__(options)
+  end
+
 
   # -------------------------
   # id/1
   # -------------------------
   @spec id(G.graph_node()) :: T.result(G.graph_node_id(), T.details())
   def id(graph_node = %{__struct__: module}) do
-    if Code.ensure_loaded?(module) and function_exported?(module, :id, 1) do
-      module.id(graph_node)
+    if Code.ensure_loaded?(module) and function_exported?(module, :do_id, 1) do
+      module.do_id(graph_node)
     else
       do_id(graph_node)
     end
@@ -33,8 +66,8 @@ defmodule VNextGenAI.Graph.NodeProtocol.DefaultProvider do
   # -------------------------
   @spec handle(G.graph_node()) :: T.result(T.handle(), T.details())
   def handle(graph_node = %{__struct__: module}) do
-    if Code.ensure_loaded?(module) and function_exported?(module, :handle, 1) do
-      module.handle(graph_node)
+    if Code.ensure_loaded?(module) and function_exported?(module, :do_handle, 1) do
+      module.do_handle(graph_node)
     else
       do_handle(graph_node)
     end
@@ -50,8 +83,8 @@ defmodule VNextGenAI.Graph.NodeProtocol.DefaultProvider do
   # -------------------------
   @spec handle(G.graph_node(), T.handle()) :: T.result(T.handle(), T.details())
   def handle(graph_node = %{__struct__: module}, default) do
-    if Code.ensure_loaded?(module) and function_exported?(module, :handle, 2) do
-      module.handle(graph_node, default)
+    if Code.ensure_loaded?(module) and function_exported?(module, :do_handle, 2) do
+      module.do_handle(graph_node, default)
     else
       do_handle(graph_node, default)
     end
@@ -67,8 +100,8 @@ defmodule VNextGenAI.Graph.NodeProtocol.DefaultProvider do
   # -------------------------
   @spec name(G.graph_node()) :: T.result(T.name(), T.details())
   def name(graph_node = %{__struct__: module}) do
-    if Code.ensure_loaded?(module) and function_exported?(module, :name, 1) do
-      module.name(graph_node)
+    if Code.ensure_loaded?(module) and function_exported?(module, :do_name, 1) do
+      module.do_name(graph_node)
     else
       do_name(graph_node)
     end
@@ -84,8 +117,8 @@ defmodule VNextGenAI.Graph.NodeProtocol.DefaultProvider do
   # -------------------------
   @spec name(G.graph_node(), T.name()) :: T.result(T.name(), T.details())
   def name(graph_node = %{__struct__: module}, default) do
-    if Code.ensure_loaded?(module) and function_exported?(module, :name, 2) do
-      module.name(graph_node, default)
+    if Code.ensure_loaded?(module) and function_exported?(module, :do_name, 2) do
+      module.do_name(graph_node, default)
     else
       do_name(graph_node, default)
     end
@@ -101,8 +134,8 @@ defmodule VNextGenAI.Graph.NodeProtocol.DefaultProvider do
   # -------------------------
   @spec description(G.graph_node()) :: T.result(T.description(), T.details())
   def description(graph_node = %{__struct__: module}) do
-    if Code.ensure_loaded?(module) and function_exported?(module, :description, 1) do
-      module.description(graph_node)
+    if Code.ensure_loaded?(module) and function_exported?(module, :do_description, 1) do
+      module.do_description(graph_node)
     else
       do_description(graph_node)
     end
@@ -118,8 +151,8 @@ defmodule VNextGenAI.Graph.NodeProtocol.DefaultProvider do
   # -------------------------
   @spec description(G.graph_node(), T.description()) :: T.result(T.description(), T.details())
   def description(graph_node = %{__struct__: module}, default) do
-    if Code.ensure_loaded?(module) and function_exported?(module, :description, 2) do
-      module.description(graph_node, default)
+    if Code.ensure_loaded?(module) and function_exported?(module, :do_description, 2) do
+      module.do_description(graph_node, default)
     else
       do_description(graph_node, default)
     end
@@ -135,8 +168,8 @@ defmodule VNextGenAI.Graph.NodeProtocol.DefaultProvider do
   # -------------------------
   @spec with_id(G.graph_node()) :: T.result(G.graph_node(), T.details())
   def with_id(graph_node = %{__struct__: module}) do
-    if Code.ensure_loaded?(module) and function_exported?(module, :with_id, 1) do
-      module.with_id(graph_node)
+    if Code.ensure_loaded?(module) and function_exported?(module, :do_with_id, 1) do
+      module.do_with_id(graph_node)
     else
       do_with_id(graph_node)
     end
@@ -169,8 +202,8 @@ defmodule VNextGenAI.Graph.NodeProtocol.DefaultProvider do
   @spec register_link(G.graph_node(), G.graph(), G.graph_link(), map) ::
           T.result(G.graph_node(), T.details())
   def register_link(graph_node = %{__struct__: module}, graph, link, options) do
-    if Code.ensure_loaded?(module) and function_exported?(module, :register_link, 4) do
-      module.register_link(graph_node, graph, link, options)
+    if Code.ensure_loaded?(module) and function_exported?(module, :do_register_link, 4) do
+      module.do_register_link(graph_node, graph, link, options)
     else
       do_register_link(graph_node, graph, link, options)
     end
@@ -217,8 +250,8 @@ defmodule VNextGenAI.Graph.NodeProtocol.DefaultProvider do
   # -------------------------
   @spec outbound_links(G.graph_node(), G.graph(), map) :: {:ok, map} | {:error, term}
   def outbound_links(graph_node = %{__struct__: module}, graph, options) do
-    if Code.ensure_loaded?(module) and function_exported?(module, :outbound_links, 3) do
-      module.outbound_links(graph_node, graph, options)
+    if Code.ensure_loaded?(module) and function_exported?(module, :do_outbound_links, 3) do
+      module.do_outbound_links(graph_node, graph, options)
     else
       do_outbound_links(graph_node, graph, options)
     end
@@ -234,7 +267,7 @@ defmodule VNextGenAI.Graph.NodeProtocol.DefaultProvider do
             Enum.map(
               link_ids,
               fn link_id ->
-                {:ok, link} = VNextGenAI.Graph.link(graph, link_id)
+                {:ok, link} = GenAI.VNext.Graph.link(graph, link_id)
                 link
               end
             )
@@ -254,8 +287,8 @@ defmodule VNextGenAI.Graph.NodeProtocol.DefaultProvider do
   # -------------------------
   @spec inbound_links(G.graph_node(), G.graph(), map) :: {:ok, map} | {:error, term}
   def inbound_links(graph_node = %{__struct__: module}, graph, options) do
-    if Code.ensure_loaded?(module) and function_exported?(module, :inbound_links, 3) do
-      module.inbound_links(graph_node, graph, options)
+    if Code.ensure_loaded?(module) and function_exported?(module, :do_inbound_links, 3) do
+      module.do_inbound_links(graph_node, graph, options)
     else
       do_inbound_links(graph_node, graph, options)
     end
@@ -271,7 +304,7 @@ defmodule VNextGenAI.Graph.NodeProtocol.DefaultProvider do
             Enum.map(
               link_ids,
               fn link_id ->
-                {:ok, link} = VNextGenAI.Graph.link(graph, link_id)
+                {:ok, link} = GenAI.VNext.Graph.link(graph, link_id)
                 link
               end
             )

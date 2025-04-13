@@ -1,4 +1,4 @@
-defprotocol VNextGenAI.Graph.MermaidProtocol do
+defprotocol GenAI.Graph.MermaidProtocol do
   @moduledoc """
   Mermaid Encode Protocol.
   """

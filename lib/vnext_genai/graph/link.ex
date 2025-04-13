@@ -1,15 +1,15 @@
-defmodule VNextGenAI.Graph.Link do
+defmodule GenAI.Graph.Link do
   @vsn 1.0
   @moduledoc """
   Represent a link between two nodes in a graph.
   """
 
-  alias VNextGenAI.Graph.NodeProtocol
-  alias VNextGenAI.Records, as: R
-  alias VNextGenAI.Types, as: T
+  alias GenAI.Graph.NodeProtocol
+  alias GenAI.Records, as: R
+  alias GenAI.Types, as: T
 
-  require VNextGenAI.Records.Link
-  require VNextGenAI.Types.Graph
+  require GenAI.Records.Link
+  require GenAI.Types.Graph
 
   @type t :: %__MODULE__{
           # Identifier
@@ -63,8 +63,8 @@ defmodule VNextGenAI.Graph.Link do
 
       iex> node1_id = UUID.uuid5(:oid, "node-1")
       iex> node2_id = UUID.uuid5(:oid, "node-2")
-      iex> l = VNextGenAI.Graph.Link.new(node1_id, node2_id, name: "Hello")
-      %VNextGenAI.Graph.Link{
+      iex> l = GenAI.Graph.Link.new(node1_id, node2_id, name: "Hello")
+      %GenAI.Graph.Link{
         handle: nil,
         name: "Hello",
         description: nil,
@@ -75,8 +75,8 @@ defmodule VNextGenAI.Graph.Link do
 
       iex> node1_id = UUID.uuid5(:oid, "node-1")
       iex> node2_id = UUID.uuid5(:oid, "node-2")
-      iex> l = VNextGenAI.Graph.Link.new(R.Link.connector(node: node1_id, socket: :default, external: false), node2_id, handle: :andy)
-      %VNextGenAI.Graph.Link{
+      iex> l = GenAI.Graph.Link.new(R.Link.connector(node: node1_id, socket: :default, external: false), node2_id, handle: :andy)
+      %GenAI.Graph.Link{
         handle: :andy,
         source: R.Link.connector(node: ^node1_id, socket: :default, external: false),
         target: R.Link.connector(node: ^node2_id, socket: :default, external: false),
@@ -84,8 +84,8 @@ defmodule VNextGenAI.Graph.Link do
       } = l
 
       iex> node1_id = UUID.uuid5(:oid, "node-1")
-      iex> l = VNextGenAI.Graph.Link.new(R.Link.connector(node: node1_id, socket: :default, external: false), nil, description: "A Node")
-      %VNextGenAI.Graph.Link{
+      iex> l = GenAI.Graph.Link.new(R.Link.connector(node: node1_id, socket: :default, external: false), nil, description: "A Node")
+      %GenAI.Graph.Link{
         description: "A Node",
         source: R.Link.connector(node: ^node1_id, socket: :default, external: false),
         target: R.Link.connector(node: nil, socket: :default, external: true),
@@ -103,7 +103,7 @@ defmodule VNextGenAI.Graph.Link do
     target = to_connector(target)
     type = if Keyword.has_key?(options || [], :type), do: options[:type], else: :link
 
-    %VNextGenAI.Graph.Link{
+    %GenAI.Graph.Link{
       id: id,
       handle: options[:handle],
       name: options[:name],
@@ -132,15 +132,15 @@ defmodule VNextGenAI.Graph.Link do
   ## when set
       iex> node1_id = UUID.uuid5(:oid, "node-1")
       ...> node2_id = UUID.uuid5(:oid, "node-2")
-      ...> l = VNextGenAI.Graph.Link.new(node1_id, node2_id, handle: :foo, name: "A", description: "B")
-      ...> VNextGenAI.Graph.Link.id(l)
+      ...> l = GenAI.Graph.Link.new(node1_id, node2_id, handle: :foo, name: "A", description: "B")
+      ...> GenAI.Graph.Link.id(l)
       {:ok, l.id}
 
   ## when not set
       iex> node1_id = UUID.uuid5(:oid, "node-1")
       ...> node2_id = UUID.uuid5(:oid, "node-2")
-      ...> l = VNextGenAI.Graph.Link.new(node1_id, node2_id, handle: :foo, name: "A", description: "B") |> put_in([Access.key(:id)], nil)
-      ...> VNextGenAI.Graph.Link.id(l)
+      ...> l = GenAI.Graph.Link.new(node1_id, node2_id, handle: :foo, name: "A", description: "B") |> put_in([Access.key(:id)], nil)
+      ...> GenAI.Graph.Link.id(l)
       {:error, {:id, :is_nil}}
 
   """
@@ -161,15 +161,15 @@ defmodule VNextGenAI.Graph.Link do
   ## When Set
       iex> node1_id = UUID.uuid5(:oid, "node-1")
       ...> node2_id = UUID.uuid5(:oid, "node-2")
-      ...> l = VNextGenAI.Graph.Link.new(node1_id, node2_id, handle: :foo)
-      ...> VNextGenAI.Graph.Link.handle(l)
+      ...> l = GenAI.Graph.Link.new(node1_id, node2_id, handle: :foo)
+      ...> GenAI.Graph.Link.handle(l)
       {:ok, :foo}
 
   ## When Not Set
       iex> node1_id = UUID.uuid5(:oid, "node-1")
       ...> node2_id = UUID.uuid5(:oid, "node-2")
-      ...> l = VNextGenAI.Graph.Link.new(node1_id, node2_id)
-      ...> VNextGenAI.Graph.Link.handle(l)
+      ...> l = GenAI.Graph.Link.new(node1_id, node2_id)
+      ...> GenAI.Graph.Link.handle(l)
       {:error, {:handle, :is_nil}}
 
   """
@@ -191,15 +191,15 @@ defmodule VNextGenAI.Graph.Link do
 
       iex> node1_id = UUID.uuid5(:oid, "node-1")
       ...> node2_id = UUID.uuid5(:oid, "node-2")
-      ...> l = VNextGenAI.Graph.Link.new(node1_id, node2_id, handle: :foo)
-      ...> VNextGenAI.Graph.Link.handle(l, :default)
+      ...> l = GenAI.Graph.Link.new(node1_id, node2_id, handle: :foo)
+      ...> GenAI.Graph.Link.handle(l, :default)
       {:ok, :foo}
 
   ## When Not Set
       iex> node1_id = UUID.uuid5(:oid, "node-1")
       ...> node2_id = UUID.uuid5(:oid, "node-2")
-      ...> l = VNextGenAI.Graph.Link.new(node1_id, node2_id)
-      ...> VNextGenAI.Graph.Link.handle(l, :default)
+      ...> l = GenAI.Graph.Link.new(node1_id, node2_id)
+      ...> GenAI.Graph.Link.handle(l, :default)
       {:ok, :default}
 
   """
@@ -221,15 +221,15 @@ defmodule VNextGenAI.Graph.Link do
   ## When Set
       iex> node1_id = UUID.uuid5(:oid, "node-1")
       ...> node2_id = UUID.uuid5(:oid, "node-2")
-      ...> l = VNextGenAI.Graph.Link.new(node1_id, node2_id, name: "A")
-      ...> VNextGenAI.Graph.Link.name(l)
+      ...> l = GenAI.Graph.Link.new(node1_id, node2_id, name: "A")
+      ...> GenAI.Graph.Link.name(l)
       {:ok, "A"}
 
   ## When Not Set
       iex> node1_id = UUID.uuid5(:oid, "node-1")
       ...> node2_id = UUID.uuid5(:oid, "node-2")
-      ...> l = VNextGenAI.Graph.Link.new(node1_id, node2_id)
-      ...> VNextGenAI.Graph.Link.name(l)
+      ...> l = GenAI.Graph.Link.new(node1_id, node2_id)
+      ...> GenAI.Graph.Link.name(l)
       {:error, {:name, :is_nil}}
 
   """
@@ -250,15 +250,15 @@ defmodule VNextGenAI.Graph.Link do
   ## When Set
       iex> node1_id = UUID.uuid5(:oid, "node-1")
       ...> node2_id = UUID.uuid5(:oid, "node-2")
-      ...> l = VNextGenAI.Graph.Link.new(node1_id, node2_id, name: "A")
-      ...> VNextGenAI.Graph.Link.name(l, "default")
+      ...> l = GenAI.Graph.Link.new(node1_id, node2_id, name: "A")
+      ...> GenAI.Graph.Link.name(l, "default")
       {:ok, "A"}
 
   ## When Not Set
       iex> node1_id = UUID.uuid5(:oid, "node-1")
       ...> node2_id = UUID.uuid5(:oid, "node-2")
-      ...> l = VNextGenAI.Graph.Link.new(node1_id, node2_id)
-      ...> VNextGenAI.Graph.Link.name(l, "default")
+      ...> l = GenAI.Graph.Link.new(node1_id, node2_id)
+      ...> GenAI.Graph.Link.name(l, "default")
       {:ok, "default"}
 
   """
@@ -280,15 +280,15 @@ defmodule VNextGenAI.Graph.Link do
   ## When Set
       iex> node1_id = UUID.uuid5(:oid, "node-1")
       ...> node2_id = UUID.uuid5(:oid, "node-2")
-      ...> l = VNextGenAI.Graph.Link.new(node1_id, node2_id, description: "B")
-      ...> VNextGenAI.Graph.Link.description(l)
+      ...> l = GenAI.Graph.Link.new(node1_id, node2_id, description: "B")
+      ...> GenAI.Graph.Link.description(l)
       {:ok, "B"}
 
   ## When Not Set
       iex> node1_id = UUID.uuid5(:oid, "node-1")
       ...> node2_id = UUID.uuid5(:oid, "node-2")
-      ...> l = VNextGenAI.Graph.Link.new(node1_id, node2_id)
-      ...> VNextGenAI.Graph.Link.description(l)
+      ...> l = GenAI.Graph.Link.new(node1_id, node2_id)
+      ...> GenAI.Graph.Link.description(l)
       {:error, {:description, :is_nil}}
 
   """
@@ -309,15 +309,15 @@ defmodule VNextGenAI.Graph.Link do
   ## When Set
       iex> node1_id = UUID.uuid5(:oid, "node-1")
       ...> node2_id = UUID.uuid5(:oid, "node-2")
-      ...> l = VNextGenAI.Graph.Link.new(node1_id, node2_id, description: "B")
-      ...> VNextGenAI.Graph.Link.description(l, "default")
+      ...> l = GenAI.Graph.Link.new(node1_id, node2_id, description: "B")
+      ...> GenAI.Graph.Link.description(l, "default")
       {:ok, "B"}
 
   ## When Not Set
       iex> node1_id = UUID.uuid5(:oid, "node-1")
       ...> node2_id = UUID.uuid5(:oid, "node-2")
-      ...> l = VNextGenAI.Graph.Link.new(node1_id, node2_id)
-      ...> VNextGenAI.Graph.Link.description(l, "default")
+      ...> l = GenAI.Graph.Link.new(node1_id, node2_id)
+      ...> GenAI.Graph.Link.description(l, "default")
       {:ok, "default"}
 
   """
@@ -338,15 +338,15 @@ defmodule VNextGenAI.Graph.Link do
   ### When Set
         iex> node1_id = UUID.uuid5(:oid, "node-1")
         ...> node2_id = UUID.uuid5(:oid, "node-2")
-        ...> l = VNextGenAI.Graph.Link.new(node1_id, node2_id, type: :link_type)
-        ...> VNextGenAI.Graph.Link.type(l)
+        ...> l = GenAI.Graph.Link.new(node1_id, node2_id, type: :link_type)
+        ...> GenAI.Graph.Link.type(l)
         {:ok, :link_type}
 
   ### When Not Set
       iex> node1_id = UUID.uuid5(:oid, "node-1")
       ...> node2_id = UUID.uuid5(:oid, "node-2")
-      ...> l = VNextGenAI.Graph.Link.new(node1_id, node2_id, type: nil)
-      ...> VNextGenAI.Graph.Link.type(l)
+      ...> l = GenAI.Graph.Link.new(node1_id, node2_id, type: nil)
+      ...> GenAI.Graph.Link.type(l)
       {:error, {:type, :is_nil}}
 
   """
@@ -366,15 +366,15 @@ defmodule VNextGenAI.Graph.Link do
   ### When Set
         iex> node1_id = UUID.uuid5(:oid, "node-1")
         ...> node2_id = UUID.uuid5(:oid, "node-2")
-        ...> l = VNextGenAI.Graph.Link.new(node1_id, node2_id, type: :link_type)
-        ...> VNextGenAI.Graph.Link.type(l, :default)
+        ...> l = GenAI.Graph.Link.new(node1_id, node2_id, type: :link_type)
+        ...> GenAI.Graph.Link.type(l, :default)
         {:ok, :link_type}
 
   ### When Not Set
       iex> node1_id = UUID.uuid5(:oid, "node-1")
       ...> node2_id = UUID.uuid5(:oid, "node-2")
-      ...> l = VNextGenAI.Graph.Link.new(node1_id, node2_id, type: nil)
-      ...> VNextGenAI.Graph.Link.type(l, :default)
+      ...> l = GenAI.Graph.Link.new(node1_id, node2_id, type: nil)
+      ...> GenAI.Graph.Link.type(l, :default)
       {:ok, :default}
   """
   @spec type(__MODULE__.t(), default :: any) :: T.result(T.Graph.link_type(), T.details())
@@ -393,15 +393,15 @@ defmodule VNextGenAI.Graph.Link do
   ### When Set
         iex> node1_id = UUID.uuid5(:oid, "node-1")
         ...> node2_id = UUID.uuid5(:oid, "node-2")
-        ...> l = VNextGenAI.Graph.Link.new(node1_id, node2_id, label: :some_label)
-        ...> VNextGenAI.Graph.Link.label(l)
+        ...> l = GenAI.Graph.Link.new(node1_id, node2_id, label: :some_label)
+        ...> GenAI.Graph.Link.label(l)
         {:ok, :some_label}
 
   ### When Not Set
       iex> node1_id = UUID.uuid5(:oid, "node-1")
       ...> node2_id = UUID.uuid5(:oid, "node-2")
-      ...> l = VNextGenAI.Graph.Link.new(node1_id, node2_id)
-      ...> VNextGenAI.Graph.Link.label(l)
+      ...> l = GenAI.Graph.Link.new(node1_id, node2_id)
+      ...> GenAI.Graph.Link.label(l)
       {:error, {:label, :is_nil}}
 
   """
@@ -421,15 +421,15 @@ defmodule VNextGenAI.Graph.Link do
   ### When Set
         iex> node1_id = UUID.uuid5(:oid, "node-1")
         ...> node2_id = UUID.uuid5(:oid, "node-2")
-        ...> l = VNextGenAI.Graph.Link.new(node1_id, node2_id, label: :my_label)
-        ...> VNextGenAI.Graph.Link.label(l, :default)
+        ...> l = GenAI.Graph.Link.new(node1_id, node2_id, label: :my_label)
+        ...> GenAI.Graph.Link.label(l, :default)
         {:ok, :my_label}
 
   ### When Not Set
       iex> node1_id = UUID.uuid5(:oid, "node-1")
       ...> node2_id = UUID.uuid5(:oid, "node-2")
-      ...> l = VNextGenAI.Graph.Link.new(node1_id, node2_id)
-      ...> VNextGenAI.Graph.Link.label(l, :default)
+      ...> l = GenAI.Graph.Link.new(node1_id, node2_id)
+      ...> GenAI.Graph.Link.label(l, :default)
       {:ok, :default}
   """
   @spec label(__MODULE__.t(), default :: any) :: T.result(T.Graph.link_label(), T.details())
@@ -448,16 +448,16 @@ defmodule VNextGenAI.Graph.Link do
   ## When Already Set
       iex> node1_id = UUID.uuid5(:oid, "node-1")
       ...> node2_id = UUID.uuid5(:oid, "node-2")
-      ...> l = VNextGenAI.Graph.Link.new(node1_id, node2_id)
-      ...> {:ok, l2} = VNextGenAI.Graph.Link.with_id(l)
+      ...> l = GenAI.Graph.Link.new(node1_id, node2_id)
+      ...> {:ok, l2} = GenAI.Graph.Link.with_id(l)
       ...> %{was_nil: is_nil(l.id), is_nil: is_nil(l2.id), id_change: l.id != l2.id}
       %{was_nil: false, is_nil: false, id_change: false}
 
   ## When Not Set
       iex> node1_id = UUID.uuid5(:oid, "node-1")
       ...> node2_id = UUID.uuid5(:oid, "node-2")
-      ...> l = VNextGenAI.Graph.Link.new(node1_id, node2_id) |> put_in([Access.key(:id)], nil)
-      ...> {:ok, l2} = VNextGenAI.Graph.Link.with_id(l)
+      ...> l = GenAI.Graph.Link.new(node1_id, node2_id) |> put_in([Access.key(:id)], nil)
+      ...> {:ok, l2} = GenAI.Graph.Link.with_id(l)
       ...> %{was_nil: is_nil(l.id), is_nil: is_nil(l2.id), id_change: l.id != l2.id}
       %{was_nil: true, is_nil: false, id_change: true}
 
@@ -494,14 +494,14 @@ defmodule VNextGenAI.Graph.Link do
 
       iex> node1_id = UUID.uuid5(:oid, "node-1")
       ...> node2_id = UUID.uuid5(:oid, "node-2")
-      ...> l = VNextGenAI.Graph.Link.new(node1_id, node2_id)
-      ...> {:ok, sut} = VNextGenAI.Graph.Link.source_connector(l)
+      ...> l = GenAI.Graph.Link.new(node1_id, node2_id)
+      ...> {:ok, sut} = GenAI.Graph.Link.source_connector(l)
       ...> sut
       R.Link.connector(external: false) = sut
 
       iex> node1_id = UUID.uuid5(:oid, "node-1")
-      ...> l = VNextGenAI.Graph.Link.new(nil, node1_id)
-      ...> {:ok, sut} = VNextGenAI.Graph.Link.source_connector(l)
+      ...> l = GenAI.Graph.Link.new(nil, node1_id)
+      ...> {:ok, sut} = GenAI.Graph.Link.source_connector(l)
       ...> sut
       R.Link.connector(external: true) = sut
 
@@ -522,14 +522,14 @@ defmodule VNextGenAI.Graph.Link do
 
       iex> node1_id = UUID.uuid5(:oid, "node-1")
       ...> node2_id = UUID.uuid5(:oid, "node-2")
-      ...> l = VNextGenAI.Graph.Link.new(node1_id, node2_id)
-      ...> {:ok, sut} = VNextGenAI.Graph.Link.target_connector(l)
+      ...> l = GenAI.Graph.Link.new(node1_id, node2_id)
+      ...> {:ok, sut} = GenAI.Graph.Link.target_connector(l)
       ...> sut
       R.Link.connector(node: ^node2_id) = sut
 
       iex> node1_id = UUID.uuid5(:oid, "node-1")
-      ...> l = VNextGenAI.Graph.Link.new(node1_id, nil)
-      ...> {:ok, sut} = VNextGenAI.Graph.Link.target_connector(l)
+      ...> l = GenAI.Graph.Link.new(node1_id, nil)
+      ...> {:ok, sut} = GenAI.Graph.Link.target_connector(l)
       ...> sut
       R.Link.connector(external: true) = sut
   """
@@ -550,32 +550,32 @@ defmodule VNextGenAI.Graph.Link do
   ## When Not Set. By ID
       iex> node1_id = UUID.uuid5(:oid, "node-1")
       ...> node2_id = UUID.uuid5(:oid, "node-2")
-      ...> l = VNextGenAI.Graph.Link.new(node1_id, nil)
-      ...> |> VNextGenAI.Graph.Link.putnew_target(node2_id)
-      %VNextGenAI.Graph.Link{target: R.Link.connector(node: ^node2_id, external: false)} = l
+      ...> l = GenAI.Graph.Link.new(node1_id, nil)
+      ...> |> GenAI.Graph.Link.putnew_target(node2_id)
+      %GenAI.Graph.Link{target: R.Link.connector(node: ^node2_id, external: false)} = l
 
   ## When Not Set. By Connector
       iex> node1_id = UUID.uuid5(:oid, "node-1")
       ...> node2_id = UUID.uuid5(:oid, "node-2")
-      ...> l = VNextGenAI.Graph.Link.new(node1_id, nil)
-      ...> |> VNextGenAI.Graph.Link.putnew_target(R.Link.connector(node: node2_id, socket: :foo, external: false))
-      %VNextGenAI.Graph.Link{target: R.Link.connector(node: ^node2_id, external: false)} = l
+      ...> l = GenAI.Graph.Link.new(node1_id, nil)
+      ...> |> GenAI.Graph.Link.putnew_target(R.Link.connector(node: node2_id, socket: :foo, external: false))
+      %GenAI.Graph.Link{target: R.Link.connector(node: ^node2_id, external: false)} = l
 
   ## When Set. By ID
       iex> node1_id = UUID.uuid5(:oid, "node-1")
       ...> node2_id = UUID.uuid5(:oid, "node-2")
       ...> node3_id = UUID.uuid5(:oid, "node-3")
-      ...> l = VNextGenAI.Graph.Link.new(node1_id, node2_id)
-      ...> |> VNextGenAI.Graph.Link.putnew_target(node3_id)
-      %VNextGenAI.Graph.Link{target: R.Link.connector(node: ^node2_id, external: false)} = l
+      ...> l = GenAI.Graph.Link.new(node1_id, node2_id)
+      ...> |> GenAI.Graph.Link.putnew_target(node3_id)
+      %GenAI.Graph.Link{target: R.Link.connector(node: ^node2_id, external: false)} = l
 
   ## When Set. By Connector
       iex> node1_id = UUID.uuid5(:oid, "node-1")
       ...> node2_id = UUID.uuid5(:oid, "node-2")
       ...> node3_id = UUID.uuid5(:oid, "node-3")
-      ...> l = VNextGenAI.Graph.Link.new(node1_id, node2_id)
-      ...> |> VNextGenAI.Graph.Link.putnew_target(R.Link.connector(node: node3_id, socket: :foo, external: false))
-      %VNextGenAI.Graph.Link{target: R.Link.connector(node: ^node2_id, external: false)} = l
+      ...> l = GenAI.Graph.Link.new(node1_id, node2_id)
+      ...> |> GenAI.Graph.Link.putnew_target(R.Link.connector(node: node3_id, socket: :foo, external: false))
+      %GenAI.Graph.Link{target: R.Link.connector(node: ^node2_id, external: false)} = l
 
   """
   @spec putnew_target(graph_link :: T.Graph.graph_link(), target :: term) :: T.Graph.graph_link()
@@ -658,32 +658,32 @@ defmodule VNextGenAI.Graph.Link do
   ## When Not Set. By ID
       iex> node1_id = UUID.uuid5(:oid, "node-1")
       ...> node2_id = UUID.uuid5(:oid, "node-2")
-      ...> l = VNextGenAI.Graph.Link.new(nil, node2_id)
-      ...> |> VNextGenAI.Graph.Link.putnew_source(node1_id)
-      %VNextGenAI.Graph.Link{source: R.Link.connector(node: ^node1_id, external: false)} = l
+      ...> l = GenAI.Graph.Link.new(nil, node2_id)
+      ...> |> GenAI.Graph.Link.putnew_source(node1_id)
+      %GenAI.Graph.Link{source: R.Link.connector(node: ^node1_id, external: false)} = l
 
   ## When Not Set. By Connector
       iex> node1_id = UUID.uuid5(:oid, "node-1")
       ...> node2_id = UUID.uuid5(:oid, "node-2")
-      ...> l = VNextGenAI.Graph.Link.new(nil, node2_id)
-      ...> |> VNextGenAI.Graph.Link.putnew_source(R.Link.connector(node: node1_id, socket: :foo, external: false))
-      %VNextGenAI.Graph.Link{source: R.Link.connector(node: ^node1_id, socket: :foo, external: false)} = l
+      ...> l = GenAI.Graph.Link.new(nil, node2_id)
+      ...> |> GenAI.Graph.Link.putnew_source(R.Link.connector(node: node1_id, socket: :foo, external: false))
+      %GenAI.Graph.Link{source: R.Link.connector(node: ^node1_id, socket: :foo, external: false)} = l
 
   ## When Set. By ID
       iex> node1_id = UUID.uuid5(:oid, "node-1")
       ...> node2_id = UUID.uuid5(:oid, "node-2")
       ...> node3_id = UUID.uuid5(:oid, "node-3")
-      ...> l = VNextGenAI.Graph.Link.new(node1_id, node2_id)
-      ...> |> VNextGenAI.Graph.Link.putnew_source(node3_id)
-      %VNextGenAI.Graph.Link{source: R.Link.connector(node: ^node1_id, external: false)} = l
+      ...> l = GenAI.Graph.Link.new(node1_id, node2_id)
+      ...> |> GenAI.Graph.Link.putnew_source(node3_id)
+      %GenAI.Graph.Link{source: R.Link.connector(node: ^node1_id, external: false)} = l
 
   ## When Set. By Connector
       iex> node1_id = UUID.uuid5(:oid, "node-1")
       ...> node2_id = UUID.uuid5(:oid, "node-2")
       ...> node3_id = UUID.uuid5(:oid, "node-3")
-      ...> l = VNextGenAI.Graph.Link.new(node1_id, node2_id)
-      ...> |> VNextGenAI.Graph.Link.putnew_source(R.Link.connector(node: node3_id, socket: :foo, external: false))
-      %VNextGenAI.Graph.Link{source: R.Link.connector(node: ^node1_id, external: false)} = l
+      ...> l = GenAI.Graph.Link.new(node1_id, node2_id)
+      ...> |> GenAI.Graph.Link.putnew_source(R.Link.connector(node: node3_id, socket: :foo, external: false))
+      %GenAI.Graph.Link{source: R.Link.connector(node: ^node1_id, external: false)} = l
 
   """
   @spec putnew_source(graph_link :: T.Graph.graph_link(), source :: term) :: T.Graph.graph_link()

@@ -1,4 +1,8 @@
 defmodule GenAI.Message.ToolResponse do
+  @moduledoc """
+  Represents a tool response in a message thread.
+  """
+
   @vsn 1.0
   defstruct [
     name: nil,

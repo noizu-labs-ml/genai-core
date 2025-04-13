@@ -1,21 +1,21 @@
-defmodule VNextGenAI.Graph do
+defmodule GenAI.VNext.Graph do
   @vsn 1.0
   @moduledoc """
   A graph data structure for representing AI graphs, threads, conversations, uml, etc. Utility Class
   """
 
-  use VNextGenAI.Graph.NodeBehaviour
+  use GenAI.Graph.NodeBehaviour
 
-  alias VNextGenAI.Graph.Link
-  alias VNextGenAI.Graph.NodeProtocol
-  alias VNextGenAI.Records, as: R
-  alias VNextGenAI.Types, as: T
+  alias GenAI.Graph.Link
+  alias GenAI.Graph.NodeProtocol
+  alias GenAI.Records, as: R
+  alias GenAI.Types, as: T
   # alias VNextGenAI.Session.NodeProtocol.Records, as: Node
-  require VNextGenAI.Records.Link
-  require VNextGenAI.Types.Graph
+  require GenAI.Records.Link
+  require GenAI.Types.Graph
   # require VNextGenAI.Session.NodeProtocol.Records
 
-  @derive VNextGenAI.Graph.NodeProtocol
+  @derive GenAI.Graph.NodeProtocol
   # @derive VNextGenAI.Session.NodeProtocol
   defnodetype(
     nodes: %{T.Graph.graph_node_id() => T.Graph.graph_node()},
@@ -39,7 +39,7 @@ defmodule VNextGenAI.Graph do
   )
 
   #
-  #  def node_type(%__MODULE__{}), do: VNextGenAI.Graph
+  #  def node_type(%__MODULE__{}), do: GenAI.VNext.Graph
   #
   #  @doc """
   #  Process node and proceed to next step.
@@ -56,7 +56,7 @@ defmodule VNextGenAI.Graph do
   #        ),
   #        context,
   #        options) do
-  #    with {:ok, head} <- VNextGenAI.Graph.head(graph_node) do
+  #    with {:ok, head} <- GenAI.VNext.Graph.head(graph_node) do
   #      # Run graph and then pass back to parent container if set based on end state.
   #      with x <- VNextGenAI.Session.NodeProtocol.Runner.do_process_node(
   #        head,
@@ -76,9 +76,9 @@ defmodule VNextGenAI.Graph do
 
   @spec new() :: __MODULE__.t()
   @spec new(keyword) :: __MODULE__.t()
-  def new(options \\ nil)
+  def do_new(options \\ nil)
 
-  def new(options) do
+  def do_new(options) do
     settings =
       Keyword.merge(
         [
@@ -138,15 +138,15 @@ defmodule VNextGenAI.Graph do
   ## Examples
 
   ### When Found
-      iex> graph = VNextGenAI.Graph.new()
-      ...> node = VNextGenAI.Graph.Node.new(id: UUID.uuid4())
-      ...> graph = VNextGenAI.Graph.add_node(graph, node)
-      ...> VNextGenAI.Graph.node(graph, node.id)
+      iex> graph = GenAI.VNext.Graph.new()
+      ...> node = GenAI.Graph.Node.new(id: UUID.uuid4())
+      ...> graph = GenAI.VNext.Graph.add_node(graph, node)
+      ...> GenAI.VNext.Graph.node(graph, node.id)
       {:ok, node}
 
   ### When Not Found
-      iex> graph = VNextGenAI.Graph.new()
-      ...> VNextGenAI.Graph.node(graph, UUID.uuid4())
+      iex> graph = GenAI.VNext.Graph.new()
+      ...> GenAI.VNext.Graph.node(graph, UUID.uuid4())
       {:error, {:node, :not_found}}
   """
   @spec node(graph :: T.Graph.graph(), id :: T.Graph.graph_node_id()) ::
@@ -204,19 +204,19 @@ defmodule VNextGenAI.Graph do
   ## Examples
 
   ### When Found
-      iex> graph = VNextGenAI.Graph.new()
-      ...> node1 = VNextGenAI.Graph.Node.new(id: UUID.uuid4())
-      ...> node2 = VNextGenAI.Graph.Node.new(id: UUID.uuid4())
-      ...> graph = VNextGenAI.Graph.add_node(graph, node1)
-      ...> graph = VNextGenAI.Graph.add_node(graph, node2)
-      ...> link = VNextGenAI.Graph.Link.new(node1.id, node2.id)
-      ...> graph = VNextGenAI.Graph.add_link(graph, link)
-      ...> VNextGenAI.Graph.link(graph, link.id)
+      iex> graph = GenAI.VNext.Graph.new()
+      ...> node1 = GenAI.Graph.Node.new(id: UUID.uuid4())
+      ...> node2 = GenAI.Graph.Node.new(id: UUID.uuid4())
+      ...> graph = GenAI.VNext.Graph.add_node(graph, node1)
+      ...> graph = GenAI.VNext.Graph.add_node(graph, node2)
+      ...> link = GenAI.Graph.Link.new(node1.id, node2.id)
+      ...> graph = GenAI.VNext.Graph.add_link(graph, link)
+      ...> GenAI.VNext.Graph.link(graph, link.id)
       {:ok, link}
 
   ### When Not Found
-      iex> graph = VNextGenAI.Graph.new()
-      ...> VNextGenAI.Graph.link(graph, UUID.uuid4())
+      iex> graph = GenAI.VNext.Graph.new()
+      ...> GenAI.VNext.Graph.link(graph, UUID.uuid4())
       {:error, {:link, :not_found}}
   """
   @spec link(graph :: T.Graph.graph(), id :: T.Graph.graph_link_id()) ::
@@ -246,14 +246,14 @@ defmodule VNextGenAI.Graph do
 
   ## Examples
 
-      iex> graph = VNextGenAI.Graph.new()
-      ...> node = VNextGenAI.Graph.Node.new(id: UUID.uuid4())
-      ...> graph = VNextGenAI.Graph.add_node(graph, node)
-      ...> VNextGenAI.Graph.member?(graph, node.id)
+      iex> graph = GenAI.VNext.Graph.new()
+      ...> node = GenAI.Graph.Node.new(id: UUID.uuid4())
+      ...> graph = GenAI.VNext.Graph.add_node(graph, node)
+      ...> GenAI.VNext.Graph.member?(graph, node.id)
       true
 
-      iex> graph = VNextGenAI.Graph.new()
-      ...> VNextGenAI.Graph.member?(graph, UUID.uuid4())
+      iex> graph = GenAI.VNext.Graph.new()
+      ...> GenAI.VNext.Graph.member?(graph, UUID.uuid4())
       false
   """
   @spec member?(graph :: T.Graph.graph(), id :: T.Graph.graph_node_id()) :: boolean
@@ -279,15 +279,15 @@ defmodule VNextGenAI.Graph do
   ## Examples
 
   ### When Found
-      iex> graph = VNextGenAI.Graph.new()
-      ...> node = VNextGenAI.Graph.Node.new(id: UUID.uuid4(), handle: :foo)
-      ...> graph = VNextGenAI.Graph.add_node(graph, node)
-      ...> VNextGenAI.Graph.by_handle(graph, :foo)
+      iex> graph = GenAI.VNext.Graph.new()
+      ...> node = GenAI.Graph.Node.new(id: UUID.uuid4(), handle: :foo)
+      ...> graph = GenAI.VNext.Graph.add_node(graph, node)
+      ...> GenAI.VNext.Graph.by_handle(graph, :foo)
       {:ok, node}
 
   ### When Not Found
-      iex> graph = VNextGenAI.Graph.new()
-      ...> VNextGenAI.Graph.by_handle(graph, :foo)
+      iex> graph = GenAI.VNext.Graph.new()
+      ...> GenAI.VNext.Graph.by_handle(graph, :foo)
       {:error, {:handle, :not_found}}
   """
   @spec by_handle(graph :: T.Graph.graph(), handle :: T.handle()) ::
@@ -312,19 +312,19 @@ defmodule VNextGenAI.Graph do
   ## Examples
 
   ### When Found
-      iex> graph = VNextGenAI.Graph.new()
-      ...> node1 = VNextGenAI.Graph.Node.new(id: UUID.uuid4())
-      ...> node2 = VNextGenAI.Graph.Node.new(id: UUID.uuid4())
-      ...> graph = VNextGenAI.Graph.add_node(graph, node1)
-      ...> graph = VNextGenAI.Graph.add_node(graph, node2)
-      ...> link = VNextGenAI.Graph.Link.new(node1.id, node2.id, handle: :bar)
-      ...> graph = VNextGenAI.Graph.add_link(graph, link)
-      ...> VNextGenAI.Graph.link_by_handle(graph, :bar)
+      iex> graph = GenAI.VNext.Graph.new()
+      ...> node1 = GenAI.Graph.Node.new(id: UUID.uuid4())
+      ...> node2 = GenAI.Graph.Node.new(id: UUID.uuid4())
+      ...> graph = GenAI.VNext.Graph.add_node(graph, node1)
+      ...> graph = GenAI.VNext.Graph.add_node(graph, node2)
+      ...> link = GenAI.Graph.Link.new(node1.id, node2.id, handle: :bar)
+      ...> graph = GenAI.VNext.Graph.add_link(graph, link)
+      ...> GenAI.VNext.Graph.link_by_handle(graph, :bar)
       {:ok, link}
 
   ### When Not Found
-      iex> graph = VNextGenAI.Graph.new()
-      ...> VNextGenAI.Graph.link_by_handle(graph, :bar)
+      iex> graph = GenAI.VNext.Graph.new()
+      ...> GenAI.VNext.Graph.link_by_handle(graph, :bar)
       {:error, {:handle, :not_found}}
   """
   @spec link_by_handle(graph :: T.Graph.graph(), handle :: T.handle()) ::
@@ -368,7 +368,7 @@ defmodule VNextGenAI.Graph do
   defp attempt_set_handle(graph, id, node) do
     with {:ok, handle} <- NodeProtocol.handle(node) do
       if graph.node_handles[handle] do
-        raise VNextGenAI.Graph.Exception,
+        raise GenAI.Graph.Exception,
           message: "Node with handle #{handle} already defined in graph",
           details: {:handle_exists, handle}
       end
@@ -423,7 +423,7 @@ defmodule VNextGenAI.Graph do
         if x = graph.settings[:auto_link_templates][template] do
           x
         else
-          raise VNextGenAI.Graph.Exception,
+          raise GenAI.Graph.Exception,
             message: "Auto Link Template #{inspect(template)} Not Found",
             details: {:template_not_found, template}
         end
@@ -451,7 +451,7 @@ defmodule VNextGenAI.Graph do
 
       auto_link == true ->
         link = Link.new(from_node, node_id)
-        VNextGenAI.Graph.add_link(graph, link, options)
+        GenAI.VNext.Graph.add_link(graph, link, options)
 
       is_struct(auto_link, Link) ->
         link = auto_link
@@ -459,10 +459,10 @@ defmodule VNextGenAI.Graph do
         with {:ok, link} <- Link.putnew_source(link, from_node),
              {:ok, link} <- Link.putnew_target(link, node_id),
              {:ok, link} <- Link.with_id(link) do
-          VNextGenAI.Graph.add_link(graph, link, options)
+          GenAI.VNext.Graph.add_link(graph, link, options)
         else
           {:error, details} ->
-            raise VNextGenAI.Graph.Exception,
+            raise GenAI.Graph.Exception,
               message: "Auto Link Failed",
               details: details
         end
@@ -470,7 +470,7 @@ defmodule VNextGenAI.Graph do
       not is_struct(auto_link) and (is_map(auto_link) or is_list(auto_link)) ->
         auto_link_options = auto_link
         link = Link.new(from_node, node_id, auto_link_options)
-        VNextGenAI.Graph.add_link(graph, link, options)
+        GenAI.VNext.Graph.add_link(graph, link, options)
     end
   end
 
@@ -480,7 +480,7 @@ defmodule VNextGenAI.Graph do
 
   def attempt_set_node(graph, node_id, graph_node, _) do
     if member?(graph, node_id) do
-      raise VNextGenAI.Graph.Exception,
+      raise GenAI.Graph.Exception,
         message: "Node with #{node_id} already defined in graph",
         details: {:node_exists, node_id}
     end
@@ -497,10 +497,10 @@ defmodule VNextGenAI.Graph do
 
   ## Examples
 
-      iex> graph = VNextGenAI.Graph.new()
-      ...> node = VNextGenAI.Graph.Node.new(id: UUID.uuid4())
-      ...> graph = VNextGenAI.Graph.attach_node(graph, node)
-      ...> VNextGenAI.Graph.member?(graph, node.id)
+      iex> graph = GenAI.VNext.Graph.new()
+      ...> node = GenAI.Graph.Node.new(id: UUID.uuid4())
+      ...> graph = GenAI.VNext.Graph.attach_node(graph, node)
+      ...> GenAI.VNext.Graph.member?(graph, node.id)
       true
   """
   @spec attach_node(graph :: T.Graph.graph(), node :: T.Graph.graph_node(), options :: map) ::
@@ -526,10 +526,10 @@ defmodule VNextGenAI.Graph do
 
   ## Examples
 
-      iex> graph = VNextGenAI.Graph.new()
-      ...> node = VNextGenAI.Graph.Node.new(id: UUID.uuid4())
-      ...> graph = VNextGenAI.Graph.add_node(graph, node)
-      ...> VNextGenAI.Graph.member?(graph, node.id)
+      iex> graph = GenAI.VNext.Graph.new()
+      ...> node = GenAI.Graph.Node.new(id: UUID.uuid4())
+      ...> graph = GenAI.VNext.Graph.add_node(graph, node)
+      ...> GenAI.VNext.Graph.member?(graph, node.id)
       true
   """
   @spec add_node(graph :: T.Graph.graph(), node :: T.Graph.graph_node(), options :: map) ::
@@ -567,14 +567,14 @@ defmodule VNextGenAI.Graph do
 
   ## Examples
 
-      iex> graph = VNextGenAI.Graph.new()
-      ...> node1 = VNextGenAI.Graph.Node.new(id: UUID.uuid4())
-      ...> node2 = VNextGenAI.Graph.Node.new(id: UUID.uuid4())
-      ...> graph = VNextGenAI.Graph.add_node(graph, node1)
-      ...> graph = VNextGenAI.Graph.add_node(graph, node2)
-      ...> link = VNextGenAI.Graph.Link.new(node1.id, node2.id)
-      ...> graph = VNextGenAI.Graph.add_link(graph, link)
-      ...> VNextGenAI.Graph.link(graph, link.id)
+      iex> graph = GenAI.VNext.Graph.new()
+      ...> node1 = GenAI.Graph.Node.new(id: UUID.uuid4())
+      ...> node2 = GenAI.Graph.Node.new(id: UUID.uuid4())
+      ...> graph = GenAI.VNext.Graph.add_node(graph, node1)
+      ...> graph = GenAI.VNext.Graph.add_node(graph, node2)
+      ...> link = GenAI.Graph.Link.new(node1.id, node2.id)
+      ...> graph = GenAI.VNext.Graph.add_link(graph, link)
+      ...> GenAI.VNext.Graph.link(graph, link.id)
       {:ok, link}
   """
   @spec add_link(graph :: T.Graph.graph(), link :: T.Graph.graph_link(), options :: map) ::
@@ -593,7 +593,7 @@ defmodule VNextGenAI.Graph do
       |> attempt_register_link(target, graph_link, options)
     else
       {:error, details} ->
-        raise VNextGenAI.Graph.Exception,
+        raise GenAI.Graph.Exception,
           message: "Link Failure - #{inspect(details)}",
           details: details
     end
@@ -605,7 +605,7 @@ defmodule VNextGenAI.Graph do
 
   defp attempt_set_link(graph, link_id, graph_link, _) do
     if Map.has_key?(graph.links, link_id) do
-      raise VNextGenAI.Graph.Exception,
+      raise GenAI.Graph.Exception,
         message: "Link with #{link_id} already defined in graph",
         details: {:link_exists, link_id}
     end
@@ -655,17 +655,17 @@ defmodule VNextGenAI.Graph do
         put_in(graph, [Access.key(:nodes), connector_node_id], n)
 
       :else ->
-        raise VNextGenAI.Graph.Exception,
+        raise GenAI.Graph.Exception,
           message: "Node Not Found",
           details: {:source_not_found, connector}
     end
   end
 end
 
-defimpl VNextGenAI.Graph.MermaidProtocol, for: VNextGenAI.Graph do
+defimpl GenAI.Graph.MermaidProtocol, for: GenAI.VNext.Graph do
   @spec mermaid_id(any) :: any
   def mermaid_id(subject) do
-    VNextGenAI.Graph.MermaidProtocol.Helpers.mermaid_id(subject.id)
+    GenAI.Graph.MermaidProtocol.Helpers.mermaid_id(subject.id)
   end
 
   @spec encode(any) :: {:ok, String.t()} | {:error, any}
@@ -676,7 +676,7 @@ defimpl VNextGenAI.Graph.MermaidProtocol, for: VNextGenAI.Graph do
 
   @spec encode(any, any, any) :: {:ok, String.t()} | {:error, any}
   def encode(graph_element, options, state) do
-    case VNextGenAI.Graph.MermaidProtocol.Helpers.diagram_type(options) do
+    case GenAI.Graph.MermaidProtocol.Helpers.diagram_type(options) do
       :state_diagram_v2 -> state_diagram_v2(graph_element, options, state)
       x -> {:error, {:unsupported_diagram, x}}
     end
@@ -692,7 +692,7 @@ defimpl VNextGenAI.Graph.MermaidProtocol, for: VNextGenAI.Graph do
 
     if graph_element.nodes == %{} do
       body =
-        VNextGenAI.Graph.MermaidProtocol.Helpers.indent("""
+        GenAI.Graph.MermaidProtocol.Helpers.indent("""
         [*] --> #{identifier}
         state "Empty Graph" as #{identifier}
         """)
@@ -703,7 +703,7 @@ defimpl VNextGenAI.Graph.MermaidProtocol, for: VNextGenAI.Graph do
       entry_point =
         if head = graph_element.head do
           """
-          [*] --> #{VNextGenAI.Graph.MermaidProtocol.Helpers.mermaid_id(head)}
+          [*] --> #{GenAI.Graph.MermaidProtocol.Helpers.mermaid_id(head)}
           """
         else
           ""
@@ -715,11 +715,11 @@ defimpl VNextGenAI.Graph.MermaidProtocol, for: VNextGenAI.Graph do
       contents =
         graph_element.nodes
         |> Enum.map(fn {_, n} ->
-          VNextGenAI.Graph.MermaidProtocol.encode(n, options, state)
+          GenAI.Graph.MermaidProtocol.encode(n, options, state)
         end)
         |> Enum.map_join("\n", fn {:ok, x} -> x end)
 
-      body = VNextGenAI.Graph.MermaidProtocol.Helpers.indent(entry_point <> contents)
+      body = GenAI.Graph.MermaidProtocol.Helpers.indent(entry_point <> contents)
 
       graph = headline <> body
       {:ok, graph}

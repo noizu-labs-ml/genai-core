@@ -1,9 +1,9 @@
-defmodule VNextGenAI.Records.Link do
+defmodule GenAI.Records.Link do
   @moduledoc """
   Records related to graph links.
   """
 
-  alias VNextGenAI.Graph.Types, as: G
+  alias GenAI.Types.Graph, as: G
 
   require Record
   Record.defrecord(:connector, node: nil, socket: nil, external: false)

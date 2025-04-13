@@ -1,6 +1,6 @@
-defmodule VNextGenAI.Graph.MermaidProtocol.Helpers do
+defmodule GenAI.Graph.MermaidProtocol.Helpers do
   @moduledoc """
-  Helpers for generating Mermaid graphs using the VNextGenAI.Graph.MermaidProtocol protocol.
+  Helpers for generating Mermaid graphs using the GenAI.Graph.MermaidProtocol protocol.
   """
 
   @doc """
