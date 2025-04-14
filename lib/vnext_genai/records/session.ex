@@ -25,64 +25,76 @@ defmodule GenAI.Records.Session do
   # ----------------------------
   # option_entry Record
   # ----------------------------
-  Record.defrecord(:option_entry, option: nil)
-
   @typedoc """
   Reference to an option entry.
   """
   @type option_entry :: record(:option_entry, option: any)
+  Record.defrecord(:option_entry, option: nil)
+
 
   # ----------------------------
   # setting_entry Record
   # ----------------------------
-  Record.defrecord(:setting_entry, setting: nil)
-
   @typedoc """
   Reference to a setting entry.
   """
   @type setting_entry :: record(:setting_entry, setting: any)
+  Record.defrecord(:setting_entry, setting: nil)
+
 
   # ----------------------------
   # tool_entry Record
   # ----------------------------
-  Record.defrecord(:tool_entry, tool: nil)
-
   @typedoc """
   Reference to a tool entry.
   """
   @type tool_entry :: record(:tool_entry, tool: any)
+  Record.defrecord(:tool_entry, tool: nil)
 
   # ----------------------------
   # model_entry Record
   # ----------------------------
-  Record.defrecord(:model_entry, [])
-
   @typedoc """
   Reference to a model entry.
   """
   @type model_entry :: record(:model_entry, [])
+  Record.defrecord(:model_entry, [])
+
 
   # ----------------------------
   # model_setting_entry Record
   # ----------------------------
-  Record.defrecord(:model_setting_entry, model: nil, setting: nil)
-
   @typedoc """
   Reference to a model-specific setting entry.
   """
   @type model_setting_entry ::
           record(:model_setting_entry, model: any, setting: any)
+  Record.defrecord(:model_setting_entry, model: nil, setting: nil)
+
 
   # ----------------------------
   # provider_setting_entry Record
   # ----------------------------
-  Record.defrecord(:provider_setting_entry, provider: nil, setting: nil)
 
   @typedoc """
   Reference to a provider-specific setting entry.
   """
   @type provider_setting_entry ::
           record(:provider_setting_entry, provider: any, setting: any)
+  Record.defrecord(:provider_setting_entry, provider: nil, setting: nil)
+
+
+  # ----------------------------
+  # safety_setting_entry Record
+  # ----------------------------
+
+  @typedoc """
+  Reference to a safety setting entry.
+  """
+  @type safety_setting_entry ::
+          record(:safety_setting_entry, category: any)
+  Record.defrecord(:safety_setting_entry, category: nil)
+
 
   # ----------------------------
   # session_entry Type
@@ -102,13 +114,6 @@ defmodule GenAI.Records.Session do
   # ----------------------------
   # entry_reference Record
   # ----------------------------
-  Record.defrecord(:entry_reference,
-    entry: nil,
-    expired?: false,
-    finger_print: nil,
-    inserted_at: nil,
-    updated_at: nil
-  )
 
   @typedoc """
   Reference to a session entry with finger print and tracking fields for invalidation tracking.
@@ -120,22 +125,18 @@ defmodule GenAI.Records.Session do
             inserted_at: any,
             updated_at: any
           )
+  Record.defrecord(:entry_reference,
+    entry: nil,
+    expired?: false,
+    finger_print: nil,
+    inserted_at: nil,
+    updated_at: nil
+  )
 
   # ----------------------------
   # selector Record
   # ----------------------------
   # Calculate effective/tentative value for option
-  Record.defrecord(:selector,
-    id: nil,
-    handle: nil,
-    for: nil,
-    value: nil,
-    directive: nil,
-    inserted_at: nil,
-    updated_at: nil,
-    impacts: [],
-    references: []
-  )
 
   @typedoc """
   Settings to calculate effective/tentative value for entry.
@@ -152,12 +153,7 @@ defmodule GenAI.Records.Session do
             impacts: list(any),
             references: list(any)
           )
-
-  # ----------------------------
-  # constraint Record
-  # ----------------------------
-  # Constraint on allowed option values.
-  Record.defrecord(:constraint,
+  Record.defrecord(:selector,
     id: nil,
     handle: nil,
     for: nil,
@@ -168,6 +164,11 @@ defmodule GenAI.Records.Session do
     impacts: [],
     references: []
   )
+
+  # ----------------------------
+  # constraint Record
+  # ----------------------------
+  # Constraint on allowed option values.
 
   @typedoc """
   Settings to calculate constraints for entry.
@@ -184,21 +185,23 @@ defmodule GenAI.Records.Session do
             impacts: list(any),
             references: list(any)
           )
+  Record.defrecord(:constraint,
+    id: nil,
+    handle: nil,
+    for: nil,
+    value: nil,
+    directive: nil,
+    inserted_at: nil,
+    updated_at: nil,
+    impacts: [],
+    references: []
+  )
 
   # ----------------------------
   # effective_value Record
   # ----------------------------
   # Constraint computed effective option value with cache tag for invalidation.
   # tracking fields.
-  Record.defrecord(:effective_value,
-    id: nil,
-    handle: nil,
-    value: nil,
-    finger_print: nil,
-    expired?: false,
-    inserted_at: nil,
-    updated_at: nil
-  )
 
   @typedoc """
   Effective value for entry as of point in graph.
@@ -212,20 +215,21 @@ defmodule GenAI.Records.Session do
             inserted_at: any,
             updated_at: any
           )
+  Record.defrecord(:effective_value,
+    id: nil,
+    handle: nil,
+    value: nil,
+    finger_print: nil,
+    expired?: false,
+    inserted_at: nil,
+    updated_at: nil
+  )
 
   # ----------------------------
   # tentative_value Record
   # ----------------------------
   # Constraint computed tentative option value with cache tag for invalidation.
   # tracking fields.
-  Record.defrecord(:tentative_value,
-    id: nil,
-    handle: nil,
-    value: nil,
-    finger_print: nil,
-    inserted_at: nil,
-    updated_at: nil
-  )
 
   @typedoc """
   Tentative value for entry as of point in graph.
@@ -239,46 +243,23 @@ defmodule GenAI.Records.Session do
             inserted_at: any,
             updated_at: any
           )
+  Record.defrecord(:tentative_value,
+    id: nil,
+    handle: nil,
+    value: nil,
+    finger_print: nil,
+    inserted_at: nil,
+    updated_at: nil
+  )
 
   # =============================================================================
   # Session ProcessNodeProtocol Records
   # =============================================================================
 
   # ----------------------------
-  # process_update Record
-  # ----------------------------
-  # Return list of any fields to update.
-  Record.defrecord(:process_update,
-    graph_node: nil,
-    graph_link: nil,
-    graph_container: nil,
-    session_state: nil,
-    session_runtime: nil
-  )
-
-  @typedoc """
-  Scope change list.
-  """
-  @type process_update ::
-          record(:process_update,
-            graph_node: any,
-            graph_link: any,
-            graph_container: any,
-            session_state: any,
-            session_runtime: any
-          )
-
-  # ----------------------------
   # scope Record
   # ----------------------------
   # Standard input arg (duplicates node, useful for comparing new to old value.
-  Record.defrecord(:scope,
-    graph_node: nil,
-    graph_link: nil,
-    graph_container: nil,
-    session_state: nil,
-    session_runtime: nil
-  )
 
   @typedoc """
   Scope/context. Node, Graph, State, Runtime, etc.
@@ -288,53 +269,62 @@ defmodule GenAI.Records.Session do
             graph_node: any,
             graph_link: any,
             graph_container: any,
+            session_root: any,
             session_state: any,
             session_runtime: any
           )
+  Record.defrecord(:scope,
+    graph_node: nil,
+    graph_link: nil,
+    graph_container: nil,
+    session_root: nil,
+    session_state: nil,
+    session_runtime: nil
+  )
 
   # ----------------------------
   # process_next Record
   # ----------------------------
   # Indicates that the node should be processed next.
-  Record.defrecord(:process_next, link: nil, update: nil)
 
   @typedoc """
   Indicate node to process next.
   """
-  @type process_next :: record(:process_next, link: any, update: process_update)
+  @type process_next :: record(:process_next, link: any, update: scope)
+  Record.defrecord(:process_next, link: nil, update: nil)
 
   # ----------------------------
   # process_end Record
   # ----------------------------
   # Indicates that processing is complete.
-  Record.defrecord(:process_end, exit_on: nil, update: nil)
 
   @typedoc """
   Indicate no further nodes to process.
   """
-  @type process_end :: record(:process_end, exit_on: any, update: process_update)
+  @type process_end :: record(:process_end, exit_on: any, update: scope)
+  Record.defrecord(:process_end, exit_on: nil, update: nil)
 
   # ----------------------------
   # process_yield Record
   # ----------------------------
   # Yield before resuming for external response (or wait on other node completion/global state).
-  Record.defrecord(:process_yield, yield_for: nil, update: nil)
 
   @typedoc """
   Indicate a blocking call/condition must be met before proceeding.
   """
-  @type process_yield :: record(:process_yield, yield_for: any, update: process_update)
+  @type process_yield :: record(:process_yield, yield_for: any, update: scope)
+  Record.defrecord(:process_yield, yield_for: nil, update: nil)
 
   # ----------------------------
   # process_error Record
   # ----------------------------
   # Indicates that an error has occurred.
-  Record.defrecord(:process_error, error: nil, update: nil)
 
   @typedoc """
-  Indicate error occured while processing node.
+  Indicate error occurred while processing node.
   """
-  @type process_error :: record(:process_error, error: any, update: process_update)
+  @type process_error :: record(:process_error, error: any, update: scope)
+  Record.defrecord(:process_error, error: nil, update: nil)
 
   #
   #    #------------------

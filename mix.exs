@@ -103,7 +103,8 @@ defmodule GenAICore.MixProject do
     common = [
       # html parser and api client
       {:floki, ">= 0.30.0", optional: true},
-      
+      {:finch, "~> 0.15", optional: true},
+
       # UUID Library
       {:elixir_uuid, "~> 1.2", optional: true},
       {:shortuuid, "~> 3.0", optional: true},

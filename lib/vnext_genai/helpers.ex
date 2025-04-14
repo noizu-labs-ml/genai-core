@@ -4,6 +4,70 @@ defmodule GenAI.Helpers do
   """
 
   @doc """
+  label block response
+  ## Examples
+
+  ### OK Response
+      iex> require GenAI.Helpers
+      iex> GenAI.Helpers.with_label(:foo) do
+      iex>    {:ok, :bar}
+      iex> end
+      {:foo, :bar}
+
+  ### Error Response
+      iex> require GenAI.Helpers
+      iex> GenAI.Helpers.with_label(:foo) do
+      iex>    {:error, :bar}
+      iex> end
+      {:error, {:foo, :bar}}
+
+  ### Non Tuple Response
+      iex> require GenAI.Helpers
+      iex> GenAI.Helpers.with_label(:foo) do
+      iex>    :bop
+      iex> end
+      {:foo, :bop}
+
+  """
+  defmacro with_label(label, [do: block]) do
+    quote do
+      (unquote(block))
+      |> case do
+           {:ok, response} -> {unquote(label), response}
+           {:error, error} -> {:error, {unquote(label), error}}
+           response -> {unquote(label), response}
+         end
+    end
+  end
+
+  @doc """
+  label response
+  ## Examples
+
+  ### OK Response
+      iex> GenAI.Helpers.apply_label({:ok, :bar}, :foo)
+      {:foo, :bar}
+
+  ### Error Response
+      iex> GenAI.Helpers.apply_label({:error, :bar}, :foo)
+      {:error, {:foo, :bar}}
+
+  ### Non Tuple Response
+      iex> GenAI.Helpers.apply_label(:bop, :foo)
+      {:foo, :bop}
+
+  """
+  def apply_label(response, label) do
+    case response do
+      {:ok, response} -> {label, response}
+      {:error, error} -> {:error, {label, error}}
+      response -> {label, response}
+    end
+  end
+
+
+
+  @doc """
   Handle error tuple response.
 
   ## Examples
