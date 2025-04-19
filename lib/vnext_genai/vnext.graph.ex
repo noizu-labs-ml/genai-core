@@ -38,42 +38,6 @@ defmodule GenAI.VNext.Graph do
     settings: nil
   )
 
-  #
-  #  def node_type(%__MODULE__{}), do: GenAI.VNext.Graph
-  #
-  #  @doc """
-  #  Process node and proceed to next step.
-  #  """
-  #  def process_node(graph_node, scope, context, options)
-  #  def process_node(
-  #        graph_node,
-  #        Node.scope(
-  #          graph_node: graph_node,
-  #          graph_link: graph_link,
-  #          graph_container: graph_container,
-  #          session_state: session_state,
-  #          session_runtime: session_runtime
-  #        ),
-  #        context,
-  #        options) do
-  #    with {:ok, head} <- GenAI.VNext.Graph.head(graph_node) do
-  #      # Run graph and then pass back to parent container if set based on end state.
-  #      with x <- VNextGenAI.Session.NodeProtocol.Runner.do_process_node(
-  #        head,
-  #        Node.scope(
-  #          graph_node: head,
-  #          graph_link: nil,
-  #          graph_container: graph_node,
-  #          session_state: session_state,
-  #          session_runtime: session_runtime
-  #        ),
-  #        context,
-  #        options) do
-  #        x
-  #      end
-  #    end
-  #  end
-
   @spec do_new() :: __MODULE__.t()
   @spec do_new(keyword) :: __MODULE__.t()
   def do_new(options \\ nil)

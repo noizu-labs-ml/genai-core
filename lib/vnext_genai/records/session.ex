@@ -12,15 +12,93 @@ defmodule GenAI.Records.Session do
   # Session Records
   # =============================================================================
 
+#
+#
+#  # *******************************************************
+#  # Directive Records
+#  # *******************************************************
+#
+#
+#  # ********************************
+#  # Directive Entry Records
+#  # ********************************
+#
+#  #----------------------------
+#  # concrete_entry
+#  #----------------
+#  @typedoc """
+#  Represents a concrete value, an exact specified (or calculated) value to be used.
+#  """
+#  @type concrete_entry :: record(:concrete_entry, value: any)
+#  Record.defrecord(:concrete_entry, value: nil)
+#
+#  #----------------------------
+#  # range_entry
+#  #----------------
+#  @typedoc """
+#  Represents a range of allowed values for an entry.
+#  For simplicity the most recent range overwrites any prior range specifiers.
+#  """
+#  @type range_entry :: record(:range_entry, from: any, to: any)
+#  Record.defrecord(:range_entry, from: nil, to: nil)
+#
+#  #----------------------------
+#  # inclusion_entry
+#  #----------------
+#  @typedoc """
+#  Provide a list of allowed values for an entry.
+#  """
+#  @type inclusion_entry :: record(:inclusion_entry, values: list(any))
+#  Record.defrecord(:inclusion_entry, values: [])
+#
+#  #----------------------------
+#  # exclusion_entry
+#  #----------------
+#  @typedoc """
+#  Provide a set/list of allowed values for an entry.
+#  """
+#  @type selection_entry :: record(:selection_entry, values: list(any))
+#  Record.defrecord(:selection_entry, values: [])
+#
+#
+#  #----------------------------
+#  # selection_entry
+#  #----------------
+#  @typedoc """
+#  The constraint (either a lambda, module (default function constraint_directive), or module and function)
+#  when called with settings returns a method that for value fields accepts a list of possible values
+#  and sorts them by matches and excludes incompatible entries.
+#  For numeric fields it returns a method that modifies a range selection.
+#  """
+#  @type constraint_entry :: record(:constraint_entry, constraint: any, settings: any)
+#  Record.defrecord(:constraint_entry, constraint: nil, settings: nil)
+#
+#  # ********************************
+#  # Directive Range Entry Selector Records
+#  # ********************************
+#  @typedoc """
+#  A Range constraint specifies rules and selection logic for which
+#  values a numeric float or discrete entry can have.
+#
+#  - equation a list of equations putting constraints on the value X.
+#  - select: rule for final concrete value to pick. Highset, Lowest, Nearest, NearestBelow, NearestAbove.
+#  """
+#  Record.defrecord(:range_constraint, equations: [], select: nil)
+
+  # *******************************************************
+  # Other Records
+  # *******************************************************
+
+
   # ----------------------------
   # stack_entry Record
   # ----------------------------
-  Record.defrecord(:stack_entry, item: nil)
-
   @typedoc """
   Reference to a stack entry.
   """
   @type stack_entry :: record(:stack_entry, item: any)
+  Record.defrecord(:stack_entry, item: nil)
+
 
   # ----------------------------
   # option_entry Record
