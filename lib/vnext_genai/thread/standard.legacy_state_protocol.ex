@@ -254,7 +254,7 @@ defimpl GenAI.Thread.LegacyStateProtocol, for: GenAI.Thread.Standard do
       errors = errors(tools)
       cond do
         errors != [] ->
-          {:error, {:format_toola, errors}}
+          {:error, {:format_tools, errors}}
         tools == [] ->
           {:ok, {nil, thread_context}}
         :else ->

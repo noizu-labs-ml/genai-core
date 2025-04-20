@@ -5,7 +5,6 @@ defmodule GenAI.Session.State.Directive do
   @vsn 1.0
   
   defstruct [
-    stub: nil,
     vsn: @vsn
   ]
 end
