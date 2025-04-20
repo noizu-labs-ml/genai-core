@@ -1,7 +1,7 @@
 defmodule GenAI.VNext.SessionTest do
   use ExUnit.Case,
       async: true
-  @moduletag :wip
+  @moduletag :wip2
 
   describe "GenAI.Thread.Session Acceptance Tests" do
 

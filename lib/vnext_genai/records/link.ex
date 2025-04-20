@@ -16,6 +16,15 @@ defmodule GenAI.Records.Link do
   @type graph_handle :: record(:graph_handle, scope: :standard | :local | :global, name: G.node_handle())
   Record.defrecord(:graph_handle, scope: :standard, name: nil)
 
+  
+  @typedoc """
+  Record container a graph node, the link leading to the node and immeidate
+  parent of the graph node.
+  """
+  @type element_context :: record(:element_context, element: term, link: term, container: term)
+  Record.defrecord(:element_context, element: nil, link: nil, container: nil)
+  
+  
   @typedoc """
   Element lookup entries point from the Graph Root to nested elements.
   """

@@ -4,10 +4,11 @@ defmodule GenAI.Thread.Session do
   """
   @vsn 1.0
   require GenAI.Records.Link
+  require GenAI.Records.Node
 #  require GenAI.Records.Session
 #  alias GenAI.Records.Session, as: Node
   alias GenAI.Session.Runtime
-  alias GenAI.Session.State
+  #alias GenAI.Session.State
 
 
   defstruct [
@@ -297,6 +298,24 @@ defmodule GenAI.Thread.Session do
     #-------------------------------------
     #
     #-------------------------------------
+    defp initialize_session(command, session, context, options) do
+      with %{state: state, runtime: runtime} <-
+             session,
+           {:ok, runtime} <-
+             Runtime.command(runtime, command, context, options),
+           {:ok, state} <-
+             GenAI.Session.State.initialize(state, runtime, context, options),
+           {:ok, {state, runtime}} <-
+             GenAI.Session.State.monitor(state, runtime, context, options)
+        do
+        {:ok, %GenAI.Thread.Session{session| state: state, runtime: runtime}}
+      end
+    end
+    
+    
+    #-------------------------------------
+    #
+    #-------------------------------------
     @doc """
     Run inference.
 
@@ -309,60 +328,20 @@ defmodule GenAI.Thread.Session do
     def execute(thread_context, command, context, options \\ nil)
     def execute(session, :run = command, context, options) do
       context = context || Noizu.Context.system()
-
-      # Runtime
-      session = session.runtime
-                |> Runtime.command(command, context, options)
-                |> apply_runtime(session)
-      # State
-      session = session.state
-                |> GenAI.Session.State.initialize(session.runtime, context, options)
-                |> apply_state(session)
-
-      # Setup Monitor
-      session = with {:ok, {state, runtime}} <-
-                       GenAI.Session.State.monitor(
-                         session.state,
-                         session.runtime,
-                         context,
-                         options
-                       ) do
-        %{session| state: state, runtime: runtime}
+      
+      with {:ok, session} <-
+             initialize_session(command, session, context, options),
+           GenAI.Records.Node.process_end(session: session) <-
+             GenAI.Graph.Root.process_node(session.root, nil, nil, session, context, options)
+        do
+        # We now have a session populated with directives.
+        # We need to expand directives then run inferences.
+        response = [:get_model, :get_provider, :call_provider_execute]
+        {:ok, {response, session}}
       end
-
-#      scope = starting_scope(session.root, nil, nil, session)
-
-      process_response = [:get_model, :get_provider, :call_provider_execute]
-      # Get effective model
-      # Get effective provider
-      # Call provider execute
-      {:ok, {process_response, session}}
-
-      #
-#      with Node.process_end(update: update) <-
-#             GenAI.Thread.SessionProtocol.process_node(
-#               session.root, scope, context, options
-#             ),
-#           {:ok, session} <- merge_scope(update, session) do
-#
-#        process_response = [:get_model, :get_provider, :call_provider_execute]
-#        # Get effective model
-#        # Get effective provider
-#        # Call provider execute
-#        {:ok, {process_response, session}}
-#      end
     end
 
 
-    def apply_runtime({:ok, runtime}, session) do
-      %{session| runtime: runtime}
-    end
-    def apply_state({:ok, state}, session) do
-      %{session| state: state}
-    end
-    def apply_root({:ok, root}, session) do
-      %{session| root: root}
-    end
 
 #    def merge_scope(Node.scope(session_state: state, session_root: root, session_runtime: runtime), session) do
 #       {:ok,  %{session| state: state, runtime: runtime, root: root}}
