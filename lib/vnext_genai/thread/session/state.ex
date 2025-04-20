@@ -79,6 +79,15 @@ defmodule GenAI.Session.State do
     {:ok, {state, runtime}}
   end
 
+  #------------------------
+  # add_directive/4
+  #------------------------
+  def add_directive(state, directive, context, options \\ nil)
+  def add_directive(state, directive, _, _) do
+    state = update_in(state, [Access.key(:directives)], & [directive | &1])
+    {:ok, state}
+  end
+  
 #
 #  # ------------------------
 #  # apply_setting_path/1

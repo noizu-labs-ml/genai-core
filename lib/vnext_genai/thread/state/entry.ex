@@ -14,7 +14,7 @@ defmodule GenAI.State.Entry do
     # temp logic
     this
     |> put_in([Access.key(:selectors)], selector)
-    |> put_in([Access.key(:effective_value), :pending])
+    |> put_in([Access.key(:effective_value)], :pending)
   end
   
 end
