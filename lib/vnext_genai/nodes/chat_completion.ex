@@ -6,7 +6,7 @@ defmodule GenAI.ChatCompletion do
 
   use GenAI.Graph.NodeBehaviour
   @derive GenAI.Graph.NodeProtocol
-  @derive GenAI.Thread.SessionProtocol
+  #@derive GenAI.Thread.SessionProtocol
 
   defnodestruct(
     model: nil,

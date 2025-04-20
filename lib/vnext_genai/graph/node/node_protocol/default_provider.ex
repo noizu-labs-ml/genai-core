@@ -433,12 +433,15 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
     end
   end
 
-#  # -------------------------
-#  # process_node/4
-#  # -------------------------
-#  def process_node(graph_node, scope, context, options) do
-#    :"..."
-#  end
+  # -------------------------
+  # process_node/6
+  # -------------------------
+  def process_node(graph_node, graph_link, graph_container, session, context, options)
+  def process_node(graph_node, graph_link, graph_container, session, context, options) do
+
+  end
+
+
 
 
 end

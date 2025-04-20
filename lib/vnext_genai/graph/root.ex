@@ -126,23 +126,23 @@ defmodule GenAI.Graph.Root do
 
 end
 
-
-defimpl GenAI.Thread.SessionProtocol, for: GenAI.Graph.Root do
-  require GenAI.Records.Session
-  alias GenAI.Records.Session, as: Node
-  
-  def process_node(subject, scope, context, options) do
-    subject = subject
-              |> GenAI.Graph.Root.merge_lookup_table_entries(GenAI.Graph.NodeProtocol.build_node_lookup(subject.graph, []))
-              |> GenAI.Graph.Root.merge_handles(GenAI.Graph.NodeProtocol.build_handle_lookup(subject.graph, []))
-    
-    updated_scope = Node.scope(
-      scope,
-      graph_node: subject.graph,
-      graph_link: nil,
-      graph_container: subject,
-      session_root: subject
-    )
-    GenAI.Thread.SessionProtocol.process_node(subject.graph, updated_scope, context, options)
-  end
-end
+#
+#defimpl GenAI.Thread.SessionProtocol, for: GenAI.Graph.Root do
+#  require GenAI.Records.Session
+#  alias GenAI.Records.Session, as: Node
+#
+#  def process_node(subject, scope, context, options) do
+#    subject = subject
+#              |> GenAI.Graph.Root.merge_lookup_table_entries(GenAI.Graph.NodeProtocol.build_node_lookup(subject.graph, []))
+#              |> GenAI.Graph.Root.merge_handles(GenAI.Graph.NodeProtocol.build_handle_lookup(subject.graph, []))
+#
+#    updated_scope = Node.scope(
+#      scope,
+#      graph_node: subject.graph,
+#      graph_link: nil,
+#      graph_container: subject,
+#      session_root: subject
+#    )
+#    GenAI.Thread.SessionProtocol.process_node(subject.graph, updated_scope, context, options)
+#  end
+#end

@@ -6,7 +6,7 @@ defmodule GenAI.Message.ToolResponse do
 
   use GenAI.Graph.NodeBehaviour
   @derive GenAI.Graph.NodeProtocol
-  @derive GenAI.Thread.SessionProtocol
+  #@derive GenAI.Thread.SessionProtocol
   defnodestruct(tool_name: nil, tool_response: nil, tool_call_id: nil)
   defnodetype(tool_name: term, tool_response: term, tool_call_id: term)
 

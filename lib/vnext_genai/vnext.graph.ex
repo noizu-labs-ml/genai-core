@@ -690,75 +690,75 @@ defimpl GenAI.Graph.MermaidProtocol, for: GenAI.VNext.Graph do
     end
   end
 end
-
-defimpl GenAI.Thread.SessionProtocol, for: GenAI.VNext.Graph do
-  require GenAI.Records.Session
-  require GenAI.Records.Link
-  alias GenAI.Records.Session, as: Node
-  alias GenAI.Records.Link
-  
-  def process_node(subject, scope, context, options) do
-    with {:ok, head} <- GenAI.VNext.Graph.head(subject)  do
-      updated_scope = Node.scope(
-        scope,
-        graph_node: head,
-        graph_link: nil,
-        graph_container: subject,
-      )
-      do_process_node(updated_scope, context, options)
-    end
-  end
-  
-  def do_process_node(
-        Node.scope(
-          graph_node: node,
-        ) = scope,
-        context,
-        options) do
-    case GenAI.Thread.SessionProtocol.process_node(node, scope, context, options) do
-      Node.process_next(link: link, update: update) ->
-        
-        with {:ok, scope} <- merge_scope(scope, update),
-             {:ok, Link.connector(node: target)} <- GenAI.Graph.Link.target_connector(link),
-             {:ok, next} <- GenAI.Graph.Root.element(Node.scope(scope, :session_root), target) do
-          scope = Node.scope(scope, graph_node: next, graph_link: link)
-          do_process_node(scope, context, options)
-        end
-      
-      x = Node.process_end() -> x
-      x = Node.process_error() -> x
-      x = Node.process_yield() -> x
-    end
-  end
-  
-  def merge_scope(scope, update) do
-    Node.scope(
-      graph_node: aa,
-      graph_link: ab ,
-      graph_container: ac,
-      session_root: ad,
-      session_state: ae,
-      session_runtime: af
-    ) = scope
-    
-    Node.scope(
-      graph_node: ba,
-      graph_link: bb ,
-      graph_container: bc,
-      session_root: bd,
-      session_state: be,
-      session_runtime: bf
-    ) = update
-    
-    update = Node.scope(scope,
-      graph_node: ba || aa,
-      graph_link: bb || ab ,
-      graph_container: bc || ac,
-      session_root: bd || ad,
-      session_state: be || ae,
-      session_runtime: bf || af
-    )
-    {:ok, update}
-  end
-
-end
+#
+#defimpl GenAI.Thread.SessionProtocol, for: GenAI.VNext.Graph do
+#  require GenAI.Records.Session
+#  require GenAI.Records.Link
+#  alias GenAI.Records.Session, as: Node
+#  alias GenAI.Records.Link
+#
+#  def process_node(subject, scope, context, options) do
+#    with {:ok, head} <- GenAI.VNext.Graph.head(subject)  do
+#      updated_scope = Node.scope(
+#        scope,
+#        graph_node: head,
+#        graph_link: nil,
+#        graph_container: subject,
+#      )
+#      do_process_node(updated_scope, context, options)
+#    end
+#  end
+#
+#  def do_process_node(
+#        Node.scope(
+#          graph_node: node,
+#        ) = scope,
+#        context,
+#        options) do
+#    case GenAI.Thread.SessionProtocol.process_node(node, scope, context, options) do
+#      Node.process_next(link: link, update: update) ->
+#
+#        with {:ok, scope} <- merge_scope(scope, update),
+#             {:ok, Link.connector(node: target)} <- GenAI.Graph.Link.target_connector(link),
+#             {:ok, next} <- GenAI.Graph.Root.element(Node.scope(scope, :session_root), target) do
+#          scope = Node.scope(scope, graph_node: next, graph_link: link)
+#          do_process_node(scope, context, options)
+#        end
+#
+#      x = Node.process_end() -> x
+#      x = Node.process_error() -> x
+#      x = Node.process_yield() -> x
+#    end
+#  end
+#
+#  def merge_scope(scope, update) do
+#    Node.scope(
+#      graph_node: aa,
+#      graph_link: ab ,
+#      graph_container: ac,
+#      session_root: ad,
+#      session_state: ae,
+#      session_runtime: af
+#    ) = scope
+#
+#    Node.scope(
+#      graph_node: ba,
+#      graph_link: bb ,
+#      graph_container: bc,
+#      session_root: bd,
+#      session_state: be,
+#      session_runtime: bf
+#    ) = update
+#
+#    update = Node.scope(scope,
+#      graph_node: ba || aa,
+#      graph_link: bb || ab ,
+#      graph_container: bc || ac,
+#      session_root: bd || ad,
+#      session_state: be || ae,
+#      session_runtime: bf || af
+#    )
+#    {:ok, update}
+#  end
+#
+#end

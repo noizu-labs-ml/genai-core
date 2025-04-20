@@ -9,7 +9,7 @@ defmodule GenAI.Session.State do
   alias GenAI.Session.State.SettingEntry
   alias GenAI.Records, as: R
 
-  require GenAI.Records.Session
+  #require GenAI.Records.Session
   defstruct directives: [],
             directive_position: 0,
 #            thread: [],

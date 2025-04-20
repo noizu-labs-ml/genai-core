@@ -4,8 +4,8 @@ defmodule GenAI.Thread.Session do
   """
   @vsn 1.0
   require GenAI.Records.Link
-  require GenAI.Records.Session
-  alias GenAI.Records.Session, as: Node
+#  require GenAI.Records.Session
+#  alias GenAI.Records.Session, as: Node
   alias GenAI.Session.Runtime
   alias GenAI.Session.State
 
@@ -330,20 +330,27 @@ defmodule GenAI.Thread.Session do
         %{session| state: state, runtime: runtime}
       end
 
-      scope = starting_scope(session.root, nil, nil, session)
+#      scope = starting_scope(session.root, nil, nil, session)
 
-      with Node.process_end(update: update) <-
-             GenAI.Thread.SessionProtocol.process_node(
-               session.root, scope, context, options
-             ),
-           {:ok, session} <- merge_scope(update, session) do
+      process_response = [:get_model, :get_provider, :call_provider_execute]
+      # Get effective model
+      # Get effective provider
+      # Call provider execute
+      {:ok, {process_response, session}}
 
-        process_response = [:get_model, :get_provider, :call_provider_execute]
-        # Get effective model
-        # Get effective provider
-        # Call provider execute
-        {:ok, {process_response, session}}
-      end
+      #
+#      with Node.process_end(update: update) <-
+#             GenAI.Thread.SessionProtocol.process_node(
+#               session.root, scope, context, options
+#             ),
+#           {:ok, session} <- merge_scope(update, session) do
+#
+#        process_response = [:get_model, :get_provider, :call_provider_execute]
+#        # Get effective model
+#        # Get effective provider
+#        # Call provider execute
+#        {:ok, {process_response, session}}
+#      end
     end
 
 
@@ -357,21 +364,21 @@ defmodule GenAI.Thread.Session do
       %{session| root: root}
     end
 
-    def merge_scope(Node.scope(session_state: state, session_root: root, session_runtime: runtime), session) do
-       {:ok,  %{session| state: state, runtime: runtime, root: root}}
-    end
-
-    def starting_scope(graph_node, graph_link, graph_container, session) do
-      Node.scope(
-        graph_node: graph_node,
-        graph_link: graph_link,
-        graph_container: graph_container,
-        session_state: session.state,
-        session_root: session.root,
-        session_runtime: session.runtime
-      )
-    end
-
+#    def merge_scope(Node.scope(session_state: state, session_root: root, session_runtime: runtime), session) do
+#       {:ok,  %{session| state: state, runtime: runtime, root: root}}
+#    end
+#
+#    def starting_scope(graph_node, graph_link, graph_container, session) do
+#      Node.scope(
+#        graph_node: graph_node,
+#        graph_link: graph_link,
+#        graph_container: graph_container,
+#        session_state: session.state,
+#        session_root: session.root,
+#        session_runtime: session.runtime
+#      )
+#    end
+#
 
 
       #  #-------------------------------------

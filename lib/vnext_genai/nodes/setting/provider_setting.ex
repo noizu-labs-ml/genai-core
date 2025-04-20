@@ -10,7 +10,7 @@ defmodule GenAI.Setting.ProviderSetting do
 
   use GenAI.Graph.NodeBehaviour
   @derive GenAI.Graph.NodeProtocol
-  @derive GenAI.Thread.SessionProtocol
+  #@derive GenAI.Thread.SessionProtocol
   defnodestruct(provider: nil, setting: nil, value: nil)
   defnodetype(provider: term, setting: term, value: term)
 

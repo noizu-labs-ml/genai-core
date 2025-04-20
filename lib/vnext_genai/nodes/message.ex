@@ -6,7 +6,7 @@ defmodule GenAI.Message do
 
   use GenAI.Graph.NodeBehaviour
   @derive GenAI.Graph.NodeProtocol
-  @derive GenAI.Thread.SessionProtocol
+  #@derive GenAI.Thread.SessionProtocol
   defnodestruct(role: nil, content: nil)
   defnodetype(role: term, content: term)
 
