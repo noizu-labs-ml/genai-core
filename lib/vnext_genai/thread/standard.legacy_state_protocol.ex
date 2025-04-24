@@ -220,8 +220,8 @@ defimpl GenAI.Thread.LegacyStateProtocol, for: GenAI.Thread.Standard do
     {:ok, {thread_context.state.safety_settings |> Enum.to_list(), thread_context}}
   end
 
-  defp encode_message(encoder, message, thread_context, context, options) do
-    case encoder.encode_message(message, thread_context, context, options) do
+  defp encode_message(encoder, message, model, thread_context, context, options) do
+    case encoder.encode_message(message, model, thread_context, context, options) do
       {:ok, {encoded_message, thread_context}} -> {encoded_message, thread_context}
       error = {:error, _} -> {error, thread_context}
     end
@@ -231,7 +231,7 @@ defimpl GenAI.Thread.LegacyStateProtocol, for: GenAI.Thread.Standard do
     with {:ok, encoder} <- GenAI.ModelProtocol.encoder(model) do
       {messages, thread_context} = thread_context.state.messages
                                    |> Enum.reverse()
-                                   |> Enum.map_reduce(thread_context, & encode_message(encoder, &1, &2, context, options))
+                                   |> Enum.map_reduce(thread_context, & encode_message(encoder, &1, model, &2, context, options))
       errors = errors(messages)
       if errors != [] do
         {:error, {:format_messages, errors}}
@@ -241,8 +241,8 @@ defimpl GenAI.Thread.LegacyStateProtocol, for: GenAI.Thread.Standard do
     end
   end
 
-  defp encode_tool(encoder, {_, tool}, thread_context, context, options) do
-    case encoder.encode_tool(tool, thread_context, context, options) do
+  defp encode_tool(encoder, {_, tool}, model, thread_context, context, options) do
+    case encoder.encode_tool(tool, model, thread_context, context, options) do
       {:ok, {encoded_tool, thread_context}} -> {encoded_tool, thread_context}
       error = {:error, _} -> {error, thread_context}
     end
@@ -251,7 +251,7 @@ defimpl GenAI.Thread.LegacyStateProtocol, for: GenAI.Thread.Standard do
   def effective_tools(thread_context, model, context, options) do
     with {:ok, encoder} <- GenAI.ModelProtocol.encoder(model) do
       {tools, thread_context} = thread_context.state.tools
-                                |> Enum.map_reduce(thread_context, & encode_tool(encoder, &1, &2, context, options))
+                                |> Enum.map_reduce(thread_context, & encode_tool(encoder, &1, model, &2, context, options))
       errors = errors(tools)
       cond do
         errors != [] ->
