@@ -38,7 +38,7 @@ defmodule GenAI.InferenceProvider.DefaultProvider do
              <- api_call(req_method, req_endpoint, req_headers, req_body),
              {:ok, json} <- Jason.decode(response_body, keys: :atoms),
              {:ok, response} <- model_encoder.completion_response(json, model, effective,  session, context, options),
-             response <- put_in(response, [Access.key(:seed)], req_body[:random_seed]) do
+             response <- put_in(response, [Access.key(:seed)], req_body[:seed] || req_body[:random_seed]) do
           {:ok, {response, session}}
         end
       end
