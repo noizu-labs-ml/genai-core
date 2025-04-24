@@ -236,7 +236,7 @@ defimpl GenAI.Thread.LegacyStateProtocol, for: GenAI.Thread.Standard do
       if errors != [] do
         {:error, {:format_messages, errors}}
       else
-        effective_value_fetch_success(messages, thread_context)
+        encoder.normalize_messages(messages, model, thread_context, context, options)
       end
     end
   end

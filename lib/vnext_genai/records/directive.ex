@@ -10,6 +10,45 @@ defmodule GenAI.Records.Directive do
   
   
   #=============================================================================
+  # Support Entries
+  #=============================================================================
+  @typeodc """
+  Entry for tracking which hyperparms are supported by a model.
+  """
+ 
+  @typedoc "type of supported parm"
+  @type param_type :: :float | :int | :bool | :string | :list | :map
+  
+  @typedoc "input key for param: value pulled from effective settings"
+  @type param :: term
+  
+  @typedoc "alias to inject param as when building model request."
+  @type as :: term
+  
+  @typedoc "Optional lambda method to check (model, setting, settings, session, context, options) to determine if setting is valid/supported."
+  @type sentinel :: term
+  
+  @typedoc "Optional lambda method to adjust setting value before setting in inference request."
+  @type adjuster :: term
+  
+  @typedoc "allowed range of values for param"
+  @type range :: term() #  {{:"(", 23.32}, :infinity}
+
+  @typedoc "flag if field is required"
+  @type required :: boolean()
+
+  @typeodc "Default value is only used for required settings if not provided."
+  @type default :: number
+  
+  @typedoc """
+  Supported Parameter Record.
+  """
+  @type hyper_param :: record(:hyper_param, param: param, type: param_type, as: as, required: required, sentinel: sentinel, adjuster: adjuster, min: number | :infnity, max: number | :infinity, default: number)
+  Record.defrecord(:hyper_param, param: nil,  type: :float,  as: nil, required: false, sentinel: nil, adjuster: nil, min: :infinity, max: :infinity, default: nil)
+  
+  
+  
+  #=============================================================================
   # entry value records
   #=============================================================================
   

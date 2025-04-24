@@ -557,7 +557,7 @@ defmodule GenAI.Thread.Session do
         if errors != [] do
           {:error, {:format_messages, errors}}
         else
-          {:ok, {messages, thread_context}}
+          encoder.normalize_messages(messages, model, thread_context, context, options)
         end
       end
     end

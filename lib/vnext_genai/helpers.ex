@@ -2,6 +2,7 @@ defmodule GenAI.Helpers do
   @moduledoc """
   A collection of helper functions for VNextGenAI.
   """
+  
 
   @doc """
   label block response

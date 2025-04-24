@@ -40,7 +40,7 @@ defimpl GenAI.ModelProtocol, for: [GenAI.Model] do
 
   def handle(subject), do: {:ok, subject.model}
 
-  def encoder(subject), do: {:ok, subject.encoder || subject.provider}
+  def encoder(subject), do: {:ok, subject.encoder || Module.concat([subject.provider, Encoder])}
 
   def provider(subject), do: {:ok, subject.provider}
 
