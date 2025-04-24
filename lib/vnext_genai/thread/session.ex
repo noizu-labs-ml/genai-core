@@ -28,6 +28,48 @@ defmodule GenAI.Thread.Session do
     }
   end
 
+
+
+
+
+
+
+  #------------------------
+  # append_directive/4
+  #------------------------
+  def append_directive(session, directive, context, options \\ nil)
+  def append_directive(session, directive, _, _) do
+    update = update_in(session, [Access.key(:state), Access.key(:directives)], & [directive | &1])
+    {:ok, update}
+  end
+
+  #------------------------
+  # pending_directives?/1
+  #------------------------
+  def pending_directives?(session)
+  def pending_directives?(session),
+      do: session.state.directive_position < length(session.state.directives)
+
+  #------------------------
+  # apply_directives/3
+  #------------------------
+  def apply_directives(session, context, options)
+  def apply_directives(session, context, options) do
+    offset = -(session.state.directive_position + 1)
+    session = session.state.directives
+              |> Enum.slice(0..offset//1)
+              |> Enum.reverse()
+              |> Enum.reduce(session,
+                   fn
+                     directive, session ->
+                       {:ok, session} = GenAI.Session.State.Directive.apply_directive(directive, session, context, options)
+                       session
+                   end
+                 )
+              |> put_in([Access.key(:state), Access.key(:directive_position)], length(session.state.directives))
+    {:ok, session}
+  end
+
   #-------------------------------------------
   # GenAI.ThreadProtocol
   #---------------------------------------------

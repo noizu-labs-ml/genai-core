@@ -109,51 +109,8 @@ defmodule GenAI.Session.State do
     {:ok, {state, runtime}}
   end
 
-  #------------------------
-  # add_directive/4
-  #------------------------
-  def add_directive(state, directive, context, options \\ nil)
-  def add_directive(state, directive, _, _) do
-    state = update_in(state, [Access.key(:directives)], & [directive | &1])
-    {:ok, state}
-  end
-  
-#
-#  # ------------------------
-#  # apply_setting_path/1
-#  # ------------------------
-#  @doc """
-#  Injection point for a selector/constraint path - e.g. state.settings, state.options, state.provider_settings, etc.
-#  """
-#  @spec apply_setting_path(R.Session.session_entry() | R.Session.entry_reference()) :: list(term)
-#  def apply_setting_path(R.Session.entry_reference(entry: entry)), do: apply_setting_path(entry)
-#  def apply_setting_path(R.Session.stack_entry(item: item)), do: [Access.key(:stack), item]
-#
-#  def apply_setting_path(R.Session.option_entry(option: option)),
-#    do: [Access.key(:options), option]
-#
-#  def apply_setting_path(R.Session.setting_entry(setting: setting)),
-#    do: [Access.key(:settings), setting]
-#
-#  def apply_setting_path(R.Session.tool_entry(tool: tool)),
-#    do: [Access.key(:tools), tool]
-#
-#  def apply_setting_path(R.Session.model_entry()),
-#    do: [Access.key(:model)]
-#
-#  def apply_setting_path(R.Session.model_setting_entry(model: model, setting: setting)) do
-#    {:ok, model_name} = GenAI.ModelProtocol.name(model)
-#    {:ok, provider_name} = GenAI.ModelProtocol.provider(model)
-#    key = {provider_name, model_name}
-#    [Access.key(:model_settings), Access.key(key, %{}), setting]
-#  end
-#
-#  def apply_setting_path(R.Session.provider_setting_entry(provider: provider, setting: setting)),
-#    do: [Access.key(:provider_settings), Access.key(provider, %{}), setting]
-#
-#  def apply_setting_path(R.Session.safety_setting_entry(category: category)),
-#      do: [Access.key(:safety_settings), Access.key(category)]
-#
+
+  #
 #  # ------------------------
 #  # reference_expired?/5
 #  # ------------------------

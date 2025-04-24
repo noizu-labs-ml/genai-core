@@ -112,6 +112,46 @@ defmodule GenAI.Session.StateTest do
       assert session.state.settings.foo.value == :bop
       assert session.state.settings.biz.value == :boop
     end
+
+    test "Add and apply directives" do
+      context = Noizu.Context.system()
+      directive_a = %GenAI.Session.State.Directive{
+        source: {:node, :A},
+        entries: [
+          {setting_entry(setting: :foo), concrete_value(value: :bop)},
+          {setting_entry(setting: :biz), concrete_value(value: :boop)}
+        ],
+        fingerprint: {:node, :A}
+      }
+      directive_b = %GenAI.Session.State.Directive{
+        source: {:node, :B},
+        entries: [
+          {setting_entry(setting: :fiz), concrete_value(value: :fop)},
+        ],
+        fingerprint: {:node, :B}
+      }
+
+      session = %GenAI.Thread.Session{state: fixture()}
+      {:ok, session} = session
+                       |> GenAI.Thread.Session.append_directive(directive_a, context, [])
+
+      assert GenAI.Thread.Session.pending_directives?(session) == true
+      {:ok, session} = GenAI.Thread.Session.apply_directives(session, context, [])
+      assert GenAI.Thread.Session.pending_directives?(session) == false
+      assert session.state.settings.foo.value == :bop
+      assert session.state.settings.biz.value == :boop
+
+
+      {:ok, session} = session
+                       |> GenAI.Thread.Session.append_directive(directive_b, context, [])
+      assert GenAI.Thread.Session.pending_directives?(session) == true
+      {:ok, session} = GenAI.Thread.Session.apply_directives(session, context, [])
+      assert GenAI.Thread.Session.pending_directives?(session) == false
+
+      assert session.state.settings.fiz.value == :fop
+
+
+    end
   
   end
   

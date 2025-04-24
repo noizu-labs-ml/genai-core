@@ -22,7 +22,16 @@ defmodule GenAI.Records.Directive do
   #=============================================================================
   # entry selector records
   #=============================================================================
-  
+
+  # ----------------------------
+  # message_entry Record
+  # ----------------------------
+  @typedoc """
+  Reference to a message list.
+  """
+  @type message_entry :: record(:message_entry, id: any)
+  Record.defrecord(:message_entry, id: nil)
+
   # ----------------------------
   # monitor_entry Record
   # ----------------------------

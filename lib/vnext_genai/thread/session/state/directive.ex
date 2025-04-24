@@ -23,7 +23,17 @@ defmodule GenAI.Session.State.Directive do
                        )
     {:ok, %{session| state: updated_state}}
   end
-  
+
+  defp apply_directive_entry({entry = message_entry(id: id), value}, state, context, options) do
+    # update the message by id entry
+    # and append message to message list
+    state
+    |> update_in(
+         GenAI.Session.State.entry_path(entry),
+         &GenAI.Session.StateEntry.update_entry(&1, value, context, options)
+       )
+  end
+
   defp apply_directive_entry({entry, value}, state, context, options) do
     update_in(state, GenAI.Session.State.entry_path(entry), &GenAI.Session.StateEntry.update_entry(&1, value, context, options))
   end
