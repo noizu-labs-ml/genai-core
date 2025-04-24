@@ -2,17 +2,14 @@ defmodule GenAI.VNext.GraphTest do
   use ExUnit.Case,
     async: true
 
-
   doctest GenAI.VNext.Graph
 
   describe "Advanced Nested Links" do
-
     @doc """
     Build a complex graph with nested nodes and build nested node lookup table.
     the lookup table is a separate data structure stored in a new graph root structure
     """
     test "Build nested link lookup table" do
-
     end
 
     @doc """
@@ -23,18 +20,12 @@ defmodule GenAI.VNext.GraphTest do
     introduce a handle struct node_handle(scope, name)
     """
     test "Node Handle Scoping" do
-
     end
 
     @doc """
     Clone Operation to generate new unique ids when copying a graph segment.
     """
     test "Graph Clone" do
-
     end
-
-
-
   end
-
 end

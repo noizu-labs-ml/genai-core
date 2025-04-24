@@ -25,8 +25,8 @@ defmodule GenAI.InferenceProvider.DefaultProvider do
 
   def do_run(module, session, context, options \\ nil) do
     with {:ok, {model, session}} <- ThreadProtocol.effective_model(session, context, options),
-         {:ok, model_encoder} <- ModelProtocol.encoder(model),
-         {:ok, {effective, session}} <- module.effective_settings(session, model, context, options),
+         {:ok, model_encoder} <- GenAI.ModelProtocol.encoder(model),
+         {:ok, {effective, session}} <- module.effective_settings(model, session, context, options),
          {:ok, {tools, session}} <- ThreadProtocol.effective_tools(session, model, context, options),
          {:ok, {messages, session}} <- ThreadProtocol.effective_messages(session, model, context, options) do
       
@@ -66,7 +66,7 @@ defmodule GenAI.InferenceProvider.DefaultProvider do
   end
   
   def do_endpoint(module, model, settings, session, context, options) do
-    with {:ok, model_encoder} <- ModelProtocol.encoder(model) do
+    with {:ok, model_encoder} <- GenAI.ModelProtocol.encoder(model) do
       model_encoder.endpoint(model, settings, session, context, options)
     end
   end
@@ -86,8 +86,8 @@ defmodule GenAI.InferenceProvider.DefaultProvider do
   
   def do_headers(module, model, settings, session, context, options)
   def do_headers(_, model, settings, session, context, options) do
-    with {:ok, model_encoder} <- ModelProtocol.encoder(model) do
-      model_encoder.header(model, settings, session, context, options)
+    with {:ok, model_encoder} <- GenAI.ModelProtocol.encoder(model) do
+      model_encoder.headers(model, settings, session, context, options)
     end
   end
   
@@ -107,7 +107,7 @@ defmodule GenAI.InferenceProvider.DefaultProvider do
   
   def do_request_body(module, model, messages, tools,  settings, session, context, options)
   def do_request_body(module, model, messages, tools,  settings, session, context, options) do
-    with {:ok, model_encoder} <- ModelProtocol.encoder(model) do
+    with {:ok, model_encoder} <- GenAI.ModelProtocol.encoder(model) do
       model_encoder.request_body(model, messages, tools,  settings, session, context, options)
     end
   end
@@ -131,11 +131,11 @@ defmodule GenAI.InferenceProvider.DefaultProvider do
   end
   
   def do_effective_settings(module, model, session, context, options)
-  def do_effective_settings(module, model, session, _, _) do
-    with {:ok, {settings, session}} <- GenAI.ThreadProtocol.effective_settings(session),
-         {:ok, {safety_settings, session}} <- GenAI.ThreadProtocol.effective_safety_settings(session),
-         {:ok, {model_settings, session}} <- GenAI.ThreadProtocol.effective_model_settings(session, model),
-         {:ok, {provider_settings, session}} <- GenAI.ThreadProtocol.effective_provider_settings(session, model) do
+  def do_effective_settings(module, model, session, context, options) do
+    with {:ok, {settings, session}} <- GenAI.ThreadProtocol.effective_settings(session, context, options),
+         {:ok, {safety_settings, session}} <- GenAI.ThreadProtocol.effective_safety_settings(session, context, options),
+         {:ok, {model_settings, session}} <- GenAI.ThreadProtocol.effective_model_settings(session, model, context, options),
+         {:ok, {provider_settings, session}} <- GenAI.ThreadProtocol.effective_provider_settings(session, model, context, options) do
       
       x = %{
         config_settings: Application.get_env(:genai, module.config_key(), []),

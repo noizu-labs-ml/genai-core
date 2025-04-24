@@ -7,10 +7,8 @@ defmodule GenAI.Graph do
 
   @vsn 1.0
 
-  defstruct [
-    nodes: [],
-    vsn: @vsn
-  ]
+  defstruct nodes: [],
+            vsn: @vsn
 
   @doc """
   Appends a new node to the graph.

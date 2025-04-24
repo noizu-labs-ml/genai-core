@@ -10,6 +10,7 @@ defmodule GenAI.Model.EncoderBehaviour do
   @type uri ::  url
   @type message :: any
   @type messages :: list()
+  @type json :: any
   @type method :: :get | :post | :put | :delete | :option | :patch
   @type request_body :: any
   @type tool :: any()
@@ -18,6 +19,8 @@ defmodule GenAI.Model.EncoderBehaviour do
   #**********************************
   # Prepare Requests
   #**********************************
+  
+  @callback base_url(model, settings, session, context, options) :: {:ok, url} | {:ok, {url, session}} | {:error, term}
   
   #---------------------------------
   # headers
@@ -42,6 +45,8 @@ defmodule GenAI.Model.EncoderBehaviour do
   Prepare request body to be passed to inference call.
   """
   @callback request_body(model, messages, tools, settings, session, context, options) :: {:ok, headers} | {:ok, {headers, session}} | {:error, term}
+  
+  @callback completion_response(json, model, settings,  session, context, options) :: {:ok, completion} | {:error, term}
   
   #**********************************
   # Message and Tool Formatting
@@ -101,6 +106,9 @@ defmodule GenAI.Model.EncoderBehaviour do
   """
   @callback hyper_params(model, session, context, options) :: {:ok, {settings, session}} | {:error, term}
   
+  @callback default_hyper_params(model, session, context, options) :: {:ok, {settings, session}} | {:error, term}
+  
+  
   #=============================================================================
   #=============================================================================
   # USING MACRO
@@ -117,16 +125,26 @@ defmodule GenAI.Model.EncoderBehaviour do
       require GenAI.Helpers
       
       
-      #**********************************
-      # Prepare Requests
-      #**********************************
+      @base_url unquote(options[:base_url]) || "https://api.sandbox.local"
+      
+      @default_encoder_protocol ((Module.split(__MODULE__) |> Enum.slice(0..-2)) ++ [EncoderProtocol]) |> Module.concat()
+      @encoder_protocol unquote(options[:encoder_protocol]) || @default_encoder_protocol
+      
+                          #---------------------------------
+      # encoder_protocol
+      #---------------------------------
+      @doc "Prepare endpoint and method to make inference call to"
+      def encoder_protocol(model, session, context, options)
+      def encoder_protocol(_, _ ,_ ,_),
+          do: {:ok, @encoder_protocol}
       
       #---------------------------------
       # endpoint/5
       #---------------------------------
       @doc "Prepare endpoint and method to make inference call to"
-      def endpoint(model, settings, session, context, options),
-          do: @provider.endpoint(__MODULE__, model, settings, session, context, options)
+      def endpoint(model, settings, session, context, options)
+      def endpoint(_, _, session ,_ ,_),
+          do: {:ok, {{:post, "#{@base_url}/v1/chat/completions"}, session}}
       
       #---------------------------------
       # headers/5
@@ -142,6 +160,10 @@ defmodule GenAI.Model.EncoderBehaviour do
       def request_body(model, messages, tools,  settings, session, context, options),
           do: @provider.request_body(__MODULE__, model, messages, tools, settings, session, context, options)
       
+      
+      def completion_response(json, model, settings,  session, context, options),
+          do: @provider.completion_response(__MODULE__, json, model, settings, session, context, options)
+          
       #**********************************
       # Message and Tool Formatting
       # and Normalization
@@ -154,7 +176,7 @@ defmodule GenAI.Model.EncoderBehaviour do
       Format tool for provider/model type.
       """
       def encode_tool(tool, model, session, context, options),
-          do: @provider.request_body(__MODULE__, tool, model, session, context, options)
+          do: @provider.encode_tool(__MODULE__, tool, model, session, context, options)
       
       
       
@@ -164,8 +186,8 @@ defmodule GenAI.Model.EncoderBehaviour do
       @doc """
       Format message for provider/model type.
       """
-      def encode_message(message, session, context, options),
-          do: @provider.encode_message(__MODULE__, message, session, context, options)
+      def encode_message(message, model, session, context, options),
+          do: @provider.encode_message(__MODULE__, message, model, session, context, options)
       
       #---------------------------------
       # normalize_messages
@@ -210,9 +232,23 @@ defmodule GenAI.Model.EncoderBehaviour do
       def hyper_params(model, settings, session, context, options),
           do: @provider.hyper_params(__MODULE__, model, settings, session, context, options)
       
+      def default_hyper_params(model, settings, session, context, options),
+          do: @provider.default_hyper_params(__MODULE__, model, settings, session, context, options)
+          
       defoverridable [
-        hyper_params: 4,
+        encoder_protocol: 4,
+        endpoint: 5,
+        headers: 5,
+        request_body: 7,
+        encode_message: 5,
+        encode_tool: 5,
+        normalize_messages: 5,
+        with_dynamic_setting: 4,
+        with_dynamic_setting: 5,
+        with_dynamic_setting_as: 5,
+        with_dynamic_setting_as: 6,
         hyper_params: 5,
+        default_hyper_params: 5,
       ]
     end
   end

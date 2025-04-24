@@ -8,17 +8,24 @@ defmodule GenAI.InferenceProvider.Helpers do
     pool_timeout = options[:pool_timeout] || 600_000
     receive_timeout = options[:receive_timeout] || 600_000
     request_timeout = options[:request_timeout] || 600_000
-    [pool_timeout: pool_timeout, receive_timeout: receive_timeout, request_timeout: request_timeout]
+
+    [
+      pool_timeout: pool_timeout,
+      receive_timeout: receive_timeout,
+      request_timeout: request_timeout
+    ]
   end
 
   @doc """
   Make API Call Via Finch.
   """
   def api_call(type, url, headers, body \\ nil, options \\ [])
+
   def api_call(type, url, headers, body = nil, options) do
     Finch.build(type, url, headers, body)
     |> Finch.request(GenAI.Finch, finch_options(options))
   end
+
   def api_call(type, url, headers, body, options) do
     with {:ok, serialized_body} <- Jason.encode(body) do
       Finch.build(type, url, headers, serialized_body)
@@ -26,8 +33,8 @@ defmodule GenAI.InferenceProvider.Helpers do
     else
       error ->
         raise GenAI.RequestError,
-              message: "Failed to encode request body: #{inspect(body)}",
-              details: error
+          message: "Failed to encode request body: #{inspect(body)}",
+          details: error
     end
   end
 
@@ -38,7 +45,9 @@ defmodule GenAI.InferenceProvider.Helpers do
     case settings[setting] do
       nil ->
         raise GenAI.RequestError, "Missing required setting: #{setting}"
-      v -> Map.put(body, setting, v)
+
+      v ->
+        Map.put(body, setting, v)
     end
   end
 
@@ -46,6 +55,7 @@ defmodule GenAI.InferenceProvider.Helpers do
   Set optional field if present.
   """
   def optional_field(body, _, nil), do: body
+
   def optional_field(body, field, value) do
     Map.put(body, field, value)
   end
@@ -54,6 +64,7 @@ defmodule GenAI.InferenceProvider.Helpers do
   Apply setting or default value if not present.
   """
   def with_setting(body, setting, settings, default \\ nil)
+
   def with_setting(body, setting, settings, default) do
     with_setting_as(body, setting, setting, settings, default)
   end
@@ -62,17 +73,12 @@ defmodule GenAI.InferenceProvider.Helpers do
   Apply setting as_setting or default value if not present.
   """
   def with_setting_as(body, as_setting, setting, settings, default \\ nil)
+
   def with_setting_as(body, as_setting, setting, settings, default) do
-    if value = (settings[setting] || default) do
+    if value = settings[setting] || default do
       Map.put(body, as_setting, value)
     else
       body
     end
   end
-
-
-
-
-
-
 end

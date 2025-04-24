@@ -13,7 +13,7 @@ defmodule GenAI.VNext.Graph do
   # alias VNextGenAI.Session.NodeProtocol.Records, as: Node
   import GenAI.Records.Link
   import GenAI.Records.Node
-  
+
   require GenAI.Records.Link
   require GenAI.Records.Node
   require GenAI.Types.Graph
@@ -41,26 +41,39 @@ defmodule GenAI.VNext.Graph do
     last_link: nil,
     settings: nil
   )
-  
-  
-  
+
   def process_node(%__MODULE__{} = subject, link, container, session, context, options) do
-    with {:ok, head} <- GenAI.VNext.Graph.head(subject)  do
+    with {:ok, head} <- GenAI.VNext.Graph.head(subject) do
       do_process_node(head, link, subject, session, context, options)
     end
   end
-  
+
   def do_process_node(subject, link, container, session, context, options) do
-    case GenAI.Graph.NodeProtocol.process_node(subject, link, container, session, context, options) do
-      GenAI.Records.Node.process_next(element: element_context(element: target, link: link, container: container), session: session) ->
+    case GenAI.Graph.NodeProtocol.process_node(
+           subject,
+           link,
+           container,
+           session,
+           context,
+           options
+         ) do
+      GenAI.Records.Node.process_next(
+        element: element_context(element: target, link: link, container: container),
+        session: session
+      ) ->
         do_process_node(target, link, container, session, context, options)
-      x = process_end() -> x
-      x = process_error() -> x
-      x = process_yield() -> x
+
+      x = process_end() ->
+        x
+
+      x = process_error() ->
+        x
+
+      x = process_yield() ->
+        x
     end
   end
-  
-  
+
   @spec do_new() :: __MODULE__.t()
   @spec do_new(keyword) :: __MODULE__.t()
   def do_new(options \\ nil)
@@ -92,7 +105,6 @@ defmodule GenAI.VNext.Graph do
       settings: settings
     }
   end
-
 
   @spec setting(__MODULE__.t(), atom, keyword, any) :: any
   def setting(%__MODULE__{settings: settings}, setting, options, default \\ nil) do
@@ -713,6 +725,3 @@ defimpl GenAI.Graph.MermaidProtocol, for: GenAI.VNext.Graph do
     end
   end
 end
-
-
-

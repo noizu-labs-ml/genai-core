@@ -5,7 +5,8 @@ defmodule GenAI.State.Directive do
   @vsn 1.0
 
   defstruct [
-    entries: %{}, # map of selector record to selection entry or entries.
+    # map of selector record to selection entry or entries.
+    entries: %{},
     vsn: @vsn
   ]
 end

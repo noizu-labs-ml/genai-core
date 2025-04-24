@@ -106,7 +106,7 @@ defmodule GenAI.Graph.NodeBehaviour do
       @provider unquote(opts[:provider]) || GenAI.Graph.NodeProtocol.DefaultProvider
       require GenAI.Graph.NodeBehaviour
       import GenAI.Graph.NodeBehaviour, only: [defnodestruct: 1, defnodetype: 1]
-      #import GenAI.Graph.NodeProtocol.DefaultProvider
+      # import GenAI.Graph.NodeProtocol.DefaultProvider
       @behaviour GenAI.Graph.NodeBehaviour
 
       @defimpl GenAI.Graph.NodeBehaviour

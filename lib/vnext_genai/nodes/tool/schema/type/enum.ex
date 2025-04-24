@@ -4,17 +4,15 @@ defmodule GenAI.Tool.Schema.Enum do
   """
   @behaviour GenAI.Tool.Schema.TypeBehaviour
 
-  defstruct [
-    type: "string",
-    description: nil,
-    enum: nil
-  ]
+  defstruct type: "string",
+            description: nil,
+            enum: nil
 
   @type t :: %__MODULE__{
-               type: String.t(),
-               description: String.t() | nil,
-               enum: [String.t()]
-             }
+          type: String.t(),
+          description: String.t() | nil,
+          enum: [String.t()]
+        }
 
   @doc """
   Check if json is of type
@@ -54,6 +52,6 @@ defmodule GenAI.Tool.Schema.Enum do
       enum: json["enum"]
     }
   end
+
   def from_json(_), do: {:error, :unrecognized_type}
 end
-

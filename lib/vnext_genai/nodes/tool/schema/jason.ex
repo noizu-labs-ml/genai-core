@@ -1,6 +1,4 @@
-
 defimpl Jason.Encoder, for: [GenAI.Tool] do
-
   def encode(subject, opts) do
     %{
       name: subject.name,
@@ -9,18 +7,18 @@ defimpl Jason.Encoder, for: [GenAI.Tool] do
     }
     |> Jason.Encode.map(opts)
   end
-
 end
 
-defimpl Jason.Encoder, for: [
-                         GenAI.Tool.Schema.Bool,
-                         GenAI.Tool.Schema.Enum,
-                         GenAI.Tool.Schema.Integer,
-                         GenAI.Tool.Schema.Null,
-                         GenAI.Tool.Schema.Number,
-                         GenAI.Tool.Schema.Object,
-                         GenAI.Tool.Schema.String,
-] do
+defimpl Jason.Encoder,
+  for: [
+    GenAI.Tool.Schema.Bool,
+    GenAI.Tool.Schema.Enum,
+    GenAI.Tool.Schema.Integer,
+    GenAI.Tool.Schema.Null,
+    GenAI.Tool.Schema.Number,
+    GenAI.Tool.Schema.Object,
+    GenAI.Tool.Schema.String
+  ] do
   @exclude [:vsn]
 
   def encode(subject, opts) do
@@ -30,6 +28,4 @@ defimpl Jason.Encoder, for: [
     |> Enum.into(%{})
     |> Jason.Encode.map(opts)
   end
-
-
 end

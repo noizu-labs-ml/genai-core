@@ -3,5 +3,4 @@ defmodule GenAITest do
   use ExUnit.Case
   doctest GenAI
   doctest GenAI.Helpers
-
 end

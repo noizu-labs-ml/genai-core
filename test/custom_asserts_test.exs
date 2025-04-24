@@ -3,7 +3,6 @@ defmodule GenAI.CustomAssertTest do
   use GenAI.Graph.Asserts
 
   describe "Custom Asserts" do
-
     test "assert is_graph" do
       sut = GenAI.VNext.Graph.new()
       assert is_graph(sut)
@@ -15,7 +14,7 @@ defmodule GenAI.CustomAssertTest do
     end
 
     test "assert is_link" do
-      sut = GenAI.Graph.Link.new(:a,:b)
+      sut = GenAI.Graph.Link.new(:a, :b)
       assert is_link(sut)
     end
 
@@ -23,7 +22,6 @@ defmodule GenAI.CustomAssertTest do
       sut = %{}
       refute is_link(sut)
     end
-
 
     test "assert is_node" do
       sut = GenAI.Graph.Node.new()
@@ -36,24 +34,24 @@ defmodule GenAI.CustomAssertTest do
     end
 
     test "assert nodes" do
-      sut = GenAI.VNext.Graph.new()
-            |> GenAI.VNext.Graph.add_node(GenAI.Graph.Node.new(handle: :a, name: "bob"))
-            |> GenAI.VNext.Graph.add_node(GenAI.Graph.Node.new(handle: :b, name: "bob"))
-            |> GenAI.VNext.Graph.add_node(GenAI.Graph.Node.new(handle: :c, name: "barb"))
+      sut =
+        GenAI.VNext.Graph.new()
+        |> GenAI.VNext.Graph.add_node(GenAI.Graph.Node.new(handle: :a, name: "bob"))
+        |> GenAI.VNext.Graph.add_node(GenAI.Graph.Node.new(handle: :b, name: "bob"))
+        |> GenAI.VNext.Graph.add_node(GenAI.Graph.Node.new(handle: :c, name: "barb"))
+
       assert is_graph(sut)
       assert graph_size(sut) == 3
       assert graph_node(sut, handle: :a)
       assert graph_node(sut, handle: :b)
       refute graph_node(sut, handle: :not_valid)
-      #assert_has
-
+      # assert_has
 
       # The interface for custom asserts (which can then themselves be put into their own custom asserts with input clauses)
       # might look like the below.
       # behind the scenes the pipe operators construct a query object containing partials/ast tags
       # that are compiled as the last step (allowing a chain to be reused/modified)
       # to generated code performing each of the assertions/filters
-
 
       #      assert_graph sut
       #                   |> section("Name A")
@@ -74,25 +72,6 @@ defmodule GenAI.CustomAssertTest do
       #                   |> has(partial_graph = path(  head() ~> to(graph_node(label() == :c), over: :socket_name)  ~> node_c ))
       #                   |> and_group(_a, _b, or_group(b,c))
       #                   |> if_group(sentinel, then: _a, else: b)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     end
-
-
   end
-
-
 end

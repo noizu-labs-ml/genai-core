@@ -5,8 +5,10 @@ defmodule GenAI.State.Entry do
   @vsn 1.0
 
   defstruct [
-    effective_value: :pending, # current effective value
-    selectors: [], # list of selectors set by directives to control how the effective entry is calculated.
+    # current effective value
+    effective_value: :pending,
+    # list of selectors set by directives to control how the effective entry is calculated.
+    selectors: [],
     vsn: @vsn
   ]
 
@@ -16,5 +18,4 @@ defmodule GenAI.State.Entry do
     |> put_in([Access.key(:selectors)], selector)
     |> put_in([Access.key(:effective_value)], :pending)
   end
-  
 end

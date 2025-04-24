@@ -13,11 +13,11 @@ defmodule GenAI.Tool.Schema.Type do
     GenAI.Tool.Schema.Number,
     GenAI.Tool.Schema.Integer,
     GenAI.Tool.Schema.Null,
-    GenAI.Tool.Schema.Bool,
+    GenAI.Tool.Schema.Bool
   ]
 
   def from_json(json) do
     @schema_types
-    |> Enum.find_value({:error, :pending}, & &1.is_type(json) && &1.from_json(json) || nil)
+    |> Enum.find_value({:error, :pending}, &((&1.is_type(json) && &1.from_json(json)) || nil))
   end
 end

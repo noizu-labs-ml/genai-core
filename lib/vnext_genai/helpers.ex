@@ -2,7 +2,6 @@ defmodule GenAI.Helpers do
   @moduledoc """
   A collection of helper functions for VNextGenAI.
   """
-  
 
   @doc """
   label block response
@@ -30,14 +29,14 @@ defmodule GenAI.Helpers do
       {:foo, :bop}
 
   """
-  defmacro with_label(label, [do: block]) do
+  defmacro with_label(label, do: block) do
     quote do
-      (unquote(block))
+      unquote(block)
       |> case do
-           {:ok, response} -> {unquote(label), response}
-           {:error, error} -> {:error, {unquote(label), error}}
-           response -> {unquote(label), response}
-         end
+        {:ok, response} -> {unquote(label), response}
+        {:error, error} -> {:error, {unquote(label), error}}
+        response -> {unquote(label), response}
+      end
     end
   end
 
@@ -65,8 +64,6 @@ defmodule GenAI.Helpers do
       response -> {label, response}
     end
   end
-
-
 
   @doc """
   Handle error tuple response.

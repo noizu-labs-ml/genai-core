@@ -1,29 +1,26 @@
-
 defmodule GenAI.Tool.Schema.Number do
   @moduledoc """
   Represents a schema for number types, including integers and floating-point numbers.
   """
   @behaviour GenAI.Tool.Schema.TypeBehaviour
 
-  defstruct [
-    type: "number",
-    description: nil,
-    minimum: nil,
-    maximum: nil,
-    multiple_of: nil,
-    exclusive_minimum: nil,
-    exclusive_maximum: nil
-  ]
+  defstruct type: "number",
+            description: nil,
+            minimum: nil,
+            maximum: nil,
+            multiple_of: nil,
+            exclusive_minimum: nil,
+            exclusive_maximum: nil
 
   @type t :: %__MODULE__{
-               type: String.t(),
-               description: String.t() | nil,
-               minimum: float() | nil,
-               maximum: float() | nil,
-               multiple_of: float() | nil,
-               exclusive_minimum: boolean() | nil,
-               exclusive_maximum: boolean() | nil
-             }
+          type: String.t(),
+          description: String.t() | nil,
+          minimum: float() | nil,
+          maximum: float() | nil,
+          multiple_of: float() | nil,
+          exclusive_minimum: boolean() | nil,
+          exclusive_maximum: boolean() | nil
+        }
 
   @doc """
   Check if json is of type
@@ -58,14 +55,15 @@ defmodule GenAI.Tool.Schema.Number do
   @impl GenAI.Tool.Schema.TypeBehaviour
   def from_json(%{"type" => "number"} = json) do
     {:ok,
-      %__MODULE__{
-        description: json["description"],
-        minimum: json["minimum"],
-        maximum: json["maximum"],
-        multiple_of: json["multipleOf"],
-        exclusive_minimum: json["exclusiveMinimum"],
-        exclusive_maximum: json["exclusiveMaximum"]
-      }}
+     %__MODULE__{
+       description: json["description"],
+       minimum: json["minimum"],
+       maximum: json["maximum"],
+       multiple_of: json["multipleOf"],
+       exclusive_minimum: json["exclusiveMinimum"],
+       exclusive_maximum: json["exclusiveMaximum"]
+     }}
   end
+
   def from_json(_), do: {:error, :unrecognized_type}
 end

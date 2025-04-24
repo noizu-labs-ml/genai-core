@@ -1,5 +1,4 @@
 defprotocol GenAI.ThreadProtocol do
-
   @doc """
   Specify a specific model or model picker.
 
@@ -66,32 +65,27 @@ defprotocol GenAI.ThreadProtocol do
   """
   def with_messages(context, messages, options)
 
-
-
   def with_stream_handler(context, handler, options \\ nil)
 
   def execute(session, command, context, options \\ nil)
 
-
-
-#  @doc """
-#  Start inference using a streaming handler.
-#
-#  If the selected model does not support streaming, the handler will be called with the final inference result.
-#  """
-#  def stream(thread_context, context)
-#
-#  @doc """
-#  Run inference.
-#
-#  This function performs the following steps:
-#  * Picks the appropriate model and hyperparameters based on the provided context and settings.
-#  * Performs any necessary pre-processing, such as RAG (Retrieval-Augmented Generation) or message consolidation.
-#  * Runs inference on the selected model with the prepared input.
-#  * Returns the inference result.
-#  """
-#  def run(context)
-
+  #  @doc """
+  #  Start inference using a streaming handler.
+  #
+  #  If the selected model does not support streaming, the handler will be called with the final inference result.
+  #  """
+  #  def stream(thread_context, context)
+  #
+  #  @doc """
+  #  Run inference.
+  #
+  #  This function performs the following steps:
+  #  * Picks the appropriate model and hyperparameters based on the provided context and settings.
+  #  * Performs any necessary pre-processing, such as RAG (Retrieval-Augmented Generation) or message consolidation.
+  #  * Runs inference on the selected model with the prepared input.
+  #  * Returns the inference result.
+  #  """
+  #  def run(context)
 
   def effective_model(thread_context, context, options)
   def effective_settings(thread_context, context, options)
@@ -102,7 +96,7 @@ defprotocol GenAI.ThreadProtocol do
   def effective_tools(thread_context, model, context, options)
 
   def append_directive(thread_context, directive)
-  
+
   def set_artifact(thread_context, artifact, value)
   def get_artifact(thread_context, artifact)
 end

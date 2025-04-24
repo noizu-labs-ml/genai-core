@@ -3,11 +3,11 @@ defmodule GenAI.Support.TestProvider do
   TestProvider.
   """
   use GenAI.InferenceProviderBehaviour
-
-
+  
+  
   def run_inference(thread_context, body, model_name, provider)
   def run_inference(thread_context, _, model_name, provider) do
-
+    
     choice = %GenAI.ChatCompletion.Choice{
       index: 0,
       message: GenAI.Message.assistant("I'm afraid I can't do that Dave."),
@@ -27,7 +27,7 @@ defmodule GenAI.Support.TestProvider do
     )
     {:ok, {completion, thread_context}}
   end
-
+  
   def do_run(thread_context, context, options)
   def do_run(thread_context, context, options) do
     with {:ok, {model, thread_context}} <- GenAI.ThreadProtocol.effective_model(thread_context, context, options),
@@ -40,14 +40,14 @@ defmodule GenAI.Support.TestProvider do
          {:ok, provider} <- GenAI.ModelProtocol.provider(model),
          {:ok, {tools, thread_context}} <- GenAI.ThreadProtocol.effective_tools(thread_context, model, context, options),
          {:ok, {messages, thread_context}} <- GenAI.ThreadProtocol.effective_messages(thread_context, model, context, options) do
-
+      
       {:ok, thread_context} = GenAI.ThreadProtocol.set_artifact(thread_context, :api_key, provider_settings[:api_key])
       {:ok, thread_context} = GenAI.ThreadProtocol.set_artifact(thread_context, :api_key, provider_settings[:api_org])
       {:ok, thread_context} = GenAI.ThreadProtocol.set_artifact(thread_context, :messages, messages)
       {:ok, thread_context} = GenAI.ThreadProtocol.set_artifact(thread_context, :tools, tools)
       {:ok, thread_context} = GenAI.ThreadProtocol.set_artifact(thread_context, :model_settings, model_settings)
       {:ok, thread_context} = GenAI.ThreadProtocol.set_artifact(thread_context, :safety_settings, safety_settings)
-
+      
       body = %{
                model: model_handle,
                messages: messages
@@ -78,7 +78,7 @@ defmodule GenAI.Support.TestProvider do
                       end
                   end
                 )
-
+      
       {:ok, thread_context} = GenAI.ThreadProtocol.set_artifact(thread_context, :body, body)
       run_inference(thread_context, body, model_handle, provider)
     end
@@ -109,37 +109,37 @@ defmodule GenAI.Support.TestProvider.EncoderOne do
   
   def request_body(model, messages, tools, settings, session, context, options) do
     with {:ok, model_handle} <- GenAI.ModelProtocol.handle(model) do
-    # TODO Enum map hyper_params
-    body = %{
-             model: model_handle,
-             messages: messages
-           }
-           |> with_dynamic_setting(:frequency_penalty, model, settings)
-           |> with_dynamic_setting(:logprobe, model, settings)
-           |> with_dynamic_setting(:top_logprobs, model, settings)
-           |> with_dynamic_setting(:logit_bias, model, settings)
-           |> with_dynamic_setting(:max_tokens, model, settings)
-           |> with_dynamic_setting(:frequency_penalty, model, settings)
-           |> with_dynamic_setting_as(:n, :completion_choices, model, settings)
-           |> with_dynamic_setting(:presence_penalty, model, settings)
-           |> with_dynamic_setting(:response_format, model, settings)
-           |> with_dynamic_setting(:seed, model, settings)
-           |> with_dynamic_setting(:stop, model, settings)
-           |> with_dynamic_setting(:temperature, model, settings)
-           |> with_dynamic_setting(:top_p, model, settings)
-           |> with_dynamic_setting(:user, model, settings)
-           |> then(
-                fn
-                  body ->
-                    if tools == [] do
-                      body
-                    else
-                      body
-                      |> GenAI.InferenceProvider.Helpers.with_setting(:tool_choice, settings)
-                      |> Map.put(:tools, tools)
-                    end
-                end
-              )
+      # TODO Enum map hyper_params
+      body = %{
+               model: model_handle,
+               messages: messages
+             }
+             |> with_dynamic_setting(:frequency_penalty, model, settings)
+             |> with_dynamic_setting(:logprobe, model, settings)
+             |> with_dynamic_setting(:top_logprobs, model, settings)
+             |> with_dynamic_setting(:logit_bias, model, settings)
+             |> with_dynamic_setting(:max_tokens, model, settings)
+             |> with_dynamic_setting(:frequency_penalty, model, settings)
+             |> with_dynamic_setting_as(:n, :completion_choices, model, settings)
+             |> with_dynamic_setting(:presence_penalty, model, settings)
+             |> with_dynamic_setting(:response_format, model, settings)
+             |> with_dynamic_setting(:seed, model, settings)
+             |> with_dynamic_setting(:stop, model, settings)
+             |> with_dynamic_setting(:temperature, model, settings)
+             |> with_dynamic_setting(:top_p, model, settings)
+             |> with_dynamic_setting(:user, model, settings)
+             |> then(
+                  fn
+                    body ->
+                      if tools == [] do
+                        body
+                      else
+                        body
+                        |> GenAI.InferenceProvider.Helpers.with_setting(:tool_choice, settings)
+                        |> Map.put(:tools, tools)
+                      end
+                  end
+                )
     end
   end
   
@@ -156,7 +156,7 @@ defmodule GenAI.Support.TestProvider.EncoderOne do
         parameters: tool.parameters
       }
     }
-
+    
     {:ok, {encoded, thread_context}}
   end
   
@@ -182,7 +182,7 @@ defmodule GenAI.Support.TestProvider.EncoderOne do
         update_in(tc, [Access.key(:function), Access.key(:arguments)], & &1 && Jason.encode!(&1))
       end
     )
-
+    
     encoded = %{
       role: message.role,
       content: message.content,
@@ -290,10 +290,10 @@ defmodule GenAI.Support.TestProvider.EncoderTwo do
         parameters: tool.parameters
       }
     }
-
+    
     {:ok, {encoded, thread_context}}
   end
-
+  
   def encode_message(message, model, thread_context, context, options)
   def encode_message(message = %GenAI.Message{}, _, thread_context, _, _) do
     role_map = %{
@@ -319,7 +319,7 @@ defmodule GenAI.Support.TestProvider.EncoderTwo do
         update_in(tc, [Access.key(:function), Access.key(:arguments)], & &1 && Jason.encode!(&1))
       end
     )
-
+    
     encoded = %{
       role: message.role,
       content: message.content,
@@ -327,18 +327,18 @@ defmodule GenAI.Support.TestProvider.EncoderTwo do
     }
     {:ok, {encoded, thread_context}}
   end
-
-
+  
+  
   def normalize_messages(messages, model, thread_context, context, options)
   def normalize_messages(messages, _, thread_context, _, _) do
     {:ok, {messages, thread_context}}
   end
-
+  
   def with_dynamic_setting(body, setting, model, settings, default \\ nil)
   def with_dynamic_setting(body, setting, model, settings, default) do
     with_dynamic_setting_as(body, setting, setting, model, settings, default)
   end
-
+  
   def with_dynamic_setting_as(body, as_setting, setting, model, settings, default \\ nil)
   def with_dynamic_setting_as(body, as_setting, setting, _, settings, default) do
     GenAI.InferenceProvider.Helpers.with_setting_as(body, as_setting, setting, settings, default)
@@ -354,6 +354,67 @@ defmodule GenAI.Support.TestProvider.EncoderTwo do
 
 end
 
+defmodule GenAI.Support.TestProvider.EncoderThree do
+  @moduledoc """
+  TestProvider Encoder Two
+  """
+  use GenAI.Model.EncoderBehaviour
+end
+
+defprotocol GenAI.Support.TestProvider.EncoderProtocol do
+  def encode(subject, model, session, context, options)
+end
+
+defimpl GenAI.Support.TestProvider.EncoderProtocol, for: GenAI.Tool do
+  def encode(subject, model, session, context, options) do
+    encoded = %{
+      type: :function,
+      function: %{
+        name: subject.name,
+        description: subject.description,
+        parameters: subject.parameters
+      }
+    }
+    {:ok, {encoded, session}}
+  end
+end
+
+
+
+defimpl GenAI.Support.TestProvider.EncoderProtocol, for: GenAI.Message do
+  def encode(subject, model, session, context, options) do
+    encoded = %{role: subject.role, content: subject.content}
+    {:ok, {encoded, session}}
+  end
+end
+defimpl GenAI.Support.TestProvider.EncoderProtocol, for: GenAI.Message.ToolResponse do
+  def encode(subject, model, session, context, options) do
+    encoded = %{
+      role: :tool,
+      tool_call_id: subject.tool_call_id,
+      content: Jason.encode!(subject.tool_response)
+    }
+    {:ok, {encoded, session}}
+  end
+end
+
+defimpl GenAI.Support.TestProvider.EncoderProtocol, for: GenAI.Message.ToolCall do
+  def encode(subject, model, session, context, options) do
+    tool_calls = Enum.map(subject.tool_calls,
+      fn(tc) ->
+        update_in(tc, [Access.key(:function), Access.key(:arguments)], & &1 && Jason.encode!(&1))
+      end
+    )
+    
+    encoded = %{
+      role: subject.role,
+      content: subject.content,
+      tool_calls: tool_calls
+    }
+    {:ok, {encoded, session}}
+  end
+end
+
 defmodule GenAI.Support.TestProvider.Models do
   @moduledoc """
   TestProvider Models
@@ -365,7 +426,7 @@ defmodule GenAI.Support.TestProvider.Models do
       model: "one"
     )
   end
-
+  
   def model_two() do
     GenAI.Model.new(
       provider: GenAI.Support.TestProvider,

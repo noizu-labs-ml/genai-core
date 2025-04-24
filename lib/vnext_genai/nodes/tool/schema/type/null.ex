@@ -4,10 +4,8 @@ defmodule GenAI.Tool.Schema.Null do
   """
   @behaviour GenAI.Tool.Schema.TypeBehaviour
 
-  defstruct [
-    type: "null",
-    description: nil
-  ]
+  defstruct type: "null",
+            description: nil
 
   @doc """
   Check if json is of type
@@ -41,10 +39,12 @@ defmodule GenAI.Tool.Schema.Null do
   """
   @impl GenAI.Tool.Schema.TypeBehaviour
   def from_json(%{"type" => "null"} = json) do
-    {:ok, %__MODULE__{
-      type: "null",
-      description: json["description"]}
-    }
+    {:ok,
+     %__MODULE__{
+       type: "null",
+       description: json["description"]
+     }}
   end
+
   def from_json(_), do: {:error, :unrecognized_type}
 end

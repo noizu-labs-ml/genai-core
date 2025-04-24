@@ -4,9 +4,7 @@ defmodule GenAI.Tool.Schema.Bool do
   """
   @behaviour GenAI.Tool.Schema.TypeBehaviour
 
-  defstruct [
-    description: nil
-  ]
+  defstruct description: nil
 
   @doc """
   Check if json is of type
@@ -42,5 +40,6 @@ defmodule GenAI.Tool.Schema.Bool do
   def from_json(%{"type" => "boolean"} = json) do
     {:ok, %__MODULE__{description: json["description"]}}
   end
+
   def from_json(_), do: {:error, :unrecognized_type}
 end

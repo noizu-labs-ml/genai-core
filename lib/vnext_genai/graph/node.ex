@@ -6,7 +6,7 @@ defmodule GenAI.Graph.Node do
 
   use GenAI.Graph.NodeBehaviour
   @derive GenAI.Graph.NodeProtocol
-  #@derive GenAI.Thread.SessionProtocol
+  # @derive GenAI.Thread.SessionProtocol
   defnodestruct(content: nil)
   defnodetype(content: term)
 
@@ -18,7 +18,4 @@ defmodule GenAI.Graph.Node do
     GenAI.Graph.NodeProtocol.impl_for(subject) &&
       {:ok, of_type} == GenAI.Graph.NodeProtocol.node_type(subject)
   end
-
-
 end
-

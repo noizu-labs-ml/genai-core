@@ -1,4 +1,3 @@
-
 defmodule GenAI.Provider.ModelsBehaviour do
   @callback load_metadata(options :: any) :: term
 

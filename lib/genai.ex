@@ -1,5 +1,4 @@
 defmodule GenAI do
-
   @doc """
   Creates a new chat context.
   """
@@ -36,7 +35,6 @@ defmodule GenAI do
   """
   defdelegate with_api_org(thead_context, provider, api_org), to: GenAI.ThreadProtocol
 
-
   @doc """
   Set Inference setting.
   `GenAI.Session`
@@ -57,15 +55,18 @@ defmodule GenAI do
   Set safety setting for inference.
   @note - only fully supported by Gemini. backwards compatibility can be enabled via prompting but will be less reliable.
   """
-  defdelegate with_safety_setting(thead_context, safety_setting, threshold), to: GenAI.ThreadProtocol
+  defdelegate with_safety_setting(thead_context, safety_setting, threshold),
+    to: GenAI.ThreadProtocol
+
   defdelegate with_safety_setting(thead_context, safety_setting_object), to: GenAI.ThreadProtocol
 
-  defdelegate with_provider_setting(thead_context, provider, setting, value), to: GenAI.ThreadProtocol
+  defdelegate with_provider_setting(thead_context, provider, setting, value),
+    to: GenAI.ThreadProtocol
+
   defdelegate with_provider_setting(thead_context, provider_setting), to: GenAI.ThreadProtocol
 
   defdelegate with_model_setting(thead_context, model, setting, value), to: GenAI.ThreadProtocol
   defdelegate with_model_setting(thead_context, model_setting), to: GenAI.ThreadProtocol
-
 
   @doc """
   Append message to thread.
@@ -112,12 +113,13 @@ defmodule GenAI do
   """
   def run(thread_context) do
     context = Noizu.Context.system()
-    with {:ok, completion, _} <- GenAI.ThreadProtocol.execute(thread_context, :run, context, nil)  do
-        {:ok, completion}
+
+    with {:ok, completion, _} <- GenAI.ThreadProtocol.execute(thread_context, :run, context, nil) do
+      {:ok, completion}
     end
   end
+
   def run(thread_context, context, options \\ nil) do
     GenAI.ThreadProtocol.execute(thread_context, :run, context, options)
   end
-
 end

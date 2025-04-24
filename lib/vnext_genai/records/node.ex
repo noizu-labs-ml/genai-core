@@ -7,7 +7,7 @@ defmodule GenAI.Records.Node do
   """
 
   require Record
-  
+
   @typedoc """
   Indicate node to process next.
   """
@@ -31,5 +31,4 @@ defmodule GenAI.Records.Node do
   """
   @type process_error :: record(:process_error, element: any, error: any, session: any)
   Record.defrecord(:process_error, element: nil, error: nil, session: nil)
-
 end

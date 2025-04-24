@@ -13,22 +13,27 @@ defmodule GenAI.Records.Link do
 
   # When looking up handles we check for a global first, then a local, and if not local is in scope we check standard entries.
   """
-  @type graph_handle :: record(:graph_handle, scope: :standard | :local | :global, name: G.node_handle())
+  @type graph_handle ::
+          record(:graph_handle, scope: :standard | :local | :global, name: G.node_handle())
   Record.defrecord(:graph_handle, scope: :standard, name: nil)
 
-  
   @typedoc """
   Record container a graph node, the link leading to the node and immeidate
   parent of the graph node.
   """
   @type element_context :: record(:element_context, element: term, link: term, container: term)
   Record.defrecord(:element_context, element: nil, link: nil, container: nil)
-  
-  
+
   @typedoc """
   Element lookup entries point from the Graph Root to nested elements.
   """
-  @type element_lookup :: record(:element_lookup, element: term, path: list(), type: module, implementation: module)
+  @type element_lookup ::
+          record(:element_lookup,
+            element: term,
+            path: list(),
+            type: module,
+            implementation: module
+          )
   Record.defrecord(:element_lookup, element: nil, path: [], type: nil, implementation: nil)
 
   @typedoc """
@@ -37,7 +42,11 @@ defmodule GenAI.Records.Link do
   the closest (first) local handle below the anchor.
   local_handle may itself be an array / path of local nodes below the anchor handle
   """
-  @type anchor_link :: record(:anchor_link, anchor_handle: G.node_handle(), local_handle: G.node_handle() | list(G.node_handle()))
+  @type anchor_link ::
+          record(:anchor_link,
+            anchor_handle: G.node_handle(),
+            local_handle: G.node_handle() | list(G.node_handle())
+          )
   Record.defrecord(:anchor_link, anchor_handle: nil, local_handle: nil)
 
   @typedoc """
@@ -45,7 +54,11 @@ defmodule GenAI.Records.Link do
   ## Note
   Socket is used for elements with special input output links like grid search to indicate appropriate link to use per state.
   """
-  @type connector :: record(:connector, node: G.graph_node_id() | {anchor :: term, handle :: term}, socket: term, external: atom)
+  @type connector ::
+          record(:connector,
+            node: G.graph_node_id() | {anchor :: term, handle :: term},
+            socket: term,
+            external: atom
+          )
   Record.defrecord(:connector, node: nil, socket: nil, external: false)
-
 end

@@ -1,6 +1,4 @@
 defmodule GenAI.Graph.Asserts do
-
-
   defmacro is_graph(graph) do
     quote(do: is_struct(unquote(graph), GenAI.VNext.Graph))
   end
@@ -15,10 +13,8 @@ defmodule GenAI.Graph.Asserts do
 
   defmacro graph_size(graph) do
     quote do
-      (
-        nodes = GenAI.VNext.Graph.nodes!(unquote(graph))
-        length(nodes)
-        )
+      nodes = GenAI.VNext.Graph.nodes!(unquote(graph))
+      length(nodes)
     end
   end
 
@@ -30,30 +26,30 @@ defmodule GenAI.Graph.Asserts do
 
   defmacro graph_node_handle(node, constraint) do
     quote do
-      (
-        {:ok, handle} = GenAI.Graph.NodeProtocol.handle(unquote(node))
-        graph_constraint(handle, unquote(constraint))
-        )
+      {:ok, handle} = GenAI.Graph.NodeProtocol.handle(unquote(node))
+      graph_constraint(handle, unquote(constraint))
     end
   end
 
   defmacro graph_node(graph, constraints) do
     quote do
-      (
-        gn_nodes = GenAI.VNext.Graph.nodes!(unquote(graph))
-        Enum.find(gn_nodes,
-          fn gn ->
-            Enum.all?(unquote(constraints),
-              fn
-                {:handle,v} ->
-                  graph_node_handle(gn, v)
-              end
-            )
-          end
-        )
-        )
+      gn_nodes = GenAI.VNext.Graph.nodes!(unquote(graph))
+
+      Enum.find(
+        gn_nodes,
+        fn gn ->
+          Enum.all?(
+            unquote(constraints),
+            fn
+              {:handle, v} ->
+                graph_node_handle(gn, v)
+            end
+          )
+        end
+      )
     end
   end
+
   #
   #    defmacro assert_graph(graph, [do: block]) do
   #        IO.inspect(block, label: "BLOCK")
@@ -66,9 +62,17 @@ defmodule GenAI.Graph.Asserts do
   defmacro __using__(_) do
     quote do
       require GenAI.Graph.Asserts
-      import GenAI.Graph.Asserts, only: [is_graph: 1, is_link: 1, is_node: 1, graph_size: 1, graph_node: 2, graph_node_handle: 2, graph_constraint: 2]
+
+      import GenAI.Graph.Asserts,
+        only: [
+          is_graph: 1,
+          is_link: 1,
+          is_node: 1,
+          graph_size: 1,
+          graph_node: 2,
+          graph_node_handle: 2,
+          graph_constraint: 2
+        ]
     end
   end
-
-
 end

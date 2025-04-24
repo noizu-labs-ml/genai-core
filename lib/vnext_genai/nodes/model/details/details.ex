@@ -19,14 +19,12 @@ defmodule GenAI.ModelDetail.Capacity do
             vram: integer | nil,
             vsn: float
           }
-  defstruct [
-    tokens_per_minute: nil,
-    requests_per_minute: nil,
-    tokens_per_day: nil,
-    inference_speed: nil,
-    vram: nil,
-    vsn: @vsn
-  ]
+  defstruct tokens_per_minute: nil,
+            requests_per_minute: nil,
+            tokens_per_day: nil,
+            inference_speed: nil,
+            vram: nil,
+            vsn: @vsn
 end
 
 defmodule GenAI.ModelDetail.Costing do
@@ -45,17 +43,16 @@ defmodule GenAI.ModelDetail.Costing do
             million_output_tokens: float | nil,
             per_request: float | nil,
             per_instance_hour: float | nil,
-            media: Map.t | nil, # tile_size, base_tokens, tokens_per_tile
+            # tile_size, base_tokens, tokens_per_tile
+            media: Map.t() | nil,
             vsn: float
           }
-  defstruct [
-    million_input_tokens: nil,
-    million_output_tokens: nil,
-    per_request: nil,
-    per_instance_hour: nil,
-    media: nil,
-    vsn: @vsn
-  ]
+  defstruct million_input_tokens: nil,
+            million_output_tokens: nil,
+            per_request: nil,
+            per_instance_hour: nil,
+            media: nil,
+            vsn: @vsn
 end
 
 defmodule GenAI.ModelDetail.ModalitySupport do
@@ -72,12 +69,10 @@ defmodule GenAI.ModelDetail.ModalitySupport do
             audio: any,
             vsn: float
           }
-  defstruct [
-    video: nil,
-    image: nil,
-    audio: nil,
-    vsn: @vsn
-  ]
+  defstruct video: nil,
+            image: nil,
+            audio: nil,
+            vsn: @vsn
 end
 
 defmodule GenAI.ModelDetail.ToolUsage do
@@ -86,9 +81,8 @@ defmodule GenAI.ModelDetail.ToolUsage do
   """
   @vsn 1.0
   @type t :: %__MODULE__{vsn: float}
-  defstruct [vsn: @vsn]
+  defstruct vsn: @vsn
 end
-
 
 defmodule GenAI.ModelDetail.UseCaseSupport do
   @moduledoc """
@@ -98,13 +92,11 @@ defmodule GenAI.ModelDetail.UseCaseSupport do
   """
   @vsn 1.0
   @type t :: %__MODULE__{
-               use_cases: Map.t,
-               vsn: float
-             }
-  defstruct [
-    use_cases: %{},
-    vsn: @vsn
-  ]
+          use_cases: Map.t(),
+          vsn: float
+        }
+  defstruct use_cases: %{},
+            vsn: @vsn
 end
 
 defmodule GenAI.ModelDetail.BenchMarks do
@@ -113,13 +105,11 @@ defmodule GenAI.ModelDetail.BenchMarks do
   """
   @vsn 1.0
   @type t :: %__MODULE__{
-               benchmarks: Map.t,
-               vsn: float
-             }
-  defstruct [
-    benchmarks: %{},
-    vsn: @vsn
-  ]
+          benchmarks: Map.t(),
+          vsn: float
+        }
+  defstruct benchmarks: %{},
+            vsn: @vsn
 end
 
 defmodule GenAI.ModelDetail.FineTuning do
@@ -132,7 +122,7 @@ defmodule GenAI.ModelDetail.FineTuning do
 
   @vsn 1.0
   @type t :: %__MODULE__{vsn: float}
-  defstruct [vsn: @vsn]
+  defstruct vsn: @vsn
 end
 
 defmodule GenAI.ModelDetail.HyperParamSupport do
@@ -141,7 +131,7 @@ defmodule GenAI.ModelDetail.HyperParamSupport do
   """
   @vsn 1.0
   @type t :: %__MODULE__{vsn: float}
-  defstruct [vsn: @vsn]
+  defstruct vsn: @vsn
 end
 
 defmodule GenAI.ModelDetail.TrainingDetails do
@@ -150,7 +140,7 @@ defmodule GenAI.ModelDetail.TrainingDetails do
   """
   @vsn 1.0
   @type t :: %__MODULE__{vsn: float}
-  defstruct [vsn: @vsn]
+  defstruct vsn: @vsn
 end
 
 defmodule GenAI.ModelDetails do
@@ -160,15 +150,15 @@ defmodule GenAI.ModelDetails do
   @vsn 1.0
   @type release_status :: :internal | :alpha | :beta | :rc | :stable | :deprecated | nil
   @type support_status :: :supported | :unsupported | :partial | :unknown | nil
-  @type capacity :: GenAI.ModelDetail.Capacity.t | nil
-  @type costing :: GenAI.ModelDetail.Costing.t | nil
-  @type modalities :: GenAI.ModelDetail.ModalitySupport.t | nil
-  @type tool_usage :: GenAI.ModelDetail.ToolUsage.t | nil
-  @type use_case_support :: GenAI.ModelDetail.UseCaseSupport.t | nil
-  @type benchmarks :: GenAI.ModelDetail.BenchMarks.t | nil
-  @type fine_tuning :: GenAI.ModelDetail.FineTuning.t | nil
-  @type hyper_param_support :: GenAI.ModelDetail.HyperParamSupport.t | nil
-  @type training_details :: GenAI.ModelDetail.TrainingDetails.t | nil
+  @type capacity :: GenAI.ModelDetail.Capacity.t() | nil
+  @type costing :: GenAI.ModelDetail.Costing.t() | nil
+  @type modalities :: GenAI.ModelDetail.ModalitySupport.t() | nil
+  @type tool_usage :: GenAI.ModelDetail.ToolUsage.t() | nil
+  @type use_case_support :: GenAI.ModelDetail.UseCaseSupport.t() | nil
+  @type benchmarks :: GenAI.ModelDetail.BenchMarks.t() | nil
+  @type fine_tuning :: GenAI.ModelDetail.FineTuning.t() | nil
+  @type hyper_param_support :: GenAI.ModelDetail.HyperParamSupport.t() | nil
+  @type training_details :: GenAI.ModelDetail.TrainingDetails.t() | nil
 
   @type t ::
           %__MODULE__{
@@ -186,21 +176,16 @@ defmodule GenAI.ModelDetails do
             vsn: float
           }
 
-  defstruct [
-    release: nil,
-    status: nil,
-    capacity: nil,
-    costing: nil,
-    modalities: nil,
-    tool_usage: nil,
-    use_cases: nil,
-    benchmarks: nil,
-    fine_tuning: nil,
-    hyper_params: nil,
-    training_details: nil,
-    vsn: @vsn
-  ]
-
-
-
+  defstruct release: nil,
+            status: nil,
+            capacity: nil,
+            costing: nil,
+            modalities: nil,
+            tool_usage: nil,
+            use_cases: nil,
+            benchmarks: nil,
+            fine_tuning: nil,
+            hyper_params: nil,
+            training_details: nil,
+            vsn: @vsn
 end

@@ -4,25 +4,23 @@ defmodule GenAI.Tool.Schema.Integer do
   """
   @behaviour GenAI.Tool.Schema.TypeBehaviour
 
-  defstruct [
-    type: "integer",
-    description: nil,
-    minimum: nil,
-    maximum: nil,
-    multiple_of: nil,
-    exclusive_minimum: nil,
-    exclusive_maximum: nil
-  ]
+  defstruct type: "integer",
+            description: nil,
+            minimum: nil,
+            maximum: nil,
+            multiple_of: nil,
+            exclusive_minimum: nil,
+            exclusive_maximum: nil
 
   @type t :: %__MODULE__{
-               type: String.t(),
-               description: String.t() | nil,
-               minimum: integer() | nil,
-               maximum: integer() | nil,
-               multiple_of: integer() | nil,
-               exclusive_minimum: boolean() | nil,
-               exclusive_maximum: boolean() | nil
-             }
+          type: String.t(),
+          description: String.t() | nil,
+          minimum: integer() | nil,
+          maximum: integer() | nil,
+          multiple_of: integer() | nil,
+          exclusive_minimum: boolean() | nil,
+          exclusive_maximum: boolean() | nil
+        }
 
   @doc """
   Check if json is of type
@@ -57,15 +55,16 @@ defmodule GenAI.Tool.Schema.Integer do
   @impl GenAI.Tool.Schema.TypeBehaviour
   def from_json(%{"type" => "integer"} = json) do
     {:ok,
-      %__MODULE__{
-        type: "integer",
-        description: json["description"],
-        minimum: json["minimum"],
-        maximum: json["maximum"],
-        multiple_of: json["multipleOf"],
-        exclusive_minimum: json["exclusiveMinimum"],
-        exclusive_maximum: json["exclusiveMaximum"]
-      }}
+     %__MODULE__{
+       type: "integer",
+       description: json["description"],
+       minimum: json["minimum"],
+       maximum: json["maximum"],
+       multiple_of: json["multipleOf"],
+       exclusive_minimum: json["exclusiveMinimum"],
+       exclusive_maximum: json["exclusiveMaximum"]
+     }}
   end
+
   def from_json(_), do: {:error, :unrecognized_type}
 end
