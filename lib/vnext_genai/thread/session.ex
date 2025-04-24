@@ -273,8 +273,26 @@ defmodule GenAI.Thread.Session do
               message: "Setting must be a GenAI.Setting node, got #{inspect(setting_node)}"
       end
     end
-    
-    
+
+
+    def with_provider_settings(thread_context, provider, settings) do
+      Enum.reduce(settings, thread_context,
+        fn
+          {setting, value}, thread_context -> with_provider_setting(thread_context, provider, setting, value)
+          setting_object, thread_context -> with_provider_setting(thread_context, setting_object)
+        end
+      )
+    end
+
+    def with_provider_settings(thread_context, settings) do
+      Enum.reduce(settings, thread_context,
+        fn
+          setting_object, thread_context -> with_provider_setting(thread_context, setting_object)
+        end
+      )
+    end
+
+
     def with_model_setting(thread_context, model, setting, value) do
       node = GenAI.Setting.ModelSetting.new(
         [
@@ -294,8 +312,25 @@ defmodule GenAI.Thread.Session do
               message: "Setting must be a GenAI.Setting node, got #{inspect(setting_node)}"
       end
     end
-    
-    
+
+    def with_model_settings(thread_context, model, settings) do
+      Enum.reduce(settings, thread_context,
+        fn
+          {setting, value}, thread_context -> with_model_setting(thread_context, model, setting, value)
+          setting_object, thread_context -> with_model_setting(thread_context, setting_object)
+        end
+      )
+    end
+
+    def with_model_settings(thread_context, settings) do
+      Enum.reduce(settings, thread_context,
+        fn
+          setting_object, thread_context -> with_model_setting(thread_context, setting_object)
+        end
+      )
+    end
+
+
     @doc """
     Add a message to the conversation.
     """

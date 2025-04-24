@@ -42,12 +42,19 @@ defprotocol GenAI.ThreadProtocol do
   def with_safety_setting(context, safety_setting, threshold)
   def with_safety_setting(context, safety_setting_object)
 
+  def with_safety_settings(context, entries)
+
   def with_provider_setting(context, provider, setting, value)
   def with_provider_setting(context, node)
+
+  def with_provider_settings(context, entries)
+  def with_provider_settings(context, provider, entries)
 
   def with_model_setting(context, model, setting, value)
   def with_model_setting(context, node)
 
+  def with_model_settings(context, model, entries)
+  def with_model_settings(context, entries)
 
   @doc """
   Add a message to the conversation.

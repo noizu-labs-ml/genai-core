@@ -33,7 +33,7 @@ defmodule GenAI.Thread.Standard do
         append_node(thread_context, model)
       else
         raise ArgumentError,
-          message: "Model must be a GenAI.Model node, got #{inspect(model)}"
+              message: "Model must be a GenAI.Model node, got #{inspect(model)}"
       end
     end
 
@@ -121,6 +121,15 @@ defmodule GenAI.Thread.Standard do
       end
     end
 
+    def with_safety_setting(thread_context, entries) do
+      Enum.reduce(entries, thread_context,
+        fn
+          {category, threshold}, thread_context -> with_safety_setting(thread_context, category, threshold)
+          setting_object, thread_context -> with_safety_setting(thread_context, setting_object)
+        end
+      )
+    end
+
 
     def with_provider_setting(thread_context, provider, setting, value) do
       node = GenAI.Setting.ProviderSetting.new(
@@ -142,6 +151,23 @@ defmodule GenAI.Thread.Standard do
       end
     end
 
+    def with_provider_settings(thread_context, provider, settings) do
+      Enum.reduce(settings, thread_context,
+        fn
+          {setting, value}, thread_context -> with_provider_setting(thread_context, provider, setting, value)
+          setting_object, thread_context -> with_provider_setting(thread_context, setting_object)
+        end
+      )
+    end
+
+    def with_provider_settings(thread_context, settings) do
+      Enum.reduce(settings, thread_context,
+        fn
+          setting_object, thread_context -> with_provider_setting(thread_context, setting_object)
+        end
+      )
+    end
+
 
     def with_model_setting(thread_context, model, setting, value) do
       node = GenAI.Setting.ModelSetting.new(
@@ -161,6 +187,24 @@ defmodule GenAI.Thread.Standard do
         raise ArgumentError,
               message: "Setting must be a GenAI.Setting node, got #{inspect(setting_node)}"
       end
+    end
+
+
+    def with_model_settings(thread_context, model, settings) do
+      Enum.reduce(settings, thread_context,
+        fn
+          {setting, value}, thread_context -> with_model_setting(thread_context, model, setting, value)
+          setting_object, thread_context -> with_model_setting(thread_context, setting_object)
+        end
+      )
+    end
+
+    def with_model_settings(thread_context, settings) do
+      Enum.reduce(settings, thread_context,
+        fn
+          setting_object, thread_context -> with_model_setting(thread_context, setting_object)
+        end
+      )
     end
 
 
