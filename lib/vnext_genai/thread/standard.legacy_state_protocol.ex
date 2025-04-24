@@ -216,7 +216,7 @@ defimpl GenAI.Thread.LegacyStateProtocol, for: GenAI.Thread.Standard do
   end
 
   def effective_safety_settings(thread_context) do
-    {:ok, {thread_context.state.safety_settings, thread_context}}
+    {:ok, {thread_context.state.safety_settings |> Enum.to_list(), thread_context}}
   end
 
   defp encode_message(encoder, message, thread_context) do

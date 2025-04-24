@@ -51,6 +51,7 @@ defmodule GenAI.Providers.ProviderTest do
       assert model_settings[:apple] == :go
 
       safety_settings = thread.state.artifacts[:safety_settings]
+                        |> Enum.into(%{})
       assert safety_settings["HARM_CATEGORY_DANGEROUS_CONTENT"] == "BLOCK_ANY"
 
       body = thread.state.artifacts[:body]
@@ -97,6 +98,7 @@ defmodule GenAI.Providers.ProviderTest do
       assert model_settings[:apple] == :go
 
       safety_settings = thread.state.artifacts[:safety_settings]
+                        |> Enum.into(%{})
       assert safety_settings["HARM_CATEGORY_DANGEROUS_CONTENT"] == "BLOCK_ANY"
 
       body = thread.state.artifacts[:body]
@@ -143,6 +145,7 @@ defmodule GenAI.Providers.ProviderTest do
       assert model_settings[:apple] == :go
       
       safety_settings = thread.state.artifacts[:safety_settings]
+                        |> Enum.into(%{})
       assert safety_settings["HARM_CATEGORY_DANGEROUS_CONTENT"] == "BLOCK_ANY"
       
       body = thread.state.artifacts[:body]

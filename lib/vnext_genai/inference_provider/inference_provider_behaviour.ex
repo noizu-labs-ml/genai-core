@@ -6,7 +6,7 @@ defmodule GenAI.InferenceProviderBehaviour do
 
   defmacro __using__(options \\ []) do
     quote do
-      @provider unquote(options[:provider]) || GenAI.InferenceProvider.DefaultProvider
+      @provider (unquote(options[:provider]) || GenAI.InferenceProvider.DefaultProvider)
       @behaviour GenAI.InferenceProviderBehaviour
 
       import GenAI.InferenceProvider.Helpers
