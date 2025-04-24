@@ -30,6 +30,7 @@ defmodule GenAI.Session.State do
             model: nil,
             tools: %{},
             monitors: %{},
+            artifacts: %{},
             vsn: 1.0
   
   @type t :: %__MODULE__{
@@ -47,12 +48,15 @@ defmodule GenAI.Session.State do
                model: term(),
                tools: map(),
                monitors: map(),
+               artifacts: map(),
                vsn: float()
              }
   
   # ===========================================================================
   # entry selectors
   # ===========================================================================
+  def entry_path(message_entry(msg: entry)),
+      do: [Access.key(:thread_messages), entry]
   def entry_path(stack_entry(element: entry)),
     do: [Access.key(:stack), entry]
   def entry_path(data_generator_entry(generator: entry)),
@@ -61,8 +65,14 @@ defmodule GenAI.Session.State do
       do: [Access.key(:options), entry]
   def entry_path(setting_entry(setting: entry)),
       do: [Access.key(:settings), entry]
-  def entry_path(model_setting_entry(model: model, setting: entry)),
-      do: [Access.key(:model_settings), Access.key(model, %{}), entry]
+  def entry_path(model_setting_entry(model: model, setting: entry)) do
+    with {:ok, name} <- GenAI.ModelProtocol.name(model),
+         {:ok, provider} <- GenAI.ModelProtocol.provider(model) do
+      [Access.key(:model_settings), Access.key({name, provider}, %{}), entry]
+    end
+    #do: [Access.key(:model_settings), Access.key(model, %{}), entry]
+  end
+  
   def entry_path(provider_setting_entry(provider: provider, setting: entry)),
       do: [Access.key(:provider_settings), Access.key(provider, %{}), entry]
   def entry_path(safety_setting_entry(category: entry)),

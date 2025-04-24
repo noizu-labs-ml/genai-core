@@ -19,7 +19,9 @@ defmodule GenAI.VNext.SessionTest do
 
       {:ok, {response, thread}} = thread
                                   |> GenAI.run(context)
-      assert response == [:get_model, :get_provider, :call_provider_execute]
+      %GenAI.ChatCompletion{choices: [choice|_]} = response
+      
+      assert choice.message.content == "I'm afraid I can't do that Dave."
 
 
     end # End Setup Test

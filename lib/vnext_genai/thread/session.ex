@@ -5,19 +5,19 @@ defmodule GenAI.Thread.Session do
   @vsn 1.0
   require GenAI.Records.Link
   require GenAI.Records.Node
-#  require GenAI.Records.Session
-#  alias GenAI.Records.Session, as: Node
+  #  require GenAI.Records.Session
+  #  alias GenAI.Records.Session, as: Node
   alias GenAI.Session.Runtime
   #alias GenAI.Session.State
-
-
+  
+  
   defstruct [
     state: nil,
     root: nil,
     runtime: nil,
     vsn: @vsn
   ]
-
+  
   def new(options \\ nil)
   def new(options) do
     %__MODULE__{
@@ -27,13 +27,13 @@ defmodule GenAI.Thread.Session do
       vsn: @vsn
     }
   end
-
-
-
-
-
-
-
+  
+  
+  
+  
+  
+  
+  
   #------------------------
   # append_directive/4
   #------------------------
@@ -42,14 +42,14 @@ defmodule GenAI.Thread.Session do
     update = update_in(session, [Access.key(:state), Access.key(:directives)], & [directive | &1])
     {:ok, update}
   end
-
+  
   #------------------------
   # pending_directives?/1
   #------------------------
   def pending_directives?(session)
   def pending_directives?(session),
       do: session.state.directive_position < length(session.state.directives)
-
+  
   #------------------------
   # apply_directives/3
   #------------------------
@@ -69,28 +69,31 @@ defmodule GenAI.Thread.Session do
               |> put_in([Access.key(:state), Access.key(:directive_position)], length(session.state.directives))
     {:ok, session}
   end
-
+  
   #-------------------------------------------
   # GenAI.ThreadProtocol
   #---------------------------------------------
   defimpl GenAI.ThreadProtocol do
     require Logger
-
+    
+    import GenAI.Helpers, only: [apply_label: 2]
+    
+    
     defp append_node(thread_context, node, options \\ nil)
     defp append_node(thread_context, node, options) do
       update_in(thread_context, [Access.key(:root), Access.key(:graph)], & GenAI.VNext.Graph.attach_node(&1, node, options))
     end
-
+    
     #-------------------------------------
     # with_model/2
     #-------------------------------------
     @doc """
     Specify a specific model or model picker.
-
+    
       This function allows you to define the model to be used for inference.
     You can either provide a specific model, like `Model.smartest()`, or a model picker function that dynamically selects
     the best model based on the context and available providers.
-
+    
       Examples:
     * `Model.smartest()` - This will select the "smartest" available model at inference time, based on factors
       like performance and capabilities.
@@ -107,11 +110,11 @@ defmodule GenAI.Thread.Session do
               message: "Model must be a GenAI.Model node, got #{inspect(model)}"
       end
     end
-
+    
     #-------------------------------------
     #
     #-------------------------------------
-
+    
     def with_tool(thread_context, tool) do
       if GenAI.Graph.Node.is_node?(tool, GenAI.Tool) do
         {:ok, n} = GenAI.Graph.NodeProtocol.with_id(tool)
@@ -121,7 +124,7 @@ defmodule GenAI.Thread.Session do
               message: "Tool must be a GenAI.Tool node, got #{inspect(tool)}"
       end
     end
-
+    
     #-------------------------------------
     #
     #-------------------------------------
@@ -130,11 +133,11 @@ defmodule GenAI.Thread.Session do
         with_tool(context, tool)
       end)
     end
-
+    
     #-------------------------------------
     #
     #-------------------------------------
-
+    
     @doc """
     Specify an API key for a provider.
     """
@@ -146,11 +149,11 @@ defmodule GenAI.Thread.Session do
       )
       append_node(thread_context, n)
     end
-
+    
     #-------------------------------------
     #
     #-------------------------------------
-
+    
     @doc """
     Specify an API org for a provider.
     """
@@ -162,17 +165,17 @@ defmodule GenAI.Thread.Session do
       )
       append_node(thread_context, n)
     end
-
+    
     #-------------------------------------
     #
     #-------------------------------------
-
+    
     @doc """
     Set a hyperparameter option.
-
+    
       Some options are model-specific. The value can be a literal or a picker function that dynamically determines
     the best value based on the context and model.
-
+    
       Examples:
     * `Parameter.required(name, value)` - This sets a required parameter with the specified name and value.
     * `Gemini.best_temperature_for(:chain_of_thought)` - This uses a picker function to determine the best temperature
@@ -185,7 +188,7 @@ defmodule GenAI.Thread.Session do
       )
       append_node(thread_context, n)
     end
-
+    
     #-------------------------------------
     #
     #-------------------------------------
@@ -198,7 +201,7 @@ defmodule GenAI.Thread.Session do
               message: "Setting must be a GenAI.Setting node, got #{inspect(setting)}"
       end
     end
-
+    
     #-------------------------------------
     #
     #-------------------------------------
@@ -210,7 +213,7 @@ defmodule GenAI.Thread.Session do
         end
       )
     end
-
+    
     #-------------------------------------
     #
     #-------------------------------------
@@ -221,7 +224,7 @@ defmodule GenAI.Thread.Session do
       )
       append_node(thread_context, n)
     end
-
+    
     #-------------------------------------
     #
     #-------------------------------------
@@ -234,7 +237,7 @@ defmodule GenAI.Thread.Session do
               message: "SafetySetting must be a GenAI.Setting node, got #{inspect(safety_setting)}"
       end
     end
-
+    
     #-------------------------------------
     #
     #-------------------------------------
@@ -246,11 +249,11 @@ defmodule GenAI.Thread.Session do
         end
       )
     end
-
+    
     #-------------------------------------
     #
     #-------------------------------------
-
+    
     def with_provider_setting(thread_context, provider, setting, value) do
       node = GenAI.Setting.ProviderSetting.new(
         [
@@ -261,7 +264,7 @@ defmodule GenAI.Thread.Session do
       )
       append_node(thread_context, node)
     end
-
+    
     def with_provider_setting(thread_context, setting_node) do
       if GenAI.Graph.Node.is_node?(setting_node, GenAI.Setting) do
         append_node(thread_context, setting_node)
@@ -270,8 +273,8 @@ defmodule GenAI.Thread.Session do
               message: "Setting must be a GenAI.Setting node, got #{inspect(setting_node)}"
       end
     end
-
-
+    
+    
     def with_model_setting(thread_context, model, setting, value) do
       node = GenAI.Setting.ModelSetting.new(
         [
@@ -282,7 +285,7 @@ defmodule GenAI.Thread.Session do
       )
       append_node(thread_context, node)
     end
-
+    
     def with_model_setting(thread_context, setting_node) do
       if GenAI.Graph.Node.is_node?(setting_node, GenAI.Setting) do
         append_node(thread_context, setting_node)
@@ -291,8 +294,8 @@ defmodule GenAI.Thread.Session do
               message: "Setting must be a GenAI.Setting node, got #{inspect(setting_node)}"
       end
     end
-
-
+    
+    
     @doc """
     Add a message to the conversation.
     """
@@ -306,7 +309,7 @@ defmodule GenAI.Thread.Session do
               message: "Message must be a GenAI.Message node, got #{inspect(message)}"
       end
     end
-
+    
     #-------------------------------------
     #
     #-------------------------------------
@@ -319,7 +322,7 @@ defmodule GenAI.Thread.Session do
         with_message(context, message, options)
       end)
     end
-
+    
     #-------------------------------------
     #
     #-------------------------------------
@@ -336,7 +339,7 @@ defmodule GenAI.Thread.Session do
       )
       append_node(thread_context, node)
     end
-
+    
     #-------------------------------------
     #
     #-------------------------------------
@@ -360,7 +363,7 @@ defmodule GenAI.Thread.Session do
     #-------------------------------------
     @doc """
     Run inference.
-
+    
       This function performs the following steps:
     * Picks the appropriate model and hyperparameters based on the provided context and settings.
     * Performs any necessary pre-processing, such as RAG (Retrieval-Augmented Generation) or message consolidation.
@@ -374,107 +377,214 @@ defmodule GenAI.Thread.Session do
       with {:ok, session} <-
              initialize_session(command, session, context, options),
            GenAI.Records.Node.process_end(session: session) <-
-             GenAI.Graph.Root.process_node(session.root, nil, nil, session, context, options)
-        do
+             GenAI.Graph.Root.process_node(session.root, nil, nil, session, context, options),
+           {:ok, session} <- GenAI.Thread.Session.apply_directives(session, context, options),
+           {:effective_model, {model, session}} <-
+             session
+             |> GenAI.ThreadProtocol.effective_model()
+             |> apply_label(:effective_model),
+           {:effective_provider, provider} <-
+             model
+             |> GenAI.ModelProtocol.provider()
+             |> apply_label(:effective_provider) do
+        
         # We now have a session populated with directives.
         # We need to expand directives then run inferences.
-        response = [:get_model, :get_provider, :call_provider_execute]
-        {:ok, {response, session}}
+        #response = [:get_model, :get_provider, :call_provider_execute]
+        #{:ok, {response, session}}
+        
+        provider.run(session, context, options)
       end
     end
-
-
-
-#    def merge_scope(Node.scope(session_state: state, session_root: root, session_runtime: runtime), session) do
-#       {:ok,  %{session| state: state, runtime: runtime, root: root}}
-#    end
-#
-#    def starting_scope(graph_node, graph_link, graph_container, session) do
-#      Node.scope(
-#        graph_node: graph_node,
-#        graph_link: graph_link,
-#        graph_container: graph_container,
-#        session_state: session.state,
-#        session_root: session.root,
-#        session_runtime: session.runtime
-#      )
-#    end
-#
-
-
-      #  #-------------------------------------
-      #  #
-      #  #-------------------------------------
-      #  @doc """
-      #  Execute a command, such as run prompt fine tuner, dynamic prompt etc.
-      #  # Options
-      #  - report: return a report of the command execution (entire effective conversation with extended timing/loop details.
-      #  - thread: return full thread along with most recent reply, useful for investigating exact dynamic messages generated in flow
-      #  """
-      #  def execute(session, command, context, options) do
-      #    context = context || Noizu.Context.system()
-      #    with {:ok, runtime} <-
-      #           # Set Runtime Mode
-      #           GenAI.Session.Runtime.command(session.runtime, command, context, options),
-      #         {:ok, session_state} <-
-      #           # Refresh state (clear any ephemeral values, etc. for rerun as specified by runtime object
-      #           # set seeds, clear monitor cache, etc.
-      #           GenAI.Session.State.initialize(session.state, runtime, context, options),
-      #         {:ok, {session_state, runtime}} <-
-      #           # Setup telemetry agents, etc.
-      #           GenAI.Session.State.monitor(session_state, runtime, context, options) do
-      #      with x <- GenAI.Session.NodeProtocol.process_node(
-      #        session.graph,
-      #        Node.scope(
-      #          graph_node: session.graph,
-      #          graph_link: nil,
-      #          graph_container: nil,
-      #          session_state: session_state,
-      #          session_runtime: runtime
-      #        ),
-      #        context,
-      #        options) do
-      #        # TODO apply updates, return completion (if any) and session and generated report from monitor agent
-      #        {:ok, :pending2}
-      #      end
-      #    end
-
-      # Spawn Monitor Agent
-      # Register Callbacks to Monitor Agent
-      # Process session
-      # Strip runtime flags from execute
-      # Get metrics from monitor
-
-      def effective_model(thread_context)
-      def effective_model(_), do: {:error, :nyi}
-
-      def effective_settings(thread_context)
-      def effective_settings(_), do: {:error, :nyi}
-
-      def effective_safety_settings(thread_context)
-      def effective_safety_settings(_), do: {:error, :nyi}
-
-      def effective_model_settings(thread_context, model)
-      def effective_model_settings(_,_), do: {:error, :nyi}
-
-      def effective_provider_settings(thread_context, model)
-      def effective_provider_settings(_,_), do: {:error, :nyi}
-
-      def effective_messages(thread_context, model)
-      def effective_messages(_,_), do: {:error, :nyi}
-
-      def effective_tools(thread_context, model)
-      def effective_tools(_,_), do: {:error, :nyi}
-
-      def set_artifact(thread_context, artifact, value)
-      def set_artifact(_,_,_), do: {:error, :nyi}
-
-      def get_artifact(thread_context, artifact)
-      def get_artifact(_,_), do: {:error, :nyi}
-
-
-
-
+    
+    
+    
+    #    def merge_scope(Node.scope(session_state: state, session_root: root, session_runtime: runtime), session) do
+    #       {:ok,  %{session| state: state, runtime: runtime, root: root}}
+    #    end
+    #
+    #    def starting_scope(graph_node, graph_link, graph_container, session) do
+    #      Node.scope(
+    #        graph_node: graph_node,
+    #        graph_link: graph_link,
+    #        graph_container: graph_container,
+    #        session_state: session.state,
+    #        session_root: session.root,
+    #        session_runtime: session.runtime
+    #      )
+    #    end
+    #
+    
+    
+    #  #-------------------------------------
+    #  #
+    #  #-------------------------------------
+    #  @doc """
+    #  Execute a command, such as run prompt fine tuner, dynamic prompt etc.
+    #  # Options
+    #  - report: return a report of the command execution (entire effective conversation with extended timing/loop details.
+    #  - thread: return full thread along with most recent reply, useful for investigating exact dynamic messages generated in flow
+    #  """
+    #  def execute(session, command, context, options) do
+    #    context = context || Noizu.Context.system()
+    #    with {:ok, runtime} <-
+    #           # Set Runtime Mode
+    #           GenAI.Session.Runtime.command(session.runtime, command, context, options),
+    #         {:ok, session_state} <-
+    #           # Refresh state (clear any ephemeral values, etc. for rerun as specified by runtime object
+    #           # set seeds, clear monitor cache, etc.
+    #           GenAI.Session.State.initialize(session.state, runtime, context, options),
+    #         {:ok, {session_state, runtime}} <-
+    #           # Setup telemetry agents, etc.
+    #           GenAI.Session.State.monitor(session_state, runtime, context, options) do
+    #      with x <- GenAI.Session.NodeProtocol.process_node(
+    #        session.graph,
+    #        Node.scope(
+    #          graph_node: session.graph,
+    #          graph_link: nil,
+    #          graph_container: nil,
+    #          session_state: session_state,
+    #          session_runtime: runtime
+    #        ),
+    #        context,
+    #        options) do
+    #        # TODO apply updates, return completion (if any) and session and generated report from monitor agent
+    #        {:ok, :pending2}
+    #      end
+    #    end
+    
+    # Spawn Monitor Agent
+    # Register Callbacks to Monitor Agent
+    # Process session
+    # Strip runtime flags from execute
+    # Get metrics from monitor
+    
+    def effective_model(thread_context)
+    def effective_model(this),
+        do: {:ok, {this.state.model.value, this}}
+    
+    def effective_settings(thread_context)
+    def effective_settings(this) do
+      x = Enum.map(this.state.settings,
+        fn
+          {setting, value} ->
+            {setting, value.value}
+        end)
+      |> Enum.into(%{})
+      {:ok, {x, this}}
     end
-
+    
+    def effective_safety_settings(thread_context)
+    def effective_safety_settings(this) do
+      x = Enum.map(this.state.safety_settings,
+        fn
+          {setting, value} ->
+            {setting, value.value}
+        end)
+      |> Enum.into(%{})
+      {:ok, {x, this}}
+    end
+    
+    def effective_model_settings(thread_context, model)
+    def effective_model_settings(this, model) do
+      with {:ok, name} <- GenAI.ModelProtocol.name(model),
+           {:ok, provider} <- GenAI.ModelProtocol.provider(model) do
+        key = {name, provider}
+        
+        x = Enum.map(this.state.model_settings[key] || [],
+          fn
+            {setting, value} ->
+              {setting, value.value}
+          end
+        )
+        |> Enum.into(%{})
+        {:ok, {x, this}}
+      end
+    end
+    
+    def effective_provider_settings(thread_context, model)
+    def effective_provider_settings(this, model) do
+      with {:ok, provider} <- GenAI.ModelProtocol.provider(model) do
+        x = Enum.map(this.state.provider_settings[provider] || [],
+          fn
+            {setting, value} ->
+              {setting, value.value}
+          end
+        )
+        |> Enum.into(%{})
+        {:ok, {x, this}}
+      end
+    end
+    
+    def effective_messages(thread_context, model)
+    def effective_messages(thread_context, model) do
+      with {:ok, encoder} <- GenAI.ModelProtocol.encoder(model) do
+        {messages, thread_context} = thread_context.state.thread
+                                     |> Enum.reverse()
+                                     |> Enum.map_reduce(thread_context, & encode_message(encoder, thread_context.state.thread_messages[&1], &2))
+        errors = errors(messages)
+        if errors != [] do
+          {:error, {:format_messages, errors}}
+        else
+          {:ok, {messages, thread_context}}
+        end
+      end
+    end
+    
+    defp encode_message(encoder, message, session) do
+      case encoder.encode_message(message.value, session) do
+        {:ok, {encoded_message, session}} -> {encoded_message, session}
+        error = {:error, _} -> {error, session}
+      end
+    end
+    
+    
+    def effective_tools(thread_context, model)
+    def effective_tools(thread_context, model) do
+      with {:ok, encoder} <- GenAI.ModelProtocol.encoder(model) do
+        {tools, thread_context} = thread_context.state.tools
+                                  |> Enum.map_reduce(thread_context, & encode_tool(encoder, &1, &2))
+        errors = errors(tools)
+        cond do
+          errors != [] ->
+            {:error, {:format_tools, errors}}
+          tools == [] ->
+            {:ok, {nil, thread_context}}
+          :else ->
+            {:ok, {tools, thread_context}}
+        end
+      end
+    end
+    
+    defp encode_tool(encoder, {_, tool}, thread_context) do
+      case encoder.encode_tool(tool.value, thread_context) do
+        {:ok, {encoded_tool, thread_context}} -> {encoded_tool, thread_context}
+        error = {:error, _} -> {error, thread_context}
+      end
+    end
+    
+    
+    
+    def set_artifact(thread_context, artifact, value)
+    def set_artifact(thread_context, artifact, value) do
+      thread_context
+      |> put_in([Access.key(:state), Access.key(:artifacts), artifact], value)
+      |> ok()
+    end
+    
+    def get_artifact(thread_context, artifact)
+    def get_artifact(thread_context, artifact) do
+      thread_context
+      |> get_in([Access.key(:state), Access.key(:artifacts), artifact])
+      |> ok()
+    end
+    
+    
+    defp errors(messages) do
+      messages
+      |> Enum.filter(& Kernel.match?({:error, _}, &1))
+    end
+    defp ok(response), do: {:ok, response}
   end
+
+end

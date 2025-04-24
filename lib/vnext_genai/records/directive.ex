@@ -29,8 +29,8 @@ defmodule GenAI.Records.Directive do
   @typedoc """
   Reference to a message list.
   """
-  @type message_entry :: record(:message_entry, id: any)
-  Record.defrecord(:message_entry, id: nil)
+  @type message_entry :: record(:message_entry, msg: any)
+  Record.defrecord(:message_entry, msg: nil)
 
   # ----------------------------
   # monitor_entry Record

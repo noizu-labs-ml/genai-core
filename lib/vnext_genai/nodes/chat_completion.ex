@@ -26,4 +26,6 @@ defmodule GenAI.ChatCompletion do
     details: term
     )
 
+    
+    
 end

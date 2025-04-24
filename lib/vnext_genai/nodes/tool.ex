@@ -3,13 +3,25 @@ defmodule GenAI.Tool do
   Represents a function that can be called by the model.
   """
   @vsn 1.0
-
+  
+  require GenAI.Records.Directive
+  import GenAI.Records.Directive
+  
   use GenAI.Graph.NodeBehaviour
   @derive GenAI.Graph.NodeProtocol
   #@derive GenAI.Thread.SessionProtocol
   defnodestruct(parameters: nil)
   defnodetype(parameters: term)
-
+  
+  
+  def apply_node_directives(this, graph_link, graph_container, session, context, options)
+  def apply_node_directives(this, _, _, session, context, options) do
+    entry = tool_entry(tool: this.name)
+    directive = GenAI.Session.State.Directive.static(entry, this, {:node, this.id})
+    GenAI.Thread.Session.append_directive(session, directive, context, options)
+  end
+  
+  
   @doc """
   Extract function from json.
   """

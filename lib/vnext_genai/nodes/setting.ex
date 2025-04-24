@@ -8,18 +8,20 @@ defmodule GenAI.Setting do
   
   #import GenAI.Records.Session, only: [scope: 1, scope: 2]
   #require GenAI.Records.Session
+  require GenAI.Records.Directive
+  import GenAI.Records.Directive
   
   use GenAI.Graph.NodeBehaviour
   @derive GenAI.Graph.NodeProtocol
   #@derive GenAI.Thread.SessionProtocol
   defnodestruct(setting: nil, value: nil)
   defnodetype(setting: term, value: term)
-  
-#  def process_node_directives(graph_node, scope = scope(session_state: state), context, options) do
-#    directive = %GenAI.Session.State.Directive{stub: :setting}
-#    with {:ok, state} <- GenAI.Session.State.add_directive(state, directive, context, options) do
-#      {:ok, scope(scope, session_state: state)}
-#    end
-#  end
 
+  def apply_node_directives(this, graph_link, graph_container, session, context, options)
+  def apply_node_directives(this, _, _, session, context, options) do
+    entry = setting_entry(setting: this.setting)
+    directive = GenAI.Session.State.Directive.static(entry, this.value, {:node, this.id})
+    GenAI.Thread.Session.append_directive(session, directive, context, options)
+  end
+  
 end

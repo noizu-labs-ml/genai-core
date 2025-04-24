@@ -17,12 +17,12 @@ defmodule GenAI.Session.StateTest do
       directives: [],
       directive_position: 0,
       thread: [],
-      thread_messages: %{},
+      thread_messages: %{foo: :foo_msg},
       stack: %{foo: 1},
       data_generators: %{foo: 2},
       options: %{foo: 3},
       settings: %{foo: 4},
-      model_settings: %{foo: %{bar: 5}},
+      model_settings: %{ {:alpha, :beta} => %{bar: 5}},
       provider_settings: %{foo: %{bar: 6}},
       safety_settings: %{foo: 7},
       model: :foo,
@@ -32,7 +32,13 @@ defmodule GenAI.Session.StateTest do
   end
   
   describe "Session.State Access Logic" do
-  
+    
+    test "Access Thread Message" do
+      sut = fixture(:access)
+      entry = get_in(sut, State.entry_path(message_entry(msg: :foo)))
+      assert entry == :foo_msg
+    end
+    
     test "Access Stack" do
       sut = fixture(:access)
       entry = get_in(sut, State.entry_path(stack_entry(element: :foo)))
@@ -59,7 +65,7 @@ defmodule GenAI.Session.StateTest do
     
     test "Access Model Settings" do
       sut = fixture(:access)
-      entry = get_in(sut, State.entry_path(model_setting_entry(model: :foo, setting: :bar)))
+      entry = get_in(sut, State.entry_path(model_setting_entry(model: %GenAI.Model{model: :alpha, provider: :beta}, setting: :bar)))
       assert entry == 5
     end
     
@@ -127,6 +133,7 @@ defmodule GenAI.Session.StateTest do
         source: {:node, :B},
         entries: [
           {setting_entry(setting: :fiz), concrete_value(value: :fop)},
+          {message_entry(msg: :abba), concrete_value(value: GenAI.Message.system("Hello World", id: :abba))},
         ],
         fingerprint: {:node, :B}
       }
@@ -149,8 +156,9 @@ defmodule GenAI.Session.StateTest do
       assert GenAI.Thread.Session.pending_directives?(session) == false
 
       assert session.state.settings.fiz.value == :fop
-
-
+      assert session.state.thread_messages.abba.value.content == "Hello World"
+      [msg] = session.state.thread
+      assert msg == :abba
     end
   
   end

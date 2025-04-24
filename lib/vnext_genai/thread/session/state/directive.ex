@@ -4,12 +4,24 @@ defmodule GenAI.Session.State.Directive do
   """
   @vsn 1.0
   
+  require GenAI.Records.Directive
+  import GenAI.Records.Directive
+  
   defstruct [
     source: nil,
     entries: [],
     fingerprint: nil,
     vsn: @vsn
   ]
+  
+  def static(entry, value, source) do
+    value = concrete_value(value: value)
+    %__MODULE__{
+      source: source,
+      entries: [{entry, value}],
+      fingerprint: source,
+    }
+  end
   
   #----------------------
   # apply_directive
@@ -24,7 +36,7 @@ defmodule GenAI.Session.State.Directive do
     {:ok, %{session| state: updated_state}}
   end
 
-  defp apply_directive_entry({entry = message_entry(id: id), value}, state, context, options) do
+  defp apply_directive_entry({entry = message_entry(msg: msg_id), value}, state, context, options) do
     # update the message by id entry
     # and append message to message list
     state
@@ -32,6 +44,7 @@ defmodule GenAI.Session.State.Directive do
          GenAI.Session.State.entry_path(entry),
          &GenAI.Session.StateEntry.update_entry(&1, value, context, options)
        )
+    |> update_in([Access.key(:thread)], & [msg_id | &1])
   end
 
   defp apply_directive_entry({entry, value}, state, context, options) do
