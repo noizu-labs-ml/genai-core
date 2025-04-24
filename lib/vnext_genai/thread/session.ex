@@ -416,7 +416,7 @@ defmodule GenAI.Thread.Session do
            {:ok, session} <- GenAI.Thread.Session.apply_directives(session, context, options),
            {:effective_model, {model, session}} <-
              session
-             |> GenAI.ThreadProtocol.effective_model()
+             |> GenAI.ThreadProtocol.effective_model(context, options)
              |> apply_label(:effective_model),
            {:effective_provider, provider} <-
              model
@@ -494,12 +494,12 @@ defmodule GenAI.Thread.Session do
     # Strip runtime flags from execute
     # Get metrics from monitor
     
-    def effective_model(thread_context)
-    def effective_model(this),
+    def effective_model(thread_context, context, options)
+    def effective_model(this, _ ,_),
         do: {:ok, {this.state.model.value, this}}
     
-    def effective_settings(thread_context)
-    def effective_settings(this) do
+    def effective_settings(thread_context, context, options)
+    def effective_settings(this, _ ,_) do
       x = Enum.map(this.state.settings,
         fn
           {setting, value} ->
@@ -508,8 +508,8 @@ defmodule GenAI.Thread.Session do
       {:ok, {x, this}}
     end
     
-    def effective_safety_settings(thread_context)
-    def effective_safety_settings(this) do
+    def effective_safety_settings(thread_context, context, options)
+    def effective_safety_settings(this, _ ,_) do
       x = Enum.map(this.state.safety_settings,
         fn
           {setting, value} ->
@@ -518,8 +518,8 @@ defmodule GenAI.Thread.Session do
       {:ok, {x, this}}
     end
     
-    def effective_model_settings(thread_context, model)
-    def effective_model_settings(this, model) do
+    def effective_model_settings(thread_context, model, context, options)
+    def effective_model_settings(this, model, _ ,_) do
       with {:ok, name} <- GenAI.ModelProtocol.name(model),
            {:ok, provider} <- GenAI.ModelProtocol.provider(model) do
         key = {name, provider}
@@ -534,8 +534,8 @@ defmodule GenAI.Thread.Session do
       end
     end
     
-    def effective_provider_settings(thread_context, model)
-    def effective_provider_settings(this, model) do
+    def effective_provider_settings(thread_context, model, context, options)
+    def effective_provider_settings(this, model, _ ,_) do
       with {:ok, provider} <- GenAI.ModelProtocol.provider(model) do
         x = Enum.map(this.state.provider_settings[provider] || [],
           fn
@@ -547,12 +547,12 @@ defmodule GenAI.Thread.Session do
       end
     end
     
-    def effective_messages(thread_context, model)
-    def effective_messages(thread_context, model) do
+    def effective_messages(thread_context, model, context, options)
+    def effective_messages(thread_context, model, context, options) do
       with {:ok, encoder} <- GenAI.ModelProtocol.encoder(model) do
         {messages, thread_context} = thread_context.state.thread
                                      |> Enum.reverse()
-                                     |> Enum.map_reduce(thread_context, & encode_message(encoder, thread_context.state.thread_messages[&1], &2))
+                                     |> Enum.map_reduce(thread_context, & encode_message(encoder, thread_context.state.thread_messages[&1], &2, context, options))
         errors = errors(messages)
         if errors != [] do
           {:error, {:format_messages, errors}}
@@ -562,19 +562,19 @@ defmodule GenAI.Thread.Session do
       end
     end
     
-    defp encode_message(encoder, message, session) do
-      case encoder.encode_message(message.value, session) do
+    defp encode_message(encoder, message, session, context, options) do
+      case encoder.encode_message(message.value, session, context, options) do
         {:ok, {encoded_message, session}} -> {encoded_message, session}
         error = {:error, _} -> {error, session}
       end
     end
     
     
-    def effective_tools(thread_context, model)
-    def effective_tools(thread_context, model) do
+    def effective_tools(thread_context, model, context, options)
+    def effective_tools(thread_context, model, context, options) do
       with {:ok, encoder} <- GenAI.ModelProtocol.encoder(model) do
         {tools, thread_context} = thread_context.state.tools
-                                  |> Enum.map_reduce(thread_context, & encode_tool(encoder, &1, &2))
+                                  |> Enum.map_reduce(thread_context, & encode_tool(encoder, &1, &2, context, options))
         errors = errors(tools)
         cond do
           errors != [] ->
@@ -587,8 +587,8 @@ defmodule GenAI.Thread.Session do
       end
     end
     
-    defp encode_tool(encoder, {_, tool}, thread_context) do
-      case encoder.encode_tool(tool.value, thread_context) do
+    defp encode_tool(encoder, {_, tool}, thread_context, context, options) do
+      case encoder.encode_tool(tool.value, thread_context, context, options) do
         {:ok, {encoded_tool, thread_context}} -> {encoded_tool, thread_context}
         error = {:error, _} -> {error, thread_context}
       end

@@ -150,7 +150,8 @@ defimpl GenAI.Thread.LegacyStateProtocol, for: GenAI.Thread.Standard do
   Obtain the effective model as of current thread_context.
   @note temporary logic - pending support for context specific dynamic selection
   """
-  def effective_model(thread_context) do
+  def effective_model(thread_context, context, options)
+  def effective_model(thread_context, _, _) do
     with %{model: [effective_model|_]} <- thread_context.state do
       effective_value_fetch_success(effective_model, thread_context)
     else
@@ -162,7 +163,7 @@ defimpl GenAI.Thread.LegacyStateProtocol, for: GenAI.Thread.Standard do
   Obtain the effective settings as of current thread_context.
   @note temporary logic - pending support for context specific dynamic selection
   """
-  def effective_settings(thread_context) do
+  def effective_settings(thread_context, context, options) do
     Enum.map(thread_context.state.settings,
       fn
         {{:__multi__, k}, v} ->
@@ -174,7 +175,7 @@ defimpl GenAI.Thread.LegacyStateProtocol, for: GenAI.Thread.Standard do
     |> effective_value_fetch_success(thread_context)
   end
 
-  def effective_model_settings(thread_context, model) do
+  def effective_model_settings(thread_context, model, context, options) do
     with {:ok, m} <- GenAI.ModelProtocol.name(model),
          {:ok, p} <- GenAI.ModelProtocol.provider(model) do
       key = {p, m}
@@ -198,7 +199,7 @@ defimpl GenAI.Thread.LegacyStateProtocol, for: GenAI.Thread.Standard do
   Obtain the effective provider settings as of current thread_context.
   @note temporary logic - pending support for context specific dynamic selection
   """
-  def effective_provider_settings(thread_context, model) do
+  def effective_provider_settings(thread_context, model, context, options) do
     with {:ok, provider} <- GenAI.ModelProtocol.provider(model),
       settings = %{} <- thread_context.state.provider_settings[provider] do
 
@@ -215,22 +216,22 @@ defimpl GenAI.Thread.LegacyStateProtocol, for: GenAI.Thread.Standard do
     end
   end
 
-  def effective_safety_settings(thread_context) do
+  def effective_safety_settings(thread_context, context, options) do
     {:ok, {thread_context.state.safety_settings |> Enum.to_list(), thread_context}}
   end
 
-  defp encode_message(encoder, message, thread_context) do
-    case encoder.encode_message(message, thread_context) do
+  defp encode_message(encoder, message, thread_context, context, options) do
+    case encoder.encode_message(message, thread_context, context, options) do
       {:ok, {encoded_message, thread_context}} -> {encoded_message, thread_context}
       error = {:error, _} -> {error, thread_context}
     end
   end
 
-  def effective_messages(thread_context, model) do
+  def effective_messages(thread_context, model, context, options) do
     with {:ok, encoder} <- GenAI.ModelProtocol.encoder(model) do
       {messages, thread_context} = thread_context.state.messages
                                    |> Enum.reverse()
-                                   |> Enum.map_reduce(thread_context, & encode_message(encoder, &1, &2))
+                                   |> Enum.map_reduce(thread_context, & encode_message(encoder, &1, &2, context, options))
       errors = errors(messages)
       if errors != [] do
         {:error, {:format_messages, errors}}
@@ -240,17 +241,17 @@ defimpl GenAI.Thread.LegacyStateProtocol, for: GenAI.Thread.Standard do
     end
   end
 
-  defp encode_tool(encoder, {_, tool}, thread_context) do
-    case encoder.encode_tool(tool, thread_context) do
+  defp encode_tool(encoder, {_, tool}, thread_context, context, options) do
+    case encoder.encode_tool(tool, thread_context, context, options) do
       {:ok, {encoded_tool, thread_context}} -> {encoded_tool, thread_context}
       error = {:error, _} -> {error, thread_context}
     end
   end
 
-  def effective_tools(thread_context, model) do
+  def effective_tools(thread_context, model, context, options) do
     with {:ok, encoder} <- GenAI.ModelProtocol.encoder(model) do
       {tools, thread_context} = thread_context.state.tools
-                                |> Enum.map_reduce(thread_context, & encode_tool(encoder, &1, &2))
+                                |> Enum.map_reduce(thread_context, & encode_tool(encoder, &1, &2, context, options))
       errors = errors(tools)
       cond do
         errors != [] ->

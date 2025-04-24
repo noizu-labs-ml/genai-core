@@ -93,13 +93,13 @@ defprotocol GenAI.ThreadProtocol do
 #  def run(context)
 
 
-  def effective_model(thread_context)
-  def effective_settings(thread_context)
-  def effective_safety_settings(thread_context)
-  def effective_model_settings(thread_context, model)
-  def effective_provider_settings(thread_context, model)
-  def effective_messages(thread_context, model)
-  def effective_tools(thread_context, model)
+  def effective_model(thread_context, context, options)
+  def effective_settings(thread_context, context, options)
+  def effective_safety_settings(thread_context, context, options)
+  def effective_model_settings(thread_context, model, context, options)
+  def effective_provider_settings(thread_context, model, context, options)
+  def effective_messages(thread_context, model, context, options)
+  def effective_tools(thread_context, model, context, options)
 
   def append_directive(thread_context, directive)
   

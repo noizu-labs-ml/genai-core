@@ -250,7 +250,7 @@ defmodule GenAI.Thread.Standard do
              |> apply_label(:prep),
            {:effective_model, {model, thread_context}} <-
              thread_context
-             |> GenAI.Thread.LegacyStateProtocol.effective_model()
+             |> GenAI.Thread.LegacyStateProtocol.effective_model(context, options)
              |> apply_label(:effective_model),
            {:effective_provider, provider} <-
              model
@@ -262,13 +262,13 @@ defmodule GenAI.Thread.Standard do
 
 
 
-    defdelegate effective_model(thread_context), to: GenAI.Thread.LegacyStateProtocol
-    defdelegate effective_settings(thread_context), to: GenAI.Thread.LegacyStateProtocol
-    defdelegate effective_safety_settings(thread_context), to: GenAI.Thread.LegacyStateProtocol
-    defdelegate effective_model_settings(thread_context, model), to: GenAI.Thread.LegacyStateProtocol
-    defdelegate effective_provider_settings(thread_context, model), to: GenAI.Thread.LegacyStateProtocol
-    defdelegate effective_messages(thread_context, model), to: GenAI.Thread.LegacyStateProtocol
-    defdelegate effective_tools(thread_context, model), to: GenAI.Thread.LegacyStateProtocol
+    defdelegate effective_model(thread_context, context, options), to: GenAI.Thread.LegacyStateProtocol
+    defdelegate effective_settings(thread_context, context, options), to: GenAI.Thread.LegacyStateProtocol
+    defdelegate effective_safety_settings(thread_context, context, options), to: GenAI.Thread.LegacyStateProtocol
+    defdelegate effective_model_settings(thread_context, model, context, options), to: GenAI.Thread.LegacyStateProtocol
+    defdelegate effective_provider_settings(thread_context, model, context, options), to: GenAI.Thread.LegacyStateProtocol
+    defdelegate effective_messages(thread_context, model, context, options), to: GenAI.Thread.LegacyStateProtocol
+    defdelegate effective_tools(thread_context, model, context, options), to: GenAI.Thread.LegacyStateProtocol
 
     defdelegate set_artifact(thread_context, artifact, value), to: GenAI.Thread.LegacyStateProtocol
     defdelegate get_artifact(thread_context, artifact), to: GenAI.Thread.LegacyStateProtocol

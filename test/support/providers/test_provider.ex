@@ -30,17 +30,16 @@ defmodule GenAI.Support.TestProvider do
 
   def do_run(thread_context, context, options)
   def do_run(thread_context, context, options) do
-    with {:ok, {model, thread_context}} <- GenAI.ThreadProtocol.effective_model(thread_context),
-         {:ok, {settings, thread_context}} <- GenAI.ThreadProtocol.effective_settings(thread_context),
-         {:ok, {safety_settings, thread_context}} <- GenAI.ThreadProtocol.effective_safety_settings(thread_context),
-         {:ok, {model_settings, thread_context}} <- GenAI.ThreadProtocol.effective_model_settings(thread_context, model),
-         {:ok, {provider_settings, thread_context}} <- GenAI.ThreadProtocol.effective_provider_settings(thread_context, model),
+    with {:ok, {model, thread_context}} <- GenAI.ThreadProtocol.effective_model(thread_context, context, options),
+         {:ok, {settings, thread_context}} <- GenAI.ThreadProtocol.effective_settings(thread_context, context, options),
+         {:ok, {safety_settings, thread_context}} <- GenAI.ThreadProtocol.effective_safety_settings(thread_context, context, options),
+         {:ok, {model_settings, thread_context}} <- GenAI.ThreadProtocol.effective_model_settings(thread_context, model, context, options),
+         {:ok, {provider_settings, thread_context}} <- GenAI.ThreadProtocol.effective_provider_settings(thread_context, model, context, options),
          {:ok, model_encoder} <- GenAI.ModelProtocol.encoder(model),
          {:ok, model_handle} <- GenAI.ModelProtocol.handle(model),
          {:ok, provider} <- GenAI.ModelProtocol.provider(model),
-         {:ok, {messages, thread_context}} <- GenAI.ThreadProtocol.effective_messages(thread_context, model),
-         {:ok, {tools, thread_context}} <- GenAI.ThreadProtocol.effective_tools(thread_context, model),
-         {:ok, {messages, thread_context}} <- normalize_messages(messages, model, thread_context, context, options) do
+         {:ok, {tools, thread_context}} <- GenAI.ThreadProtocol.effective_tools(thread_context, model, context, options),
+         {:ok, {messages, thread_context}} <- GenAI.ThreadProtocol.effective_messages(thread_context, model, context, options) do
 
       {:ok, thread_context} = GenAI.ThreadProtocol.set_artifact(thread_context, :api_key, provider_settings[:api_key])
       {:ok, thread_context} = GenAI.ThreadProtocol.set_artifact(thread_context, :api_key, provider_settings[:api_org])
@@ -95,7 +94,7 @@ defmodule GenAI.Support.TestProvider.EncoderOne do
   """
   @behaviour GenAI.Model.EncoderBehaviour
 
-  def encode_tool(tool = %GenAI.Tool{}, thread_context) do
+  def encode_tool(tool = %GenAI.Tool{}, thread_context, _, _) do
     encoded = %{
       type: :function,
       function: %{
@@ -108,12 +107,12 @@ defmodule GenAI.Support.TestProvider.EncoderOne do
     {:ok, {encoded, thread_context}}
   end
 
-  def encode_message(message, thread_context)
-  def encode_message(message = %GenAI.Message{}, thread_context) do
+  def encode_message(message, thread_context, context, options)
+  def encode_message(message = %GenAI.Message{}, thread_context, _ ,_) do
     encoded = %{role: message.role, content: message.content}
     {:ok, {encoded, thread_context}}
   end
-  def encode_message(message = %GenAI.Message.ToolResponse{}, thread_context) do
+  def encode_message(message = %GenAI.Message.ToolResponse{}, thread_context, _, _) do
     encoded = %{
       role: :tool,
       tool_call_id: message.tool_call_id,
@@ -121,7 +120,7 @@ defmodule GenAI.Support.TestProvider.EncoderOne do
     }
     {:ok, {encoded, thread_context}}
   end
-  def encode_message(message = %GenAI.Message.ToolCall{}, thread_context) do
+  def encode_message(message = %GenAI.Message.ToolCall{}, thread_context, _ ,_) do
     tool_calls = Enum.map(message.tool_calls,
       fn(tc) ->
         update_in(tc, [Access.key(:function), Access.key(:arguments)], & &1 && Jason.encode!(&1))
@@ -160,7 +159,7 @@ defmodule GenAI.Support.TestProvider.EncoderTwo do
   """
   @behaviour GenAI.Model.EncoderBehaviour
 
-  def encode_tool(tool = %GenAI.Tool{}, thread_context) do
+  def encode_tool(tool = %GenAI.Tool{}, thread_context, _, _) do
     encoded = %{
       type: :function,
       function: %{
@@ -173,8 +172,8 @@ defmodule GenAI.Support.TestProvider.EncoderTwo do
     {:ok, {encoded, thread_context}}
   end
 
-  def encode_message(message, thread_context)
-  def encode_message(message = %GenAI.Message{}, thread_context) do
+  def encode_message(message, thread_context, context, options)
+  def encode_message(message = %GenAI.Message{}, thread_context, _, _) do
     role_map = %{
       user: :mike,
       assistant: :agent,
@@ -184,7 +183,7 @@ defmodule GenAI.Support.TestProvider.EncoderTwo do
     encoded = %{role: role, content: message.content}
     {:ok, {encoded, thread_context}}
   end
-  def encode_message(message = %GenAI.Message.ToolResponse{}, thread_context) do
+  def encode_message(message = %GenAI.Message.ToolResponse{}, thread_context, _, _) do
     encoded = %{
       role: :tool,
       tool_call_id: message.tool_call_id,
@@ -192,7 +191,7 @@ defmodule GenAI.Support.TestProvider.EncoderTwo do
     }
     {:ok, {encoded, thread_context}}
   end
-  def encode_message(message = %GenAI.Message.ToolCall{}, thread_context) do
+  def encode_message(message = %GenAI.Message.ToolCall{}, thread_context, _, _) do
     tool_calls = Enum.map(message.tool_calls,
       fn(tc) ->
         update_in(tc, [Access.key(:function), Access.key(:arguments)], & &1 && Jason.encode!(&1))

@@ -3,12 +3,12 @@ defmodule GenAI.Model.EncoderBehaviour do
   @doc """
   Format tool for provider/model type.
   """
-  @callback encode_tool(tool :: any, thread_context  :: any) :: {:ok, {tool :: any, thread_context :: any}} | {:error, term}
+  @callback encode_tool(tool :: any, thread_context  :: any, context :: any, options :: any) :: {:ok, {tool :: any, thread_context :: any}} | {:error, term}
 
   @doc """
   Format message for provider/model type.
   """
-  @callback encode_message(message :: any, thread_context  :: any) :: {:ok, {message :: any, thread_context :: any}} | {:error, term}
+  @callback encode_message(message :: any, thread_context  :: any, context :: any, options :: any) :: {:ok, {message :: any, thread_context :: any}} | {:error, term}
 
   @callback normalize_messages(messages :: any, model :: any, thread_context :: any, context :: any, options :: any) :: {:ok, {any, any}} | {:error, any}
 

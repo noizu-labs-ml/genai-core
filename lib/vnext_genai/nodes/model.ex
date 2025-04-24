@@ -46,15 +46,15 @@ defimpl GenAI.ModelProtocol, for: [GenAI.Model] do
 
   def name(subject), do: {:ok, subject.model}
 
-  def encode_message(subject, message, thread_context) do
+  def encode_message(subject, message, thread_context, context, options) do
     with {:ok, encoder} <- encoder(subject) do
-      encoder.encode_message(message, thread_context)
+      encoder.encode_message(message, thread_context, context, options)
     end
   end
 
-  def encode_tool(subject, tool, thread_context) do
+  def encode_tool(subject, tool, thread_context, context, options) do
     with {:ok, encoder} <- encoder(subject) do
-      encoder.encode_tool(tool, thread_context)
+      encoder.encode_tool(tool, thread_context, context, options)
     end
   end
 

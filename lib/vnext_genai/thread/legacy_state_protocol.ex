@@ -10,11 +10,11 @@ defprotocol GenAI.Thread.LegacyStateProtocol do
   def set_artifact(thread_context, artifact, value)
   def get_artifact(thread_context, artifact)
 
-  def effective_model(thread_context)
-  def effective_settings(thread_context)
-  def effective_safety_settings(thread_context)
-  def effective_model_settings(thread_context, model)
-  def effective_provider_settings(thread_context, model)
-  def effective_messages(thread_context, model)
-  def effective_tools(thread_context, model)
+  def effective_model(thread_context, context, options)
+  def effective_settings(thread_context, context, options)
+  def effective_safety_settings(thread_context, context, options)
+  def effective_model_settings(thread_context, model, context, options)
+  def effective_provider_settings(thread_context, model, context, options)
+  def effective_messages(thread_context, model, context, options)
+  def effective_tools(thread_context, model, context, options)
 end
