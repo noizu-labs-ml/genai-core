@@ -470,7 +470,6 @@ defmodule GenAI.Thread.Session do
           {setting, value} ->
             {setting, value.value}
         end)
-      |> Enum.into(%{})
       {:ok, {x, this}}
     end
     
@@ -481,7 +480,6 @@ defmodule GenAI.Thread.Session do
           {setting, value} ->
             {setting, value.value}
         end)
-      |> Enum.into(%{})
       {:ok, {x, this}}
     end
     
@@ -497,7 +495,6 @@ defmodule GenAI.Thread.Session do
               {setting, value.value}
           end
         )
-        |> Enum.into(%{})
         {:ok, {x, this}}
       end
     end
@@ -511,7 +508,6 @@ defmodule GenAI.Thread.Session do
               {setting, value.value}
           end
         )
-        |> Enum.into(%{})
         {:ok, {x, this}}
       end
     end
