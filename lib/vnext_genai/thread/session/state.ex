@@ -6,45 +6,75 @@ defmodule GenAI.Session.State do
   Represent status/state such as node state, sessions, message thread, etc.
   """
 
+  
+  require GenAI.Records.Directive
+  
+  import GenAI.Records.Directive
+  
   alias GenAI.Session.State.SettingEntry
   alias GenAI.Records, as: R
 
+  
   #require GenAI.Records.Session
   defstruct directives: [],
             directive_position: 0,
-#            thread: [],
-#            thread_messages: %{},
-#            stack: %{},
-#            data_generators: %{},
-#            options: %{},
-#            settings: %{},
-#            model_settings: %{},
-#            provider_settings: %{},
-#            safety_settings: %{},
-#            model: nil,
-#            monitors: %{},
+            thread: [],
+            thread_messages: %{},
+            stack: %{},
+            data_generators: %{},
+            options: %{},
+            settings: %{},
+            model_settings: %{},
+            provider_settings: %{},
+            safety_settings: %{},
+            model: nil,
+            tools: %{},
+            monitors: %{},
             vsn: 1.0
-
+  
   @type t :: %__MODULE__{
                directives: list(),
                directive_position: non_neg_integer(),
-
-#               directives: list(R.Session.directive()),
-#               directive_position: non_neg_integer(),
-#               thread: list(),
-#               thread_messages: map(),
-#               stack: map(),
-#               data_generators: map(),
-#               options: map(),
-#               settings: map(),
-#               model_settings: map(),
-#               provider_settings: map(),
-#               safety_settings: map(),
-#               model: term(),
-#               monitors: map(),
+               thread: list(),
+               thread_messages: map(),
+               stack: map(),
+               data_generators: map(),
+               options: map(),
+               settings: map(),
+               model_settings: map(),
+               provider_settings: map(),
+               safety_settings: map(),
+               model: term(),
+               tools: map(),
+               monitors: map(),
                vsn: float()
              }
-
+  
+  # ===========================================================================
+  # entry selectors
+  # ===========================================================================
+  def entry_path(stack_entry(element: entry)),
+    do: [Access.key(:stack), entry]
+  def entry_path(data_generator_entry(generator: entry)),
+      do: [Access.key(:data_generators), entry]
+  def entry_path(option_entry(option: entry)),
+      do: [Access.key(:options), entry]
+  def entry_path(setting_entry(setting: entry)),
+      do: [Access.key(:settings), entry]
+  def entry_path(model_setting_entry(model: model, setting: entry)),
+      do: [Access.key(:model_settings), Access.key(model, %{}), entry]
+  def entry_path(provider_setting_entry(provider: provider, setting: entry)),
+      do: [Access.key(:provider_settings), Access.key(provider, %{}), entry]
+  def entry_path(safety_setting_entry(category: entry)),
+      do: [Access.key(:safety_settings), entry]
+  def entry_path(model_entry()),
+      do: [Access.key(:model)]
+  def entry_path(tool_entry(tool: entry)),
+      do: [Access.key(:tools), entry]
+  def entry_path(monitor_entry(monitor: entry)),
+      do: [Access.key(:monitors), entry]
+      
+  
   # ===========================================================================
   #
   # ===========================================================================

@@ -3,9 +3,122 @@ defmodule GenAI.Session.StateTest do
       async: true
   @moduletag :session
   
+  alias GenAI.Session.State
+  
+  import GenAI.Records.Directive
+  require GenAI.Records.Directive
+  
+  def fixture(scenario \\ :default)
+  def fixture(:default) do
+    %GenAI.Session.State{}
+  end
+  def fixture(:access) do
+    %GenAI.Session.State{
+      directives: [],
+      directive_position: 0,
+      thread: [],
+      thread_messages: %{},
+      stack: %{foo: 1},
+      data_generators: %{foo: 2},
+      options: %{foo: 3},
+      settings: %{foo: 4},
+      model_settings: %{foo: %{bar: 5}},
+      provider_settings: %{foo: %{bar: 6}},
+      safety_settings: %{foo: 7},
+      model: :foo,
+      tools: %{foo: 8},
+      monitors: %{foo: 9},
+    }
+  end
+  
+  describe "Session.State Access Logic" do
+  
+    test "Access Stack" do
+      sut = fixture(:access)
+      entry = get_in(sut, State.entry_path(stack_entry(element: :foo)))
+      assert entry == 1
+    end
+    
+    test "Access Data Generators" do
+      sut = fixture(:access)
+      entry = get_in(sut, State.entry_path(data_generator_entry(generator: :foo)))
+      assert entry == 2
+    end
+    
+    test "Access Options" do
+      sut = fixture(:access)
+      entry = get_in(sut, State.entry_path(option_entry(option: :foo)))
+      assert entry == 3
+    end
+    
+    test "Access Settings" do
+      sut = fixture(:access)
+      entry = get_in(sut, State.entry_path(setting_entry(setting: :foo)))
+      assert entry == 4
+    end
+    
+    test "Access Model Settings" do
+      sut = fixture(:access)
+      entry = get_in(sut, State.entry_path(model_setting_entry(model: :foo, setting: :bar)))
+      assert entry == 5
+    end
+    
+    test "Access Provider Settings" do
+      sut = fixture(:access)
+      entry = get_in(sut, State.entry_path(provider_setting_entry(provider: :foo, setting: :bar)))
+      assert entry == 6
+    end
+    
+    test "Access Safety Settings" do
+      sut = fixture(:access)
+      entry = get_in(sut, State.entry_path(safety_setting_entry(category: :foo)))
+      assert entry == 7
+    end
+    
+    test "Access Model" do
+      sut = fixture(:access)
+      entry = get_in(sut, State.entry_path(model_entry()))
+      assert entry == :foo
+    end
+    
+    test "Access Tools" do
+      sut = fixture(:access)
+      entry = get_in(sut, State.entry_path(tool_entry(tool: :foo)))
+      assert entry == 8
+    end
+    
+    test "Access Monitors" do
+      sut = fixture(:access)
+      entry = get_in(sut, State.entry_path(monitor_entry(monitor: :foo)))
+      assert entry == 9
+    end
+    
+  end
+  
+  describe "Session.State Directives" do
+    test "Apply Basic Directive" do
+      context = Noizu.Context.system()
+      directive = %GenAI.Session.State.Directive{
+        source: {:node, :A},
+        entries: [
+          {setting_entry(setting: :foo), concrete_value(value: :bop)},
+          {setting_entry(setting: :biz), concrete_value(value: :boop)}
+        ],
+        fingerprint: {:node, :A}
+      }
+      state = fixture()
+      session = %GenAI.Thread.Session{state: state}
+      {:ok, session} = GenAI.Session.State.Directive.apply_directive(directive, session, context, [])
+      assert session.state.settings.foo.value == :bop
+      assert session.state.settings.biz.value == :boop
+    end
+  
+  end
+  
   #-------------------------
   # State
   #-------------------------
+  
   
   # pending directive
   # append directive
