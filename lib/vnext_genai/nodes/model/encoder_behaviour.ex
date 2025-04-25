@@ -145,7 +145,12 @@ defmodule GenAI.Model.EncoderBehaviour do
 
       import GenAI.InferenceProvider.Helpers
       import GenAI.Helpers
-
+      
+      
+      import GenAI.Records.Directive,
+             only: [hyper_param: 1]
+             
+      require GenAI.Records.Directive
       require GenAI.Helpers
 
       @base_url unquote(options[:base_url]) ||
