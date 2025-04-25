@@ -70,6 +70,28 @@ defimpl GenAI.Legacy.NodeProtocol, for: GenAI.Model do
   end
 end
 
+
+
+defimpl GenAI.Legacy.NodeProtocol, for: GenAI.ExternalModel do
+  def apply(node, thread_context)
+  
+  def apply(model_or_selector, thread_context) do
+    cond do
+      GenAI.ModelProtocol.impl_for(model_or_selector) ->
+        with {:ok, {registered_model, thread_context}} <-
+               GenAI.ModelProtocol.register(model_or_selector, thread_context) do
+          GenAI.Thread.LegacyStateProtocol.apply_model(thread_context, registered_model)
+        else
+          x = {:error, _} -> x
+          x -> {:error, {:unexpected, x}}
+        end
+      
+      :else ->
+        GenAI.Thread.LegacyStateProtocol.apply_model(thread_context, model_or_selector)
+    end
+  end
+end
+
 defimpl GenAI.Legacy.NodeProtocol,
   for: [GenAI.Message, GenAI.Message.ToolUsage, GenAI.Message.ToolResponse] do
   def apply(node, thread_context)
