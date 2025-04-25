@@ -42,7 +42,7 @@ defmodule GenAI.VNext.Graph do
     settings: nil
   )
 
-  def process_node(%__MODULE__{} = subject, link, container, session, context, options) do
+  def process_node(%__MODULE__{} = subject, link, _, session, context, options) do
     with {:ok, head} <- GenAI.VNext.Graph.head(subject) do
       do_process_node(head, link, subject, session, context, options)
     end

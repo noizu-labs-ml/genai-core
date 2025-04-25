@@ -14,7 +14,8 @@ defprotocol GenAI.Support.TestProvider2.EncoderProtocol do
 end
 
 defimpl GenAI.Support.TestProvider2.EncoderProtocol, for: GenAI.Tool do
-  def encode(subject, model, session, context, options) do
+  def encode(subject, model, session, context, options)
+  def encode(subject, _, session, _, _) do
     encoded = %{
       type: :function,
       function: %{
@@ -41,7 +42,7 @@ defimpl GenAI.Support.TestProvider2.EncoderProtocol, for: GenAI.Message do
     %{type: :image_url, image_url: %{url: base64}}
   end
 
-  def encode(subject, model, session, context, options) do
+  def encode(subject, _, session, _, _) do
     encoded =
       case subject.content do
         x when is_bitstring(x) ->
@@ -57,7 +58,7 @@ defimpl GenAI.Support.TestProvider2.EncoderProtocol, for: GenAI.Message do
 end
 
 defimpl GenAI.Support.TestProvider2.EncoderProtocol, for: GenAI.Message.ToolResponse do
-  def encode(subject, model, session, context, options) do
+  def encode(subject, _, session, _, _) do
     encoded = %{
       role: :tool,
       tool_call_id: subject.tool_call_id,
@@ -69,7 +70,7 @@ defimpl GenAI.Support.TestProvider2.EncoderProtocol, for: GenAI.Message.ToolResp
 end
 
 defimpl GenAI.Support.TestProvider2.EncoderProtocol, for: GenAI.Message.ToolUsage do
-  def encode(subject, model, session, context, options) do
+  def encode(subject, _, session, _, _) do
     tool_calls =
       Enum.map(
         subject.tool_calls,

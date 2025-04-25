@@ -18,7 +18,7 @@ defmodule GenAI.VNext.SessionTest do
 
       assert thread.__struct__ == GenAI.Thread.Session
 
-      {:ok, {response, thread}} =
+      {:ok, {response, _}} =
         thread
         |> GenAI.run(context)
 

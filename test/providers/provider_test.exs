@@ -219,7 +219,7 @@ defmodule GenAI.Providers.ProviderTest do
 
       assert model_settings[:apple] == :go
 
-      {:ok, {safety_settings, thread}} =
+      {:ok, {safety_settings, _}} =
         GenAI.ThreadProtocol.effective_safety_settings(thread, context, options)
 
       safety_settings =

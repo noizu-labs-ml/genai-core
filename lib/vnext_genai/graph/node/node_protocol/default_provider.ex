@@ -591,7 +591,7 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
   # -----------------------------------------------
   def do_process_node_response(graph_node, graph_link, graph_container, session, context, options)
 
-  def do_process_node_response(graph_node, graph_link, graph_container, session, context, options) do
+  def do_process_node_response(graph_node, graph_link, graph_container, session, _, _) do
     case fetch_outbound_links(graph_node, graph_link, graph_container) do
       {:ok, []} ->
         GenAI.Records.Node.process_end(session: session)
@@ -607,7 +607,8 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
   # ===============================================
   # Private Helpers
   # ===============================================
-  defp fetch_outbound_links(graph_node, graph_link, graph_container) do
+  defp fetch_outbound_links(graph_node, graph_link, graph_container)
+  defp fetch_outbound_links(graph_node, _, graph_container) do
     with {:ok, links} <-
            GenAI.Graph.NodeProtocol.outbound_links(
              graph_node,

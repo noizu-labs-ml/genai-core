@@ -25,6 +25,16 @@ defmodule GenAI.Thread.Standard do
     defp append_node(thread_context, node) do
       update_in(thread_context, [Access.key(:graph)], &GenAI.Graph.append_node(&1, node))
     end
+    
+    
+    # ------------------------
+    # append_directive/4
+    # ------------------------
+    def append_directive(session, directive, context, options \\ nil)
+    
+    def append_directive(session,_, _, _) do
+      {:ok, session}
+    end
 
     def with_model(thread_context, model) do
       if GenAI.Graph.Node.is_node?(model, GenAI.Model) do
@@ -117,7 +127,7 @@ defmodule GenAI.Thread.Standard do
       end
     end
 
-    def with_safety_setting(thread_context, entries) do
+    def with_safety_settings(thread_context, entries) do
       Enum.reduce(entries, thread_context, fn
         {category, threshold}, thread_context ->
           with_safety_setting(thread_context, category, threshold)

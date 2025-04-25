@@ -20,9 +20,6 @@ defmodule GenAI.Model.EncoderBehaviour do
   # Prepare Requests
   # **********************************
 
-  @callback base_url(model, settings, session, context, options) ::
-              {:ok, url} | {:ok, {url, session}} | {:error, term}
-
   # ---------------------------------
   # headers
   # ---------------------------------
@@ -73,7 +70,7 @@ defmodule GenAI.Model.EncoderBehaviour do
   @doc """
   Format message for provider/model type.
   """
-  @callback encode_message(message, session, context, options) ::
+  @callback encode_message(message, model, session, context, options) ::
               {:ok, {message, session}} | {:error, term}
 
   # ---------------------------------
@@ -130,10 +127,10 @@ defmodule GenAI.Model.EncoderBehaviour do
   @doc """
   Obtain list of hyper params supported by given model including mapping and conditional rules/alterations
   """
-  @callback hyper_params(model, session, context, options) ::
+  @callback hyper_params(model, settings, session, context, options) ::
               {:ok, {settings, session}} | {:error, term}
 
-  @callback default_hyper_params(model, session, context, options) ::
+  @callback default_hyper_params(model, settings, session, context, options) ::
               {:ok, {settings, session}} | {:error, term}
 
   # =============================================================================
@@ -154,7 +151,7 @@ defmodule GenAI.Model.EncoderBehaviour do
       @base_url unquote(options[:base_url]) ||
                   Module.get_attribute(__MODULE__, :base_url, "https://api.sandbox.local")
 
-      @default_encoder_protocol ((Module.split(__MODULE__) |> Enum.slice(0..-2)) ++
+      @default_encoder_protocol ((Module.split(__MODULE__) |> Enum.slice(0..-2//1)) ++
                                    [EncoderProtocol])
                                 |> Module.concat()
       @encoder_protocol unquote(options[:encoder_protocol]) || @default_encoder_protocol

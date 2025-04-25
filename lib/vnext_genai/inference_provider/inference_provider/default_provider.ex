@@ -191,7 +191,7 @@ defmodule GenAI.InferenceProvider.DefaultProvider do
     end
   end
 
-  def do_endpoint(module, model, settings, session, context, options) do
+  def do_endpoint(_, model, settings, session, context, options) do
     with {:ok, model_encoder} <- GenAI.ModelProtocol.encoder(model) do
       model_encoder.endpoint(model, settings, session, context, options)
     end
@@ -235,7 +235,7 @@ defmodule GenAI.InferenceProvider.DefaultProvider do
 
   def do_request_body(module, model, messages, tools, settings, session, context, options)
 
-  def do_request_body(module, model, messages, tools, settings, session, context, options) do
+  def do_request_body(_, model, messages, tools, settings, session, context, options) do
     with {:ok, model_encoder} <- GenAI.ModelProtocol.encoder(model) do
       model_encoder.request_body(model, messages, tools, settings, session, context, options)
     end

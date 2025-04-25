@@ -51,11 +51,7 @@ defmodule GenAI.InferenceProviderBehaviour do
   @doc "Obtain map of effective settings: settings, model_settings, provider_settings, config_settings, etc."
   @callback effective_settings(model, session, context, options) ::
               {:ok, {settings, session}} | {:error, term}
-
-  @doc "Obtain list of hyper params supported by given model including mapping and conditional rules/alterations"
-  @callback hyper_params(model, session, context, options) ::
-              {:ok, {settings, session}} | {:error, term}
-
+              
   @callback standardize_model(model) :: model
 
   defmacro __using__(options \\ []) do

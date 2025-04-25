@@ -95,7 +95,7 @@ defprotocol GenAI.ThreadProtocol do
   def effective_messages(thread_context, model, context, options)
   def effective_tools(thread_context, model, context, options)
 
-  def append_directive(thread_context, directive)
+  def append_directive(thread_context, directive, context, options)
 
   def set_artifact(thread_context, artifact, value)
   def get_artifact(thread_context, artifact)

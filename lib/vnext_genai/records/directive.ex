@@ -11,10 +11,6 @@ defmodule GenAI.Records.Directive do
   # =============================================================================
   # Support Entries
   # =============================================================================
-  @typeodc """
-  Entry for tracking which hyperparms are supported by a model.
-  """
-
   @typedoc "type of supported parm"
   @type param_type :: :float | :int | :bool | :string | :list | :map
 
@@ -37,7 +33,7 @@ defmodule GenAI.Records.Directive do
   @typedoc "flag if field is required"
   @type required :: boolean()
 
-  @typeodc "Default value is only used for required settings if not provided."
+  @typedoc "Default value is only used for required settings if not provided."
   @type default :: number
 
   @typedoc """

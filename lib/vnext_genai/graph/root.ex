@@ -319,7 +319,7 @@ defmodule GenAI.Graph.Root do
     end)
   end
 
-  def process_node(subject, link, container, session, context, options) do
+  def process_node(subject, _, _, session, context, options) do
     subject =
       subject
       |> GenAI.Graph.Root.merge_lookup_table_entries(

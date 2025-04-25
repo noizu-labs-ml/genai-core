@@ -185,7 +185,7 @@ defimpl GenAI.Thread.LegacyStateProtocol, for: GenAI.Thread.Standard do
   Obtain the effective settings as of current thread_context.
   @note temporary logic - pending support for context specific dynamic selection
   """
-  def effective_settings(thread_context, context, options) do
+  def effective_settings(thread_context, _, _) do
     Enum.map(
       thread_context.state.settings,
       fn
@@ -200,7 +200,7 @@ defimpl GenAI.Thread.LegacyStateProtocol, for: GenAI.Thread.Standard do
     |> effective_value_fetch_success(thread_context)
   end
 
-  def effective_model_settings(thread_context, model, context, options) do
+  def effective_model_settings(thread_context, model, _, _) do
     with {:ok, m} <- GenAI.ModelProtocol.name(model),
          {:ok, p} <- GenAI.ModelProtocol.provider(model) do
       key = {p, m}
@@ -225,7 +225,7 @@ defimpl GenAI.Thread.LegacyStateProtocol, for: GenAI.Thread.Standard do
   Obtain the effective provider settings as of current thread_context.
   @note temporary logic - pending support for context specific dynamic selection
   """
-  def effective_provider_settings(thread_context, model, context, options) do
+  def effective_provider_settings(thread_context, model, _, _) do
     with {:ok, provider} <- GenAI.ModelProtocol.provider(model),
          settings = %{} <- thread_context.state.provider_settings[provider] do
       Enum.map(
@@ -242,7 +242,7 @@ defimpl GenAI.Thread.LegacyStateProtocol, for: GenAI.Thread.Standard do
     end
   end
 
-  def effective_safety_settings(thread_context, context, options) do
+  def effective_safety_settings(thread_context, _, _) do
     {:ok, {thread_context.state.safety_settings |> Enum.to_list(), thread_context}}
   end
 

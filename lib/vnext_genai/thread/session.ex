@@ -91,7 +91,18 @@ defmodule GenAI.Thread.Session do
         &GenAI.VNext.Graph.attach_node(&1, node, options)
       )
     end
-
+    
+    
+    # ------------------------
+    # append_directive/4
+    # ------------------------
+    def append_directive(session, directive, context, options \\ nil)
+    
+    def append_directive(session, directive, _, _) do
+      update = update_in(session, [Access.key(:state), Access.key(:directives)], &[directive | &1])
+      {:ok, update}
+    end
+    
     # -------------------------------------
     # with_model/2
     # -------------------------------------

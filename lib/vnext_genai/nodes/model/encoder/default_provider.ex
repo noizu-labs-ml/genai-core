@@ -1,6 +1,6 @@
 defmodule GenAI.Model.Encoder.DefaultProvider do
   import GenAI.Records.Directive,
-    only: [hyper_param: 1, hyper_param: 2]
+         only: [hyper_param: 1]
 
   require GenAI.Records.Directive
 
@@ -14,7 +14,7 @@ defmodule GenAI.Model.Encoder.DefaultProvider do
   @doc "Prepare request headers"
   def headers(module, model, settings, session, context, options)
 
-  def headers(module, model, settings, session, context, options) do
+  def headers(_, _, settings, session, _, options) do
     auth =
       cond do
         key = options[:api_key] -> {"Authorization", "Bearer #{key}"}
@@ -92,7 +92,7 @@ defmodule GenAI.Model.Encoder.DefaultProvider do
           body
 
         x = hyper_param(name: name, as: as, adjuster: {m, f, a}), body ->
-          with true < -Map.has_key?(body, as || name),
+          with true <- Map.has_key?(body, as || name),
                {:ok, update} <- apply(m, f, [x, body_s1, model, settings | a]) do
             Map.put(body, as || name, update)
           else
@@ -101,7 +101,7 @@ defmodule GenAI.Model.Encoder.DefaultProvider do
 
         x = hyper_param(name: name, as: as, adjuster: adjuster), body
         when is_function(adjuster, 4) ->
-          with true < -Map.has_key?(body, as || name),
+          with true <- Map.has_key?(body, as || name),
                {:ok, update} <- adjuster.(x, body_s1, model, settings) do
             Map.put(body, as || name, update)
           else
@@ -147,9 +147,9 @@ defmodule GenAI.Model.Encoder.DefaultProvider do
         module,
         id,
         json = %{
-          index: index,
+          index: _,
           message: message,
-          finish_reason: finish_reason
+          finish_reason: _
         },
         model,
         settings,
@@ -187,7 +187,7 @@ defmodule GenAI.Model.Encoder.DefaultProvider do
   def completion_choice(
         _,
         _,
-        json = %{role: "assistant", content: content, tool_calls: tool_calls},
+        %{role: "assistant", content: content, tool_calls: tool_calls},
         _,
         _,
         _,
@@ -279,7 +279,7 @@ defmodule GenAI.Model.Encoder.DefaultProvider do
   """
   def with_dynamic_setting(module, body, setting, model, settings, default \\ nil)
 
-  def with_dynamic_setting(_, body, setting, model, settings, default) do
+  def with_dynamic_setting(_, body, setting, _, settings, default) do
     GenAI.InferenceProvider.Helpers.with_setting(body, setting, settings, default)
   end
 
@@ -291,7 +291,7 @@ defmodule GenAI.Model.Encoder.DefaultProvider do
   """
   def with_dynamic_setting_as(module, body, as_setting, setting, model, settings, default \\ nil)
 
-  def with_dynamic_setting_as(_, body, as_setting, setting, model, settings, default) do
+  def with_dynamic_setting_as(_, body, as_setting, setting, _, settings, default) do
     GenAI.InferenceProvider.Helpers.with_setting_as(body, as_setting, setting, settings, default)
   end
 
@@ -323,7 +323,7 @@ defmodule GenAI.Model.Encoder.DefaultProvider do
   @doc "Obtain list of hyper params supported by given model including mapping and conditional rules/alterations"
   def default_hyper_params(module, model, settings, session, context, options)
 
-  def default_hyper_params(module, model, settings, session, context, options) do
+  def default_hyper_params(_, _, _, _, _, _) do
     x = [
       hyper_param(name: :frequency_penalty),
       hyper_param(name: :logprobe),

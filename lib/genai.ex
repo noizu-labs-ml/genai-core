@@ -64,6 +64,9 @@ defmodule GenAI do
     to: GenAI.ThreadProtocol
 
   defdelegate with_provider_setting(thead_context, provider_setting), to: GenAI.ThreadProtocol
+  
+  defdelegate with_provider_settings(thead_context, provider_settings), to: GenAI.ThreadProtocol
+  defdelegate with_provider_settings(thead_context, provider, provider_settings), to: GenAI.ThreadProtocol
 
   defdelegate with_model_setting(thead_context, model, setting, value), to: GenAI.ThreadProtocol
   defdelegate with_model_setting(thead_context, model_setting), to: GenAI.ThreadProtocol

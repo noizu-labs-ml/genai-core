@@ -113,25 +113,23 @@ defmodule GenAI.Support.TestProvider.EncoderOne do
   @moduledoc """
   TestProvider Encoder
   """
-  @behaviour GenAI.Model.EncoderBehaviour
-
-  import GenAI.Records.Directive,
-    only: [hyper_param: 1, hyper_param: 2]
+  use GenAI.Model.EncoderBehaviour
 
   require GenAI.Records.Directive
-
-  def headers(model, settings, session, context, options) do
+  
+  def headers(model, settings, session, context, options)
+  def headers(_, _, _, _ , _) do
+    {:error, :unsupported}
+  end
+  
+  def endpoint(model, settings, session, context, options)
+  def endpoint(_, _, _, _ , _) do
     {:error, :unsupported}
   end
 
-  def endpoint(model, settings, session, context, options) do
-    {:error, :unsupported}
-  end
-
-  def request_body(model, messages, tools, settings, session, context, options) do
+  def request_body(model, messages, tools, settings, _, _, _) do
     with {:ok, model_handle} <- GenAI.ModelProtocol.handle(model) do
       # TODO Enum map hyper_params
-      body =
         %{
           model: model_handle,
           messages: messages
@@ -166,7 +164,7 @@ defmodule GenAI.Support.TestProvider.EncoderOne do
   # ----------------------
   #
   # ----------------------
-  def encode_tool(tool = %GenAI.Tool{}, model, thread_context, _, _) do
+  def encode_tool(tool = %GenAI.Tool{}, _, thread_context, _, _) do
     encoded = %{
       type: :function,
       function: %{
@@ -184,12 +182,12 @@ defmodule GenAI.Support.TestProvider.EncoderOne do
   # ----------------------
   def encode_message(message, model, thread_context, context, options)
 
-  def encode_message(message = %GenAI.Message{}, model, thread_context, _, _) do
+  def encode_message(message = %GenAI.Message{}, _, thread_context, _, _) do
     encoded = %{role: message.role, content: message.content}
     {:ok, {encoded, thread_context}}
   end
 
-  def encode_message(message = %GenAI.Message.ToolResponse{}, model, thread_context, _, _) do
+  def encode_message(message = %GenAI.Message.ToolResponse{}, _, thread_context, _, _) do
     encoded = %{
       role: :tool,
       tool_call_id: message.tool_call_id,
@@ -199,7 +197,7 @@ defmodule GenAI.Support.TestProvider.EncoderOne do
     {:ok, {encoded, thread_context}}
   end
 
-  def encode_message(message = %GenAI.Message.ToolUsage{}, model, thread_context, _, _) do
+  def encode_message(message = %GenAI.Message.ToolUsage{}, _, thread_context, _, _) do
     tool_calls =
       Enum.map(
         message.tool_calls,
@@ -253,7 +251,7 @@ defmodule GenAI.Support.TestProvider.EncoderOne do
   # ----------------------
   def hyper_params(model, settings, session, context, options \\ nil)
 
-  def hyper_params(model, settings, session, context, options) do
+  def hyper_params(_, _, _, _ , _) do
     {:ok, []}
   end
 end
@@ -262,25 +260,26 @@ defmodule GenAI.Support.TestProvider.EncoderTwo do
   @moduledoc """
   TestProvider Encoder Two
   """
-  @behaviour GenAI.Model.EncoderBehaviour
+  use GenAI.Model.EncoderBehaviour
 
-  import GenAI.Records.Directive,
-    only: [hyper_param: 1, hyper_param: 2]
+
 
   require GenAI.Records.Directive
-
-  def headers(model, settings, session, context, options) do
+  
+  def headers(model, settings, session, context, options)
+  def headers(_, _, _, _ , _) do
     {:error, :unsupported}
   end
-
-  def endpoint(model, settings, session, context, options) do
+  
+  def endpoint(model, settings, session, context, options)
+  def endpoint(_, _, _, _, _) do
     {:error, :unsupported}
   end
-
-  def request_body(model, messages, tools, settings, session, context, options) do
+  
+  def request_body(model, messages, tools, settings, session, context, options)
+  def request_body(model, messages, tools, settings, _, _, _) do
     with {:ok, model_handle} <- GenAI.ModelProtocol.handle(model) do
       # TODO Enum map hyper_params
-      body =
         %{
           model: model_handle,
           messages: messages
@@ -394,7 +393,7 @@ defmodule GenAI.Support.TestProvider.EncoderTwo do
   # ----------------------
   def hyper_params(model, settings, session, context, options \\ nil)
 
-  def hyper_params(model, settings, session, context, options) do
+  def hyper_params(_, _, _, _, _) do
     {:ok, []}
   end
 end
@@ -411,7 +410,8 @@ defprotocol GenAI.Support.TestProvider.EncoderProtocol do
 end
 
 defimpl GenAI.Support.TestProvider.EncoderProtocol, for: GenAI.Tool do
-  def encode(subject, model, session, context, options) do
+  def encode(subject, model, session, context, options)
+  def encode(subject, _, session, _, _) do
     encoded = %{
       type: :function,
       function: %{
@@ -426,14 +426,14 @@ defimpl GenAI.Support.TestProvider.EncoderProtocol, for: GenAI.Tool do
 end
 
 defimpl GenAI.Support.TestProvider.EncoderProtocol, for: GenAI.Message do
-  def encode(subject, model, session, context, options) do
+  def encode(subject, _, session, _, _) do
     encoded = %{role: subject.role, content: subject.content}
     {:ok, {encoded, session}}
   end
 end
 
 defimpl GenAI.Support.TestProvider.EncoderProtocol, for: GenAI.Message.ToolResponse do
-  def encode(subject, model, session, context, options) do
+  def encode(subject, _, session, _, _) do
     encoded = %{
       role: :tool,
       tool_call_id: subject.tool_call_id,
@@ -445,7 +445,7 @@ defimpl GenAI.Support.TestProvider.EncoderProtocol, for: GenAI.Message.ToolRespo
 end
 
 defimpl GenAI.Support.TestProvider.EncoderProtocol, for: GenAI.Message.ToolUsage do
-  def encode(subject, model, session, context, options) do
+  def encode(subject, _, session, _, _) do
     tool_calls =
       Enum.map(
         subject.tool_calls,
