@@ -6,6 +6,7 @@ defmodule GenAI.Message.Content.AudioContent do
   defstruct [
     source: nil,
     type: nil,
+    transcript: "AUDIO TRANSCRIPT NOT AVAILABLE",
     length: nil,
     resource: nil,
     options: nil,
