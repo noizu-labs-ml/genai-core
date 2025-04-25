@@ -68,7 +68,7 @@ defmodule GenAI.InferenceProviderBehaviour do
       # Core
       # ---------------------
 
-      @config_key unquote(options[:config_key]) ||
+      @config_key unquote(options[:config_key]) || Module.get_attribute(__MODULE__, :config_key) ||
                     Module.split(__MODULE__)
                     |> List.last()
                     |> Macro.underscore()
