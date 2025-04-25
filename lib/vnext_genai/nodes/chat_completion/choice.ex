@@ -6,6 +6,8 @@ defmodule GenAI.ChatCompletion.Choice do
 
   defp finish_reason(json)
   defp finish_reason(nil), do: nil
+  defp finish_reason("end_turn"), do: :stop
+  defp finish_reason("tool_use"), do: :tool_call
   defp finish_reason(json), do: String.to_atom(json)
 
   def new(options) do
