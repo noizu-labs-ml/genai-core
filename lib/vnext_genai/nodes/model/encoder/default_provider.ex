@@ -103,7 +103,7 @@ defmodule GenAI.Model.Encoder.DefaultProvider do
   
   
   def completion_response(module, json, model, settings,  session, context, options)
-  def completion_response(module, json, model, _, _, _, _) do
+  def completion_response(module, json, model, settings,  session, context, options) do
     with  {:ok, provider} <- GenAI.ModelProtocol.provider(model),
           %{
            id: id,
@@ -116,7 +116,7 @@ defmodule GenAI.Model.Encoder.DefaultProvider do
            #created: created,
            choices: choices
          } <- json do
-      choices = Enum.map(choices, &choices_from_json(id, &1))
+      choices = Enum.map(choices, &module.completion_choices(id, &1, model, settings,  session, context, options))
                 |> Enum.map(fn {:ok, c} -> c end)
       completion = %GenAI.ChatCompletion{
         id: id,
@@ -133,57 +133,58 @@ defmodule GenAI.Model.Encoder.DefaultProvider do
     end
   end
   
-  defp choices_from_json(id, json) do
-    with %{
-           index: index,
-           message: message,
-           finish_reason: finish_reason,
-         } <- json do
-      with {:ok, message} <- choice_message_from_json(id, message) do
-        choice = %GenAI.ChatCompletion.Choice{
+  def completion_choices(module, id, json, model, settings,  session, context, options)
+  def completion_choices(
+        module, id,
+        json = %{
           index: index,
           message: message,
-          finish_reason: String.to_atom(finish_reason)
-        }
-        {:ok, choice}
-      end
+          finish_reason: finish_reason
+        },
+        model, settings,  session, context, options
+      ) do
+    with {:ok, message_struct} <- module.completion_choice(id, message, model, settings,  session, context, options) do
+      choice = json
+               |> put_in([Access.key(:message)], message_struct)
+               |> GenAI.ChatCompletion.Choice.new()
+      {:ok, choice}
     end
   end
   
-  defp choice_message_from_json(_id, json) do
-    case json do
-      %{
-        role: "assistant",
-        content: content,
-        tool_calls: nil
-      } ->
-        msg = %GenAI.Message{
-          role: :assistant,
-          content: content
-        }
-        {:ok, msg}
-      %{
-        role: "assistant",
-        content: content,
-        tool_calls: tc
-      } ->
-        x = Enum.map(tc, fn
-          (%{function: _} = x) ->
-            x
-            |> put_in([Access.key(:function), Access.key(:arguments)],Jason.decode!(x.function.arguments, keys: :atoms))
-          #|> put_in([Access.key(:function), Access.key(:identifier)], UUID.uuid4())
-        end)
-        {:ok, %GenAI.Message.ToolCall{role: :assistant, content: content, tool_calls: x}}
-      %{
-        role: "assistant",
-        content: content,
-      } ->
-        msg = %GenAI.Message{
-          role: :assistant,
-          content: content
-        }
-        {:ok, msg}
-    end
+  def completion_choice(module, id, json, model, settings,  session, context, options)
+  def completion_choice(
+        _, _,
+        %{role: "assistant", content: content, tool_calls: nil},
+        _, _, _, _, _
+      ) do
+    msg = GenAI.Message.assistant(content)
+    {:ok, msg}
+  end
+  def completion_choice(
+        _, _,
+        json = %{role: "assistant", content: content, tool_calls: tool_calls},
+        _, _, _, _, _
+      ) do
+    tool_calls = tool_calls
+                 |> Enum.map(
+                      fn
+                        %{function: _} = call ->
+                          call
+                          |> update_in([Access.key(:function), Access.key(:arguments)], & Jason.decode!(&1, keys: :atoms))
+                          |> update_in([Access.key(:id)], & &1 || gen_unique_call_id())
+                          |> update_in([Access.key(:type)], & &1 || "function")
+                      end
+                    )
+    msg = GenAI.Message.ToolCall.new(role: :assistant, content: content, tool_calls: tool_calls)
+    {:ok, msg}
+  end
+  def completion_choice(
+        _, _,
+        %{role: "assistant", content: content},
+        _, _, _, _, _
+      ) do
+    msg = GenAI.Message.assistant(content)
+    {:ok, msg}
   end
   
   #**********************************
@@ -299,6 +300,12 @@ defmodule GenAI.Model.Encoder.DefaultProvider do
       hyper_param(name: :tool_choice, type: :string, sentinel: fn(_, body, _, _) -> body[:tools] && true end),
     ]
     {:ok, x}
+  end
+  
+  
+  defp gen_unique_call_id do
+    {:ok, short_uuid} = ShortUUID.encode(UUID.uuid4())
+    "call_#{short_uuid}"
   end
 
 

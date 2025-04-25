@@ -125,7 +125,7 @@ defmodule GenAI.Model.EncoderBehaviour do
       require GenAI.Helpers
       
       
-      @base_url unquote(options[:base_url]) || Module.get_attribue(__MODULE__, :base_url,  "https://api.sandbox.local")
+      @base_url unquote(options[:base_url]) || Module.get_attribute(__MODULE__, :base_url,  "https://api.sandbox.local")
       
       @default_encoder_protocol ((Module.split(__MODULE__) |> Enum.slice(0..-2)) ++ [EncoderProtocol]) |> Module.concat()
       @encoder_protocol unquote(options[:encoder_protocol]) || @default_encoder_protocol
@@ -163,6 +163,12 @@ defmodule GenAI.Model.EncoderBehaviour do
       
       def completion_response(json, model, settings,  session, context, options),
           do: @provider.completion_response(__MODULE__, json, model, settings, session, context, options)
+          
+      def completion_choices(id, json, model, settings,  session, context, options),
+          do: @provider.completion_choices(__MODULE__, id, json, model, settings,  session, context, options)
+          
+      def completion_choice(id, json, model, settings,  session, context, options),
+          do: @provider.completion_choice(__MODULE__, id, json, model, settings,  session, context, options)
           
           
       #**********************************
@@ -242,6 +248,8 @@ defmodule GenAI.Model.EncoderBehaviour do
         headers: 5,
         request_body: 7,
         completion_response: 6,
+        completion_choices: 7,
+        completion_choice: 7,
         encode_message: 5,
         encode_tool: 5,
         normalize_messages: 5,
