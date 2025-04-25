@@ -143,7 +143,7 @@ defmodule GenAI.Model.Encoder.DefaultProvider do
   end
 
   def completion_choices(module, id, json, model, settings, session, context, options)
-
+  
   def completion_choices(
         module,
         id,
@@ -170,7 +170,22 @@ defmodule GenAI.Model.Encoder.DefaultProvider do
   end
 
   def completion_choice(module, id, json, model, settings, session, context, options)
-
+  
+  
+  def completion_choice(
+        _,
+        _,
+        content,
+        _,
+        _,
+        _,
+        _,
+        _
+      ) when is_bitstring(content) do
+    msg = GenAI.Message.assistant(content)
+    {:ok, msg}
+  end
+  
   def completion_choice(
         _,
         _,
