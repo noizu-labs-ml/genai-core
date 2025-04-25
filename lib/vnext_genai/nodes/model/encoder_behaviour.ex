@@ -164,6 +164,7 @@ defmodule GenAI.Model.EncoderBehaviour do
       def completion_response(json, model, settings,  session, context, options),
           do: @provider.completion_response(__MODULE__, json, model, settings, session, context, options)
           
+          
       #**********************************
       # Message and Tool Formatting
       # and Normalization
@@ -240,6 +241,7 @@ defmodule GenAI.Model.EncoderBehaviour do
         endpoint: 5,
         headers: 5,
         request_body: 7,
+        completion_response: 6,
         encode_message: 5,
         encode_tool: 5,
         normalize_messages: 5,
