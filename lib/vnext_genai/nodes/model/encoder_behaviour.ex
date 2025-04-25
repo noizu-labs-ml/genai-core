@@ -125,7 +125,7 @@ defmodule GenAI.Model.EncoderBehaviour do
       require GenAI.Helpers
       
       
-      @base_url unquote(options[:base_url]) || "https://api.sandbox.local"
+      @base_url unquote(options[:base_url]) || Module.get_attribue(__MODULE__, :base_url,  "https://api.sandbox.local")
       
       @default_encoder_protocol ((Module.split(__MODULE__) |> Enum.slice(0..-2)) ++ [EncoderProtocol]) |> Module.concat()
       @encoder_protocol unquote(options[:encoder_protocol]) || @default_encoder_protocol
