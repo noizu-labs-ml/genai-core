@@ -4,14 +4,14 @@ defmodule GenAI.Message.Content.ToolUseContent do
   """
   @vsn 1.0
   defstruct id: nil,
-            tool: nil,
+            tool_name: nil,
             arguments: %{},
             vsn: @vsn
   
   def new(options) do
     %__MODULE__{
       id: options[:id],
-      tool: options[:tool],
+      tool_name: options[:tool_name],
       arguments: options[:arguments]
     }
   end

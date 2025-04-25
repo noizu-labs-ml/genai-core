@@ -165,7 +165,7 @@ defmodule GenAI.Model.Encoder.DefaultProvider do
                           |> update_in([Access.key(:type)], & &1 || "function")
                       end
                     )
-    msg = GenAI.Message.ToolCall.new(role: :assistant, content: content, tool_calls: tool_calls)
+    msg = GenAI.Message.ToolUsage.new(role: :assistant, content: content, tool_calls: tool_calls)
     {:ok, msg}
   end
   def completion_choice(
