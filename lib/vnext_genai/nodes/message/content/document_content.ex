@@ -1,3 +1,13 @@
+defmodule GenAI.Message.Content.Document do
+  defstruct [
+    title: nil,
+    citation: nil,
+    cache_control: nil,
+    context: nil,
+    document: nil
+  ]
+end
+
 #content.type document
 #content.cache_control.type
 #content.citation
