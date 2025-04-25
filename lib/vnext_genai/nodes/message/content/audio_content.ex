@@ -1,4 +1,4 @@
-defmodule GenAI.Message.Content.ImageContent do
+defmodule GenAI.Message.Content.AudioContent do
   @moduledoc """
   Represents image part of chat message.
   """
@@ -6,7 +6,7 @@ defmodule GenAI.Message.Content.ImageContent do
   defstruct [
     source: nil,
     type: nil,
-    resolution: nil,
+    length: nil,
     resource: nil,
     options: nil,
     vsn: @vsn
@@ -17,13 +17,8 @@ defmodule GenAI.Message.Content.ImageContent do
   """
   def image_type(resource) when is_bitstring(resource) do
     cond do
-      String.ends_with?(resource, ".png") ->:png
-      String.ends_with?(resource, ".jpg") -> :jpeg
-      String.ends_with?(resource, ".jpeg") -> :jpeg
-      String.ends_with?(resource, ".gif") -> :gif
-      String.ends_with?(resource, ".bmp") -> :bmp
-      String.ends_with?(resource, ".tiff") -> :tiff
-      String.ends_with?(resource, ".webp") -> :webp
+      String.ends_with?(resource, ".wave") ->:wav
+      String.ends_with?(resource, ".mp3") -> :mp3
       true -> throw "Unsupported image type: #{resource}"
     end
   end
@@ -31,7 +26,7 @@ defmodule GenAI.Message.Content.ImageContent do
   @doc """
   Get image resolution.
   """
-  def resolution(_), do: :auto
+  def audio_length(_), do: :auto
 
   @doc """
   Base64 encode image content.
@@ -50,7 +45,7 @@ defmodule GenAI.Message.Content.ImageContent do
     File.exists?(resource) || throw "Resource not found: #{resource}"
     %__MODULE__{
       type: image_type(resource),
-      resolution: resolution(resource),
+      length: audio_length(resource),
       resource: resource,
       options: options
     }
