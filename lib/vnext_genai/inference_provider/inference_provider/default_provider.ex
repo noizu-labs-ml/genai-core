@@ -48,6 +48,79 @@ defmodule GenAI.InferenceProvider.DefaultProvider do
   
   
   
+  #------------------
+  # chat/7
+  #------------------
+  @doc """
+  Low level inference, pass in model, messages, tools, and various settings to prepare final provider specific API requires.
+  """
+  
+  def chat(module, model, messages, tools, hyper_parameters, provider_settings \\ [], context \\ nil, options \\ nil)
+  def chat(module, model, messages, tools, hyper_parameters, provider_settings, context, options) do
+    if Code.ensure_loaded?(module) and function_exported?(module, :do_chat, 7) do
+      module.do_chat(model, messages, tools, hyper_parameters, provider_settings, context, options)
+    else
+      do_chat(module, model, messages, tools, hyper_parameters, provider_settings, context, options)
+    end
+  end
+  
+  def do_chat(module, model, messages, tools, hyper_parameters, provider_settings \\ [], context \\ nil, options \\ nil) do
+    # Setup Context
+    context = context || Noizu.Context.system()
+    
+    # Options
+    session_type = options[:session_type] || :standard
+    full_response = options[:legacy_mode] === false
+    
+    # Standardize Model
+    model = module.standardize_model(model)
+    
+    # Check Provider
+    {:ok, provider} = GenAI.ModelProtocol.provider(model)
+    if provider != module,
+       do: raise ArgumentError, "Model Provider #{inspect provider} != #{module}"
+    
+    # Setup Thread
+    thread = GenAI.chat(session_type)
+             |> GenAI.with_model(model)
+             |> GenAI.with_provider_settings(provider, provider_settings)
+             |> GenAI.with_settings(hyper_parameters)
+             |> GenAI.with_tools(tools)
+             |> GenAI.with_messages(messages)
+    
+    # Execute and return response
+    case run(thread, context, options) do
+      {:ok, {response, thread}} ->
+        full_response && {:ok, {response, thread}} || {:ok, response}
+      error = {:error, _} -> error
+      other -> {:error, {:other, other}}
+    end
+  end
+  
+  
+  
+  @doc """
+  Sends a chat completion request to the Mistral API.
+  This function constructs the request body based on the provided messages, tools, and settings, sends the request to the Mistral API, and returns a `GenAI.ChatCompletion` struct with the response.
+  """
+  # @deprecated "This function is deprecated. Use `GenAI.Thread.chat/5` instead."
+  def chat(module, messages, tools, settings)
+  def chat(module, messages, tools, settings) do
+    if Code.ensure_loaded?(module) and function_exported?(module, :do_chat, 3) do
+      module.do_chat(messages, tools, settings)
+    else
+      do_chat(module, messages, tools, settings)
+    end
+  end
+  
+  def do_chat(module, messages, tools, settings)
+  def do_chat(module, messages, tools, settings) do
+    settings = settings |> Enum.reverse()
+    provider_settings = Enum.filter(settings, fn {k,_} -> k in [:api_key, :api_org, :api_project] end)
+    module.chat(settings[:model], messages, tools, settings, provider_settings)
+  end
+  
+  
   #*************************
   # Run Support
   #*************************
@@ -168,5 +241,16 @@ defmodule GenAI.InferenceProvider.DefaultProvider do
       raise GenAI.RequestError, "Unsupported Model"
     end
   end
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
 end

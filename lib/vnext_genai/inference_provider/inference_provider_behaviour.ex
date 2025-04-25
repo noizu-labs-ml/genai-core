@@ -28,6 +28,8 @@ defmodule GenAI.InferenceProviderBehaviour do
   @doc "Build and run inference thread"
   @callback run(session, context, options) :: {:ok, {completion, session}} | {:error, term}
   
+  @callback chat(any, any, any, any, any, any, any) :: {:ok, term} | {:error, term}
+  
   #---------------------
   # Run Support
   #---------------------
@@ -81,6 +83,12 @@ defmodule GenAI.InferenceProviderBehaviour do
       @doc "Build and run inference thread"
       def run(session, context, options \\ nil),
           do: @provider.run(__MODULE__, session, context, options)
+      
+      def chat(model, messages, tools, hyper_parameters, provider_settings \\ [], context \\ nil, options \\ nil),
+          do: @provider.chat(__MODULE__, model, messages, tools, hyper_parameters, provider_settings, context, options)
+      
+      def chat(messages, tools, settings),
+          do: @provider.chat(__MODULE__, messages, tools, settings)
       
       #---------------------
       # Run Support
