@@ -35,6 +35,11 @@ defmodule GenAI.ChatCompletion do
     ]
   end
   
+  
+  def from_json(options)
+  def from_json(options) when is_struct(options) do
+    from_json(Map.from_struct(options))
+  end
   def from_json(options) do
     keys =
       __MODULE__.__info__(:struct)
