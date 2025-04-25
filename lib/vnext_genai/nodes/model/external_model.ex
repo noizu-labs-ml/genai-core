@@ -46,7 +46,7 @@ defmodule GenAI.ExternalModel do
   
   
   
-  defimpl GenAI.ModelProtocol, for: [GenAI.Model] do
+  defimpl GenAI.ModelProtocol do
     def handle(subject), do: {:ok, subject.resource_handle}
     def encoder(subject), do: {:ok, subject.encoder || Module.concat([subject.provider, Encoder])}
     def provider(subject), do: {:ok, subject.provider}
