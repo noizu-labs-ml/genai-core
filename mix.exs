@@ -116,7 +116,8 @@ defmodule GenAICore.MixProject do
       {:jason, "~> 1.2", optional: true},
       {:ymlr, "~> 4.0", optional: true},
       {:yaml_elixir, "~> 2.9.0", optional: true},
-      {:sweet_xml, "~> 0.7", optional: true}
+      {:sweet_xml, "~> 0.7", optional: true},
+      {:ex_fixer, "~> 1.0.0", only: :dev}
     ]
 
     common ++ hex_repo_deps ++ test_deps

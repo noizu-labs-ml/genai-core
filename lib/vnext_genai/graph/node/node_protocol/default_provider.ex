@@ -12,7 +12,6 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
   require GenAI.Records.Link
   require GenAI.Records.Node
 
-
   # -------------------------
   # new/2
   # -------------------------
@@ -32,23 +31,26 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
       inbound_links: %{},
       outbound_links: %{}
     ]
+
     module.__struct__(options)
   end
+
   def do_new(module, options) do
     core = [
       id: options[:id] || UUID.uuid4(),
       inbound_links: options[:inbound_links] || %{},
       outbound_links: options[:outbound_links] || %{}
     ]
-    
-    
-    keys = module.__info__(:struct)
-           |> Enum.map(& &1.field)
-           |> MapSet.new()
-    
-    options = Keyword.merge(Enum.to_list(options), core)
-              |> Enum.filter(fn {key,_} -> Enum.member?(keys, key) end)
-    
+
+    keys =
+      module.__info__(:struct)
+      |> Enum.map(& &1.field)
+      |> MapSet.new()
+
+    options =
+      Keyword.merge(Enum.to_list(options), core)
+      |> Enum.filter(fn {key, _} -> Enum.member?(keys, key) end)
+
     module.__struct__(options)
   end
 
@@ -76,25 +78,51 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
     end
   end
 
-
   def build_node_lookup(graph_node, options \\ nil) do
     with {:ok, id} <- GenAI.Graph.NodeProtocol.id(graph_node),
          {:ok, type} <- GenAI.Graph.NodeProtocol.node_type(graph_node),
          {:ok, nodes} <- GenAI.Graph.NodeProtocol.nodes(graph_node, options) do
-      path = cond do
-        v = options[:path] -> v ++ [id]
-        :else -> [id]
-      end
+      path =
+        cond do
+          v = options[:path] -> v ++ [id]
+          :else -> [id]
+        end
+
       options = put_in(options || %{}, [:path], path)
 
-      my_entry = path == [id] && [{id, L.element_lookup(element: id, path: path , type: type, implementation: graph_node.__struct__ )}] || []
-      response = Enum.map(nodes,
-        fn(n) ->
-          {:ok, id2} = GenAI.Graph.NodeProtocol.id(n)
-          {:ok, nt} = GenAI.Graph.NodeProtocol.node_type(n)
-          [ {id2, L.element_lookup(element: id2, path: path ++ [id2], type: nt, implementation: n.__struct__ )} | GenAI.Graph.NodeProtocol.build_node_lookup(n, options)]
-        end
-      ) |> List.flatten()
+      my_entry =
+        (path == [id] &&
+           [
+             {id,
+              L.element_lookup(
+                element: id,
+                path: path,
+                type: type,
+                implementation: graph_node.__struct__
+              )}
+           ]) || []
+
+      response =
+        Enum.map(
+          nodes,
+          fn n ->
+            {:ok, id2} = GenAI.Graph.NodeProtocol.id(n)
+            {:ok, nt} = GenAI.Graph.NodeProtocol.node_type(n)
+
+            [
+              {id2,
+               L.element_lookup(
+                 element: id2,
+                 path: path ++ [id2],
+                 type: nt,
+                 implementation: n.__struct__
+               )}
+              | GenAI.Graph.NodeProtocol.build_node_lookup(n, options)
+            ]
+          end
+        )
+        |> List.flatten()
+
       response ++ my_entry
     end
   end
@@ -102,34 +130,49 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
   def build_handle_lookup(graph_node, options \\ nil) do
     with {:ok, id} <- GenAI.Graph.NodeProtocol.id(graph_node),
          {:ok, nodes} <- GenAI.Graph.NodeProtocol.nodes(graph_node, options) do
-      path = cond do
-        v = options[:path] -> v ++ [id]
-        :else -> [id]
-      end
+      path =
+        cond do
+          v = options[:path] -> v ++ [id]
+          :else -> [id]
+        end
+
       options = put_in(options || %{}, [:path], path)
 
-      my_entry = path == [id] && case  GenAI.Graph.NodeProtocol.handle_record(graph_node) do
-        {:ok, h = L.graph_handle(scope: :global)} -> [{h, id}]
-        {:ok, h = L.graph_handle(scope: :standard)} -> [{h, id}]
-        {:ok, h = L.graph_handle(scope: :local)} -> [{h, {path, id}}]
-        _ -> []
-      end || []
+      my_entry =
+        (path == [id] &&
+           case GenAI.Graph.NodeProtocol.handle_record(graph_node) do
+             {:ok, h = L.graph_handle(scope: :global)} -> [{h, id}]
+             {:ok, h = L.graph_handle(scope: :standard)} -> [{h, id}]
+             {:ok, h = L.graph_handle(scope: :local)} -> [{h, {path, id}}]
+             _ -> []
+           end) || []
 
-      response = Enum.map(nodes,
-        fn(n) ->
-          {:ok, id2} = GenAI.Graph.NodeProtocol.id(n)
-          case GenAI.Graph.NodeProtocol.handle_record(n) do
-            {:ok, h = L.graph_handle(scope: :global)} -> [{h, id2} |  GenAI.Graph.NodeProtocol.build_handle_lookup(n, options)]
-            {:ok, h = L.graph_handle(scope: :standard)} -> [{h, id2} |  GenAI.Graph.NodeProtocol.build_handle_lookup(n, options)]
-            {:ok, h = L.graph_handle(scope: :local)} -> [{h, {path, id2}} |  GenAI.Graph.NodeProtocol.build_handle_lookup(n, options)]
-            _ -> GenAI.Graph.NodeProtocol.build_handle_lookup(n, options)
+      response =
+        Enum.map(
+          nodes,
+          fn n ->
+            {:ok, id2} = GenAI.Graph.NodeProtocol.id(n)
+
+            case GenAI.Graph.NodeProtocol.handle_record(n) do
+              {:ok, h = L.graph_handle(scope: :global)} ->
+                [{h, id2} | GenAI.Graph.NodeProtocol.build_handle_lookup(n, options)]
+
+              {:ok, h = L.graph_handle(scope: :standard)} ->
+                [{h, id2} | GenAI.Graph.NodeProtocol.build_handle_lookup(n, options)]
+
+              {:ok, h = L.graph_handle(scope: :local)} ->
+                [{h, {path, id2}} | GenAI.Graph.NodeProtocol.build_handle_lookup(n, options)]
+
+              _ ->
+                GenAI.Graph.NodeProtocol.build_handle_lookup(n, options)
+            end
           end
-        end
-      ) |> List.flatten()
+        )
+        |> List.flatten()
+
       response ++ my_entry
     end
   end
-
 
   # -------------------------
   # node_type/1
@@ -146,7 +189,6 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
   @spec do_node_type(G.graph_node()) :: T.result(G.graph_node_id(), T.details())
   def do_node_type(graph_node)
   def do_node_type(%{__struct__: module}), do: {:ok, module}
-
 
   # -------------------------
   # id/1
@@ -199,7 +241,6 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
   def do_handle_record(graph_node)
   def do_handle_record(%{handle: nil}), do: {:error, {:handle, :is_nil}}
   def do_handle_record(%{handle: handle}), do: {:ok, handle}
-
 
   # -------------------------
   # handle/2
@@ -442,14 +483,22 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
     end
   end
 
-  #-----------------------------------------------
+  # -----------------------------------------------
   # process_node
-  #-----------------------------------------------
+  # -----------------------------------------------
   @doc """
   Apply/process a node. check/update fingerprint and add any appropriate directives to state.
   """
   def process_node(graph_node, graph_link, graph_container, session, context, options)
-  def process_node(%{__struct__: module} = graph_node, graph_link, graph_container, session, context, options) do
+
+  def process_node(
+        %{__struct__: module} = graph_node,
+        graph_link,
+        graph_container,
+        session,
+        context,
+        options
+      ) do
     # apply directives
     if Code.ensure_loaded?(module) and function_exported?(module, :process_node, 6) do
       module.process_node(graph_node, graph_link, graph_container, session, context, options)
@@ -457,77 +506,120 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
       do_process_node(graph_node, graph_link, graph_container, session, context, options)
     end
   end
-  
-  #-----------------------------------------------
+
+  # -----------------------------------------------
   # do_process_node
-  #-----------------------------------------------
+  # -----------------------------------------------
   def do_process_node(graph_node, graph_link, graph_container, session, context, options)
+
   def do_process_node(graph_node, graph_link, graph_container, session, context, options) do
-    with {:ok, session} <- apply_node_directives(graph_node, graph_link, graph_container, session, context, options) do
+    with {:ok, session} <-
+           apply_node_directives(
+             graph_node,
+             graph_link,
+             graph_container,
+             session,
+             context,
+             options
+           ) do
       process_node_response(graph_node, graph_link, graph_container, session, context, options)
     end
   end
-  
-  #-----------------------------------------------
+
+  # -----------------------------------------------
   # apply_node_directives
-  #-----------------------------------------------
+  # -----------------------------------------------
   @doc """
   Apply/process a node. check/update fingerprint and add any appropriate directives to state.
   """
   def apply_node_directives(graph_node, graph_link, graph_container, session, context, options)
-  def apply_node_directives(%{__struct__: module} = graph_node, graph_link, graph_container, session, context, options) do
+
+  def apply_node_directives(
+        %{__struct__: module} = graph_node,
+        graph_link,
+        graph_container,
+        session,
+        context,
+        options
+      ) do
     if Code.ensure_loaded?(module) and function_exported?(module, :apply_node_directives, 6) do
-      module.apply_node_directives(graph_node, graph_link, graph_container, session, context, options)
+      module.apply_node_directives(
+        graph_node,
+        graph_link,
+        graph_container,
+        session,
+        context,
+        options
+      )
     else
       {:ok, session}
     end
   end
-  
-  #-----------------------------------------------
+
+  # -----------------------------------------------
   # process_node_response
-  #-----------------------------------------------
+  # -----------------------------------------------
   @doc """
   Apply/process a node. check/update fingerprint and add any appropriate directives to state.
   """
   def process_node_response(graph_node, graph_link, graph_container, session, context, options)
-  def process_node_response(%{__struct__: module} = graph_node, graph_link, graph_container, session, context, options) do
+
+  def process_node_response(
+        %{__struct__: module} = graph_node,
+        graph_link,
+        graph_container,
+        session,
+        context,
+        options
+      ) do
     if Code.ensure_loaded?(module) and function_exported?(module, :process_node_response, 6) do
-      module.process_node_response(graph_node, graph_link, graph_container, session, context, options)
+      module.process_node_response(
+        graph_node,
+        graph_link,
+        graph_container,
+        session,
+        context,
+        options
+      )
     else
       do_process_node_response(graph_node, graph_link, graph_container, session, context, options)
     end
   end
-  
-  #-----------------------------------------------
+
+  # -----------------------------------------------
   # do_process_node_response
-  #-----------------------------------------------
+  # -----------------------------------------------
   def do_process_node_response(graph_node, graph_link, graph_container, session, context, options)
+
   def do_process_node_response(graph_node, graph_link, graph_container, session, context, options) do
     case fetch_outbound_links(graph_node, graph_link, graph_container) do
       {:ok, []} ->
         GenAI.Records.Node.process_end(session: session)
+
       {:ok, [link]} ->
-        with {:ok, element} <- GenAI.Graph.Root.graph_context_by_link(session.root, link, graph_node) do
+        with {:ok, element} <-
+               GenAI.Graph.Root.graph_context_by_link(session.root, link, graph_node) do
           GenAI.Records.Node.process_next(element: element, session: session)
         end
-        
     end
   end
-  
-  #===============================================
+
+  # ===============================================
   # Private Helpers
-  #===============================================
+  # ===============================================
   defp fetch_outbound_links(graph_node, graph_link, graph_container) do
     with {:ok, links} <-
            GenAI.Graph.NodeProtocol.outbound_links(
              graph_node,
              graph_container,
-             expand: true) do
-      links = links
-              |> Enum.map(fn {_, x} -> x end)
-              |> List.flatten()
+             expand: true
+           ) do
+      links =
+        links
+        |> Enum.map(fn {_, x} -> x end)
+        |> List.flatten()
+
       {:ok, links}
     end
   end
-
 end

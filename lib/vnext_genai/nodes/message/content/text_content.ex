@@ -3,12 +3,11 @@ defmodule GenAI.Message.Content.TextContent do
   Represents image part of chat message.
   """
   @vsn 1.0
-  defstruct [
-    system: nil,
-    type: :input, # prompt, except, paste,  documentation, directory
-    text: nil,
-    vsn: @vsn
-  ]
+  defstruct system: nil,
+            # prompt, except, paste,  documentation, directory
+            type: :input,
+            text: nil,
+            vsn: @vsn
 
   def new(message) do
     %__MODULE__{text: message}
@@ -19,5 +18,4 @@ defmodule GenAI.Message.Content.TextContent do
       subject
     end
   end
-
 end

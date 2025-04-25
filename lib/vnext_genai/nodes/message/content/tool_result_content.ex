@@ -9,7 +9,7 @@ defmodule GenAI.Message.Content.ToolResultContent do
             cached_at: nil,
             expires_at: nil,
             vsn: @vsn
-  
+
   def new(options) do
     %__MODULE__{
       tool_use_id: options[:tool_use_id],

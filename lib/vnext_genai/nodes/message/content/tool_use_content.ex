@@ -7,7 +7,7 @@ defmodule GenAI.Message.Content.ToolUseContent do
             tool_name: nil,
             arguments: %{},
             vsn: @vsn
-  
+
   def new(options) do
     %__MODULE__{
       id: options[:id],

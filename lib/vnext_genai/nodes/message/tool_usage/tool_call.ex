@@ -1,14 +1,11 @@
 defmodule GenAI.Message.ToolCall do
-  
-  defstruct [
-    id: nil,
-    type: :function,
-    tool_name: nil,
-    arguments: %{}
-  ]
-  
-  
+  defstruct id: nil,
+            type: :function,
+            tool_name: nil,
+            arguments: %{}
+
   def to_json(this, format \\ :default)
+
   def to_json(this, :default) do
     %{
       id: this.id,

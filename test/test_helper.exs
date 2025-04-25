@@ -9,7 +9,6 @@ children = [
 opts = [strategy: :one_for_one, name: GenAI.Supervisor]
 Supervisor.start_link(children, opts)
 
-
 Mimic.copy(Finch)
 
 ExUnit.start()

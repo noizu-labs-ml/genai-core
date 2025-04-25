@@ -3,24 +3,22 @@ defmodule GenAI.Message.Content.AudioContent do
   Represents image part of chat message.
   """
   @vsn 1.0
-  defstruct [
-    source: nil,
-    type: nil,
-    transcript: "AUDIO TRANSCRIPT NOT AVAILABLE",
-    length: nil,
-    resource: nil,
-    options: nil,
-    vsn: @vsn
-  ]
+  defstruct source: nil,
+            type: nil,
+            transcript: "AUDIO TRANSCRIPT NOT AVAILABLE",
+            length: nil,
+            resource: nil,
+            options: nil,
+            vsn: @vsn
 
   @doc """
   Get image type based on file extension.
   """
   def image_type(resource) when is_bitstring(resource) do
     cond do
-      String.ends_with?(resource, ".wave") ->:wav
+      String.ends_with?(resource, ".wave") -> :wav
       String.ends_with?(resource, ".mp3") -> :mp3
-      true -> throw "Unsupported image type: #{resource}"
+      true -> throw("Unsupported image type: #{resource}")
     end
   end
 
@@ -33,6 +31,7 @@ defmodule GenAI.Message.Content.AudioContent do
   Base64 encode image content.
   """
   def base64(image, options \\ nil)
+
   def base64(image, _) do
     binary = File.read!(image.resource)
     {:ok, Base.encode64(binary)}
@@ -42,8 +41,10 @@ defmodule GenAI.Message.Content.AudioContent do
   Prepare new image message content item.
   """
   def new(resource, options \\ nil)
+
   def new(resource, options) when is_bitstring(resource) do
-    File.exists?(resource) || throw "Resource not found: #{resource}"
+    File.exists?(resource) || throw("Resource not found: #{resource}")
+
     %__MODULE__{
       type: image_type(resource),
       length: audio_length(resource),
@@ -52,11 +53,9 @@ defmodule GenAI.Message.Content.AudioContent do
     }
   end
 
-
   defimpl GenAI.Message.ContentProtocol do
     def content(subject) do
       subject
     end
   end
-
 end
