@@ -50,7 +50,7 @@ defmodule GenAI.Support.TestProvider do
              options
            ),
          {:ok, model_encoder} <- GenAI.ModelProtocol.encoder(model),
-         {:ok, model_handle} <- GenAI.ModelProtocol.handle(model),
+         {:ok, model_name} <- GenAI.ModelProtocol.name(model),
          {:ok, provider} <- GenAI.ModelProtocol.provider(model),
          {:ok, {tools, thread_context}} <-
            GenAI.ThreadProtocol.effective_tools(thread_context, model, context, options),
@@ -75,7 +75,7 @@ defmodule GenAI.Support.TestProvider do
 
       body =
         %{
-          model: model_handle,
+          model: model_name,
           messages: messages
         }
         |> model_encoder.with_dynamic_setting(:frequency_penalty, model, settings)
@@ -104,7 +104,7 @@ defmodule GenAI.Support.TestProvider do
         end)
 
       {:ok, thread_context} = GenAI.ThreadProtocol.set_artifact(thread_context, :body, body)
-      run_inference(thread_context, body, model_handle, provider)
+      run_inference(thread_context, body, model_name, provider)
     end
   end
 end
@@ -130,10 +130,10 @@ defmodule GenAI.Support.TestProvider.EncoderOne do
   end
 
   def request_body(model, messages, tools, settings, _, _, _) do
-    with {:ok, model_handle} <- GenAI.ModelProtocol.handle(model) do
+    with {:ok, model_name} <- GenAI.ModelProtocol.name(model) do
       # TODO Enum map hyper_params
       %{
-        model: model_handle,
+        model: model_name,
         messages: messages
       }
       |> with_dynamic_setting(:frequency_penalty, model, settings)
@@ -281,10 +281,10 @@ defmodule GenAI.Support.TestProvider.EncoderTwo do
   def request_body(model, messages, tools, settings, session, context, options)
 
   def request_body(model, messages, tools, settings, _, _, _) do
-    with {:ok, model_handle} <- GenAI.ModelProtocol.handle(model) do
+    with {:ok, model_name} <- GenAI.ModelProtocol.name(model) do
       # TODO Enum map hyper_params
       %{
-        model: model_handle,
+        model: model_name,
         messages: messages
       }
       |> with_dynamic_setting(:frequency_penalty, model, settings)
