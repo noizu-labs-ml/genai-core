@@ -7,6 +7,7 @@ defmodule GenAI.Message.Content.TextContent do
             # prompt, except, paste,  documentation, directory
             type: :input,
             text: nil,
+            citations: nil,
             vsn: @vsn
 
   def new(message) do
