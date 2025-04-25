@@ -32,6 +32,11 @@ end
 defimpl GenAI.Support.TestProvider2.EncoderProtocol, for: GenAI.Message do
   def content(content)
 
+  def content(content) when is_bitstring(content) do
+    %{type: :text, text: content}
+  end
+
+
   def content(%GenAI.Message.Content.TextContent{} = content) do
     %{type: :text, text: content.text}
   end

@@ -117,7 +117,7 @@ defmodule GenAI do
   def run(thread_context) do
     context = Noizu.Context.system()
 
-    with {:ok, completion, _} <- GenAI.ThreadProtocol.execute(thread_context, :run, context, nil) do
+    with {:ok, {completion, _}} <- run(thread_context, context, []) do
       {:ok, completion}
     end
   end
