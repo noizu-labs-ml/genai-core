@@ -5,7 +5,8 @@ defmodule GenAI.InferenceProvider.DefaultProvider do
 
   alias GenAI.ThreadProtocol
   import GenAI.InferenceProvider.Helpers
-
+  
+  
   # *************************
   # run/4
   # *************************
@@ -196,7 +197,17 @@ defmodule GenAI.InferenceProvider.DefaultProvider do
       model_encoder.endpoint(model, settings, session, context, options)
     end
   end
-
+  
+  # ----------------------
+  # headers/2
+  # ----------------------
+  def headers(module, options) do
+    config_settings = Application.get_env(:genai,  module.config_key(), [])
+    context = Noizu.Context.system()
+    {:ok, {headers,_}} = module.default_encoder().headers(nil, %{settings: options, config_settings: config_settings}, nil, context, [])
+    headers
+  end
+  
   # ----------------------
   # headers/6
   # ----------------------
