@@ -25,5 +25,5 @@ defmodule GenAI.Session.StateEntry do
     do: update_entry(%__MODULE__{}, value, context, options)
 
   def update_entry(this, concrete_value(value: value), _, _),
-    do: %__MODULE__{this| value: value}
+    do: %__MODULE__{this | value: value}
 end

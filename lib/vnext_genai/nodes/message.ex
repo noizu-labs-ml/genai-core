@@ -25,6 +25,21 @@ defmodule GenAI.Message do
     directive = GenAI.Session.State.Directive.static(entry, this, {:node, this.id})
     GenAI.Thread.Session.append_directive(session, directive, context, options)
   end
+  
+  def inspect_custom_details(subject, opts) do
+    
+    list = [
+      "role:", Inspect.Algebra.to_doc(subject.role, opts), ", ",
+      "content:", Inspect.Algebra.to_doc(subject.content, opts), ", ",
+    ]
+    
+    if subject.user do
+      ["user:", Inspect.Algebra.to_doc(subject.user, opts), ", " | list]
+    else
+      list
+    end
+  end
+  
 
   def message(role, message, options \\ nil) do
     options = Keyword.merge(options || [], role: role, content: message)

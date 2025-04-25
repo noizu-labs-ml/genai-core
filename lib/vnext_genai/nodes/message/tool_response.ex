@@ -22,7 +22,15 @@ defmodule GenAI.Message.ToolResponse do
     directive = GenAI.Session.State.Directive.static(entry, this, {:node, this.id})
     GenAI.Thread.Session.append_directive(session, directive, context, options)
   end
-
+  
+  def inspect_custom_details(subject, opts) do
+      [
+        "tool_name:", Inspect.Algebra.to_doc(subject.tool_name, opts), ", ",
+        "tool_response:", Inspect.Algebra.to_doc(subject.tool_response, opts), ", ",
+        "tool_call_id:", Inspect.Algebra.to_doc(subject.tool_call_id, opts), ", ",
+      ]
+  end
+  
   defimpl GenAI.MessageProtocol do
     def message(message), do: message
     def content(_), do: :unsupported

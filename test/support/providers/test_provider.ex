@@ -116,48 +116,50 @@ defmodule GenAI.Support.TestProvider.EncoderOne do
   use GenAI.Model.EncoderBehaviour
 
   require GenAI.Records.Directive
-  
+
   def headers(model, settings, session, context, options)
-  def headers(_, _, _, _ , _) do
+
+  def headers(_, _, _, _, _) do
     {:error, :unsupported}
   end
-  
+
   def endpoint(model, settings, session, context, options)
-  def endpoint(_, _, _, _ , _) do
+
+  def endpoint(_, _, _, _, _) do
     {:error, :unsupported}
   end
 
   def request_body(model, messages, tools, settings, _, _, _) do
     with {:ok, model_handle} <- GenAI.ModelProtocol.handle(model) do
       # TODO Enum map hyper_params
-        %{
-          model: model_handle,
-          messages: messages
-        }
-        |> with_dynamic_setting(:frequency_penalty, model, settings)
-        |> with_dynamic_setting(:logprobe, model, settings)
-        |> with_dynamic_setting(:top_logprobs, model, settings)
-        |> with_dynamic_setting(:logit_bias, model, settings)
-        |> with_dynamic_setting(:max_tokens, model, settings)
-        |> with_dynamic_setting(:frequency_penalty, model, settings)
-        |> with_dynamic_setting_as(:n, :completion_choices, model, settings)
-        |> with_dynamic_setting(:presence_penalty, model, settings)
-        |> with_dynamic_setting(:response_format, model, settings)
-        |> with_dynamic_setting(:seed, model, settings)
-        |> with_dynamic_setting(:stop, model, settings)
-        |> with_dynamic_setting(:temperature, model, settings)
-        |> with_dynamic_setting(:top_p, model, settings)
-        |> with_dynamic_setting(:user, model, settings)
-        |> then(fn
-          body ->
-            if tools == [] do
-              body
-            else
-              body
-              |> GenAI.InferenceProvider.Helpers.with_setting(:tool_choice, settings)
-              |> Map.put(:tools, tools)
-            end
-        end)
+      %{
+        model: model_handle,
+        messages: messages
+      }
+      |> with_dynamic_setting(:frequency_penalty, model, settings)
+      |> with_dynamic_setting(:logprobe, model, settings)
+      |> with_dynamic_setting(:top_logprobs, model, settings)
+      |> with_dynamic_setting(:logit_bias, model, settings)
+      |> with_dynamic_setting(:max_tokens, model, settings)
+      |> with_dynamic_setting(:frequency_penalty, model, settings)
+      |> with_dynamic_setting_as(:n, :completion_choices, model, settings)
+      |> with_dynamic_setting(:presence_penalty, model, settings)
+      |> with_dynamic_setting(:response_format, model, settings)
+      |> with_dynamic_setting(:seed, model, settings)
+      |> with_dynamic_setting(:stop, model, settings)
+      |> with_dynamic_setting(:temperature, model, settings)
+      |> with_dynamic_setting(:top_p, model, settings)
+      |> with_dynamic_setting(:user, model, settings)
+      |> then(fn
+        body ->
+          if tools == [] do
+            body
+          else
+            body
+            |> GenAI.InferenceProvider.Helpers.with_setting(:tool_choice, settings)
+            |> Map.put(:tools, tools)
+          end
+      end)
     end
   end
 
@@ -251,7 +253,7 @@ defmodule GenAI.Support.TestProvider.EncoderOne do
   # ----------------------
   def hyper_params(model, settings, session, context, options \\ nil)
 
-  def hyper_params(_, _, _, _ , _) do
+  def hyper_params(_, _, _, _, _) do
     {:ok, []}
   end
 end
@@ -262,52 +264,53 @@ defmodule GenAI.Support.TestProvider.EncoderTwo do
   """
   use GenAI.Model.EncoderBehaviour
 
-
-
   require GenAI.Records.Directive
-  
+
   def headers(model, settings, session, context, options)
-  def headers(_, _, _, _ , _) do
+
+  def headers(_, _, _, _, _) do
     {:error, :unsupported}
   end
-  
+
   def endpoint(model, settings, session, context, options)
+
   def endpoint(_, _, _, _, _) do
     {:error, :unsupported}
   end
-  
+
   def request_body(model, messages, tools, settings, session, context, options)
+
   def request_body(model, messages, tools, settings, _, _, _) do
     with {:ok, model_handle} <- GenAI.ModelProtocol.handle(model) do
       # TODO Enum map hyper_params
-        %{
-          model: model_handle,
-          messages: messages
-        }
-        |> with_dynamic_setting(:frequency_penalty, model, settings)
-        |> with_dynamic_setting(:logprobe, model, settings)
-        |> with_dynamic_setting(:top_logprobs, model, settings)
-        |> with_dynamic_setting(:logit_bias, model, settings)
-        |> with_dynamic_setting(:max_tokens, model, settings)
-        |> with_dynamic_setting(:frequency_penalty, model, settings)
-        |> with_dynamic_setting_as(:n, :completion_choices, model, settings)
-        |> with_dynamic_setting(:presence_penalty, model, settings)
-        |> with_dynamic_setting(:response_format, model, settings)
-        |> with_dynamic_setting(:seed, model, settings)
-        |> with_dynamic_setting(:stop, model, settings)
-        |> with_dynamic_setting(:temperature, model, settings)
-        |> with_dynamic_setting(:top_p, model, settings)
-        |> with_dynamic_setting(:user, model, settings)
-        |> then(fn
-          body ->
-            if tools == [] do
-              body
-            else
-              body
-              |> GenAI.InferenceProvider.Helpers.with_setting(:tool_choice, settings)
-              |> Map.put(:tools, tools)
-            end
-        end)
+      %{
+        model: model_handle,
+        messages: messages
+      }
+      |> with_dynamic_setting(:frequency_penalty, model, settings)
+      |> with_dynamic_setting(:logprobe, model, settings)
+      |> with_dynamic_setting(:top_logprobs, model, settings)
+      |> with_dynamic_setting(:logit_bias, model, settings)
+      |> with_dynamic_setting(:max_tokens, model, settings)
+      |> with_dynamic_setting(:frequency_penalty, model, settings)
+      |> with_dynamic_setting_as(:n, :completion_choices, model, settings)
+      |> with_dynamic_setting(:presence_penalty, model, settings)
+      |> with_dynamic_setting(:response_format, model, settings)
+      |> with_dynamic_setting(:seed, model, settings)
+      |> with_dynamic_setting(:stop, model, settings)
+      |> with_dynamic_setting(:temperature, model, settings)
+      |> with_dynamic_setting(:top_p, model, settings)
+      |> with_dynamic_setting(:user, model, settings)
+      |> then(fn
+        body ->
+          if tools == [] do
+            body
+          else
+            body
+            |> GenAI.InferenceProvider.Helpers.with_setting(:tool_choice, settings)
+            |> Map.put(:tools, tools)
+          end
+      end)
     end
   end
 
@@ -411,6 +414,7 @@ end
 
 defimpl GenAI.Support.TestProvider.EncoderProtocol, for: GenAI.Tool do
   def encode(subject, model, session, context, options)
+
   def encode(subject, _, session, _, _) do
     encoded = %{
       type: :function,

@@ -41,7 +41,22 @@ defmodule GenAI.VNext.Graph do
     last_link: nil,
     settings: nil
   )
-
+  
+  
+  
+  
+  def inspect_custom_details(subject, opts) do
+    [
+      "nodes:", Inspect.Algebra.to_doc(subject.nodes, opts), ", ",
+      "links:", Inspect.Algebra.to_doc(subject.links, opts), ", ",
+      "head:", Inspect.Algebra.to_doc(subject.head, opts), ", ",
+      "last_node:", Inspect.Algebra.to_doc(subject.last_node, opts), ", ",
+      "last_link:", Inspect.Algebra.to_doc(subject.last_link, opts), ", ",
+      "settings:", Inspect.Algebra.to_doc(subject.settings, opts), ", ",
+    ]
+  end
+  
+  
   def process_node(%__MODULE__{} = subject, link, _, session, context, options) do
     with {:ok, head} <- GenAI.VNext.Graph.head(subject) do
       do_process_node(head, link, subject, session, context, options)

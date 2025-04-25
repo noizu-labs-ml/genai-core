@@ -623,4 +623,85 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
       {:ok, links}
     end
   end
+  
+  def inspect_custom_details(subject, opts)
+  def inspect_custom_details(_, _), do: []
+  
+  def inspect_low_detail(%{__struct__: module} = subject, opts) do
+    
+    id = case UUID.info(subject.id) do
+      {:ok, _} -> ShortUUID.encode!(subject.id)
+      _ -> subject.id
+    end
+    
+    name_field = subject.name && ["name: ", Inspect.Algebra. to_doc(subject.name, opts), ", "] || []
+    description_field = subject.description && ["name: ", Inspect.Algebra. to_doc(subject.description, opts), ", "] || []
+    
+    top_fields = [
+      "##{subject.__struct__}<",
+      "id: ", Inspect.Algebra. to_doc(id, opts), ", ",
+    ] ++ name_field ++ description_field
+
+    middle_fields = module.inspect_custom_details(subject, opts)
+    
+    inbound = Enum.map(subject.inbound_links, fn  {socket, links} -> {socket, length(links)} end)
+              |> Enum.into(%{})
+    outbound = Enum.map(subject.outbound_links, fn  {socket, links} -> {socket, length(links)} end)
+               |> Enum.into(%{})
+    
+    bottom_fields =
+      [
+        "inbound_links: ", Inspect.Algebra. to_doc(inbound, opts), ", ",
+        "outbound_links: ", Inspect.Algebra. to_doc(outbound, opts),
+        ">"
+      ]
+    Inspect.Algebra.concat(top_fields ++ middle_fields ++ bottom_fields)
+  end
+  
+  def inspect_medium_detail(subject, opts) do
+    inspect_low_detail(subject, opts)
+  end
+  
+  require GenAI.Records.Link
+  def inspect_high_detail(%{__struct__: module} = subject, opts) do
+    
+    {:ok, inbound_links} = GenAI.Graph.NodeProtocol.inbound_links(subject, %{}, expand: true)
+    inbound_links = inbound_links
+                    |> Enum.map(
+                         fn {socket, links} ->
+                           links = Enum.map(links, fn %{source: GenAI.Records.Link.connector(node: node)} -> node end)
+                           {socket, links}
+                         end)
+                    |> Enum.into(%{})
+    {:ok, outbound_links} = GenAI.Graph.NodeProtocol.outbound_links(subject, %{}, expand: true)
+    outbound_links = outbound_links
+                    |> Enum.map(
+                         fn {socket, links} ->
+                           links = Enum.map(links, fn %{target: GenAI.Records.Link.connector(node: node)} -> node end)
+                           {socket, links}
+                         end)
+                    |> Enum.into(%{})
+    
+    
+    
+    top_fields = [
+      "##{subject.__struct__}<",
+      "id: ", Inspect.Algebra. to_doc(subject.id, opts), ", ",
+      "name: ", Inspect.Algebra. to_doc(subject.name, opts), ", ",
+      "description: ", Inspect.Algebra. to_doc(subject.description || "N/A", opts), ", "
+    ]
+    middle_fields = module.inspect_custom_details(subject, opts)
+    bottom_fields =
+      [
+        "inbound_links: ", Inspect.Algebra. to_doc(inbound_links, opts), ", ",
+        "outbound_links: ", Inspect.Algebra. to_doc(outbound_links, opts),
+        ">"
+      ]
+    Inspect.Algebra.concat(top_fields ++ middle_fields ++ bottom_fields)
+  end
+  
+  def inspect_full_detail(subject, opts) do
+    Inspect.Algebra.to_doc(Map.from_struct(subject), opts)
+  end
+  
 end

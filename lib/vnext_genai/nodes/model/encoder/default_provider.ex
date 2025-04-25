@@ -1,6 +1,6 @@
 defmodule GenAI.Model.Encoder.DefaultProvider do
   import GenAI.Records.Directive,
-         only: [hyper_param: 1]
+    only: [hyper_param: 1]
 
   require GenAI.Records.Directive
 

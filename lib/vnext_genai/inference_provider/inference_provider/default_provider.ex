@@ -5,8 +5,7 @@ defmodule GenAI.InferenceProvider.DefaultProvider do
 
   alias GenAI.ThreadProtocol
   import GenAI.InferenceProvider.Helpers
-  
-  
+
   # *************************
   # run/4
   # *************************
@@ -135,8 +134,6 @@ defmodule GenAI.InferenceProvider.DefaultProvider do
       |> GenAI.with_tools(tools)
       |> GenAI.with_messages(messages)
 
-
-
     # Execute and return response
     case GenAI.ThreadProtocol.execute(thread, :run, context, options) do
       {:ok, {response, thread}} ->
@@ -169,8 +166,10 @@ defmodule GenAI.InferenceProvider.DefaultProvider do
 
   def do_chat(module, messages, tools, settings) do
     settings = settings |> Enum.reverse()
+
     provider_settings =
       Enum.filter(settings, fn {k, _} -> k in [:api_key, :api_org, :api_project] end)
+
     module.chat(settings[:model], messages, tools, settings, provider_settings)
   end
 
@@ -197,17 +196,26 @@ defmodule GenAI.InferenceProvider.DefaultProvider do
       model_encoder.endpoint(model, settings, session, context, options)
     end
   end
-  
+
   # ----------------------
   # headers/2
   # ----------------------
   def headers(module, options) do
-    config_settings = Application.get_env(:genai,  module.config_key(), [])
+    config_settings = Application.get_env(:genai, module.config_key(), [])
     context = Noizu.Context.system()
-    {:ok, {headers,_}} = module.default_encoder().headers(nil, %{settings: options, config_settings: config_settings}, nil, context, [])
+
+    {:ok, {headers, _}} =
+      module.default_encoder().headers(
+        nil,
+        %{settings: options, config_settings: config_settings},
+        nil,
+        context,
+        []
+      )
+
     headers
   end
-  
+
   # ----------------------
   # headers/6
   # ----------------------
@@ -288,6 +296,7 @@ defmodule GenAI.InferenceProvider.DefaultProvider do
         provider_settings: provider_settings,
         safety_settings: safety_settings
       }
+
       {:ok, {x, session}}
     end
   end

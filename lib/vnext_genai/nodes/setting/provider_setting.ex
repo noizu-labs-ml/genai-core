@@ -26,4 +26,14 @@ defmodule GenAI.Setting.ProviderSetting do
     directive = GenAI.Session.State.Directive.static(entry, this.value, {:node, this.id})
     GenAI.Thread.Session.append_directive(session, directive, context, options)
   end
+  
+  
+  def inspect_custom_details(subject, opts) do
+    [
+      "provider:", Inspect.Algebra.to_doc(subject.provider, opts), ", ",
+      "setting:", Inspect.Algebra.to_doc(subject.setting, opts), ", ",
+      "value:", Inspect.Algebra.to_doc(subject.value, opts), ", ",
+    ]
+  end
+  
 end

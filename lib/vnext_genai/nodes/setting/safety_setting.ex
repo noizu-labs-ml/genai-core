@@ -26,4 +26,12 @@ defmodule GenAI.Setting.SafetySetting do
     directive = GenAI.Session.State.Directive.static(entry, this.threshold, {:node, this.id})
     GenAI.Thread.Session.append_directive(session, directive, context, options)
   end
+  
+  def inspect_custom_details(subject, opts) do
+    [
+      "category:", Inspect.Algebra.to_doc(subject.category, opts), ", ",
+      "threshold:", Inspect.Algebra.to_doc(subject.threshold, opts), ", ",
+    ]
+  end
+  
 end

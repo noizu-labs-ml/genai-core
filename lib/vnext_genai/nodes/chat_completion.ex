@@ -25,7 +25,16 @@ defmodule GenAI.ChatCompletion do
     usage: term,
     details: term
   )
-
+  
+  def inspect_custom_details(subject, opts) do
+    [
+      "model:", Inspect.Algebra.to_doc(subject.model, opts), ", ",
+      "seed:", Inspect.Algebra.to_doc(subject.seed, opts), ", ",
+      "choices:", Inspect.Algebra.to_doc(subject.choices, opts), ", ",
+      "usage:", Inspect.Algebra.to_doc(subject.usage, opts), ", ",
+    ]
+  end
+  
   def from_json(options) do
     keys =
       __MODULE__.__info__(:struct)

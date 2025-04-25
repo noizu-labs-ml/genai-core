@@ -32,6 +32,16 @@ defmodule GenAI.Model do
     directive = GenAI.Session.State.Directive.static(entry, this, {:node, this.id})
     GenAI.Thread.Session.append_directive(session, directive, context, options)
   end
+  
+  def inspect_custom_details(subject, opts) do
+    [
+      "model:", Inspect.Algebra.to_doc(subject.model, opts), ", ",
+      "provider:", Inspect.Algebra.to_doc(subject.provider, opts), ", ",
+      "encoder:", Inspect.Algebra.to_doc(subject.encoder, opts), ", ",
+      "details:", Inspect.Algebra.to_doc(subject.details, opts), ", ",
+    ]
+  end
+  
 end
 
 defimpl GenAI.ModelProtocol, for: [GenAI.Model] do

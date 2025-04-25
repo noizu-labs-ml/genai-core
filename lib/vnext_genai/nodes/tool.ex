@@ -57,7 +57,12 @@ defmodule GenAI.Tool do
        parameters: parameters
      }}
   end
-
+  
+  
+  def inspect_custom_details(subject, opts) do
+    ["parameters:", Inspect.Algebra.to_doc(subject.parameters, opts), ", "]
+  end
+  
   defimpl GenAI.ToolProtocol do
     def name(subject), do: {:ok, subject.name}
   end

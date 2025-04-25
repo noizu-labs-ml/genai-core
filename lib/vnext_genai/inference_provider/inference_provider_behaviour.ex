@@ -51,7 +51,7 @@ defmodule GenAI.InferenceProviderBehaviour do
   @doc "Obtain map of effective settings: settings, model_settings, provider_settings, config_settings, etc."
   @callback effective_settings(model, session, context, options) ::
               {:ok, {settings, session}} | {:error, term}
-              
+
   @callback standardize_model(model) :: model
 
   defmacro __using__(options \\ []) do
@@ -67,27 +67,24 @@ defmodule GenAI.InferenceProviderBehaviour do
       # ---------------------
       # Core
       # ---------------------
-      
-      @config_key unquote(options[:config_key])
-                  || Module.get_attribute(__MODULE__, :config_key)
-                  || Module.split(__MODULE__)
-                     |> List.last()
-                     |> Macro.underscore()
-                     |> String.to_atom()
-                    
+
+      @config_key unquote(options[:config_key]) ||
+                    Module.get_attribute(__MODULE__, :config_key) ||
+                    Module.split(__MODULE__)
+                    |> List.last()
+                    |> Macro.underscore()
+                    |> String.to_atom()
+
       @doc "Return config_key inference provide application config stored under :genai entry"
       def config_key(),
         do: @config_key
-      
-      
-      @default_encoder unquote(options[:default_encoder])
-                       || Module.get_attribute(__MODULE__, :default_encoder)
-                       || Module.concat(__MODULE__, Encoder)
-      
+
+      @default_encoder unquote(options[:default_encoder]) ||
+                         Module.get_attribute(__MODULE__, :default_encoder) ||
+                         Module.concat(__MODULE__, Encoder)
+
       def default_encoder(), do: @default_encoder
-      
-      
-      
+
       # @doc "Base url for provider, may be overriden/ignored by encoder"
       # def base_url(model, settings, session, context, options \\ nil),
       #    do: unquote(options[:base_url])
@@ -131,8 +128,8 @@ defmodule GenAI.InferenceProviderBehaviour do
         do: @provider.endpoint(__MODULE__, model, settings, session, context, options)
 
       def headers(options),
-          do: @provider.headers(__MODULE__, options)
-        
+        do: @provider.headers(__MODULE__, options)
+
       @doc "Prepare request headers"
       def headers(model, settings, session, context, options \\ nil),
         do: @provider.headers(__MODULE__, model, settings, session, context, options)
@@ -158,7 +155,6 @@ defmodule GenAI.InferenceProviderBehaviour do
       def effective_settings(model, session, context, options \\ nil),
         do: @provider.effective_settings(__MODULE__, model, session, context, options)
 
-      
       def standardize_model(model),
         do: @provider.standardize_model(__MODULE__, @default_encoder, model)
 

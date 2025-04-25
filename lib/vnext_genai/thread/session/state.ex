@@ -10,8 +10,6 @@ defmodule GenAI.Session.State do
 
   import GenAI.Records.Directive
 
-
-
   # require GenAI.Records.Session
   defstruct directives: [],
             directive_position: 0,
@@ -95,10 +93,10 @@ defmodule GenAI.Session.State do
   #
   # ===========================================================================
 
-#  defp memoize(entry, value, memo)
-#  defp memoize(entry, value, memo) do
-#    Map.put(memo, entry, value)
-#  end
+  #  defp memoize(entry, value, memo)
+  #  defp memoize(entry, value, memo) do
+  #    Map.put(memo, entry, value)
+  #  end
 
   # -----------------------
   # new/1
