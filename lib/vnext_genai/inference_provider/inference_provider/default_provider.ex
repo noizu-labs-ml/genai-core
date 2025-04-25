@@ -235,7 +235,7 @@ defmodule GenAI.InferenceProvider.DefaultProvider do
          encoder: encoder
        }
   def standardize_model(model) do
-    if GenAI.Graph.NodeProtocol.is_node?(model, GenAI.Model) do
+    if GenAI.Graph.Node.is_node?(model, GenAI.Model) do
       model
     else
       raise GenAI.RequestError, "Unsupported Model"

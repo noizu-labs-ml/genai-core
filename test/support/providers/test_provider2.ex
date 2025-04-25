@@ -67,7 +67,7 @@ defimpl GenAI.Support.TestProvider2.EncoderProtocol, for: GenAI.Message.ToolResp
   end
 end
 
-defimpl GenAI.Support.TestProvider2.EncoderProtocol, for: GenAI.Message.ToolCall do
+defimpl GenAI.Support.TestProvider2.EncoderProtocol, for: GenAI.Message.ToolUsage do
   def encode(subject, model, session, context, options) do
     tool_calls = Enum.map(subject.tool_calls,
       fn(tc) ->

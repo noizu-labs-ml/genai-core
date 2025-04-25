@@ -176,7 +176,7 @@ defmodule GenAI.Support.TestProvider.EncoderOne do
     }
     {:ok, {encoded, thread_context}}
   end
-  def encode_message(message = %GenAI.Message.ToolCall{}, model, thread_context, _ ,_) do
+  def encode_message(message = %GenAI.Message.ToolUsage{}, model, thread_context, _ ,_) do
     tool_calls = Enum.map(message.tool_calls,
       fn(tc) ->
         update_in(tc, [Access.key(:function), Access.key(:arguments)], & &1 && Jason.encode!(&1))
@@ -313,7 +313,7 @@ defmodule GenAI.Support.TestProvider.EncoderTwo do
     }
     {:ok, {encoded, thread_context}}
   end
-  def encode_message(message = %GenAI.Message.ToolCall{}, _, thread_context, _, _) do
+  def encode_message(message = %GenAI.Message.ToolUsage{}, _, thread_context, _, _) do
     tool_calls = Enum.map(message.tool_calls,
       fn(tc) ->
         update_in(tc, [Access.key(:function), Access.key(:arguments)], & &1 && Jason.encode!(&1))
@@ -398,7 +398,7 @@ defimpl GenAI.Support.TestProvider.EncoderProtocol, for: GenAI.Message.ToolRespo
   end
 end
 
-defimpl GenAI.Support.TestProvider.EncoderProtocol, for: GenAI.Message.ToolCall do
+defimpl GenAI.Support.TestProvider.EncoderProtocol, for: GenAI.Message.ToolUsage do
   def encode(subject, model, session, context, options) do
     tool_calls = Enum.map(subject.tool_calls,
       fn(tc) ->
