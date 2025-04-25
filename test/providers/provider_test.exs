@@ -1,6 +1,7 @@
 defmodule GenAI.Providers.ProviderTest do
   use ExUnit.Case,
     async: false
+  import GenAI.Test.Support.Common
 
   @moduletag provider: :test_provider
   @moduletag :providers
@@ -228,5 +229,38 @@ defmodule GenAI.Providers.ProviderTest do
 
       assert safety_settings["HARM_CATEGORY_DANGEROUS_CONTENT"] == "BLOCK_ANY"
     end
+
+    @tag :wip425
+    @tag :tool_usage
+    test "chat - with function calls" do
+
+      Mimic.expect(Finch, :request, fn(_, _, _) ->
+        {:ok,
+          %Finch.Response{
+            status: 200,
+            body: "{\n  \"id\": \"chatcmpl-93UsW2K75QeYQJWuImeSI3PZ7TXfx\",\n  \"object\": \"chat.completion\",\n  \"created\": 1710620708,\n  \"model\": \"gpt-3.5-turbo-0125\",\n  \"choices\": [\n    {\n      \"index\": 0,\n      \"message\": {\n        \"role\": \"assistant\",\n        \"content\": null,\n        \"tool_calls\": [\n          {\n            \"id\": \"call_pSe98iKMXYxjNriBuEqQFltC\",\n            \"type\": \"function\",\n            \"function\": {\n              \"name\": \"random_fact\",\n              \"arguments\": \"{\\\"subject\\\":\\\"cats\\\"}\"\n            }\n          }\n        ]\n      },\n      \"logprobs\": null,\n      \"finish_reason\": \"tool_calls\"\n    }\n  ],\n  \"usage\": {\n    \"prompt_tokens\": 70,\n    \"completion_tokens\": 14,\n    \"total_tokens\": 84\n  },\n  \"system_fingerprint\": \"fp_4f2ebda25a\"\n}\n",
+            headers: [],
+            trailers: []
+          }}
+      end)
+
+      {:ok, response} = GenAI.Support.TestProvider2.chat(
+        [
+          %GenAI.Message{role: :user, content: "Tell me a random fact about cats using a tool call."},
+        ],
+        [random_fact_tool()],
+        [model: "gpt-3.5-turbo", api_key: "Apple"]
+      )
+      choice = List.first(response.choices)
+      assert choice.index == 0
+      assert choice.message.role == :assistant
+      assert choice.message.__struct__ == GenAI.Message.ToolUsage
+      [fc] = choice.message.tool_calls
+      assert fc.function.name == "random_fact"
+      assert fc.function.arguments[:subject] == "cats"
+    end
+
+
+
   end
 end

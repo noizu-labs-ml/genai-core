@@ -134,8 +134,10 @@ defmodule GenAI.InferenceProvider.DefaultProvider do
       |> GenAI.with_tools(tools)
       |> GenAI.with_messages(messages)
 
+
+
     # Execute and return response
-    case run(thread, context, options) do
+    case GenAI.ThreadProtocol.execute(thread, :run, context, options) do
       {:ok, {response, thread}} ->
         (full_response && {:ok, {response, thread}}) || {:ok, response}
 
@@ -166,10 +168,8 @@ defmodule GenAI.InferenceProvider.DefaultProvider do
 
   def do_chat(module, messages, tools, settings) do
     settings = settings |> Enum.reverse()
-
     provider_settings =
       Enum.filter(settings, fn {k, _} -> k in [:api_key, :api_org, :api_project] end)
-
     module.chat(settings[:model], messages, tools, settings, provider_settings)
   end
 

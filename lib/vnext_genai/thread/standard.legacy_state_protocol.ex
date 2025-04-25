@@ -177,7 +177,8 @@ defimpl GenAI.Thread.LegacyStateProtocol, for: GenAI.Thread.Standard do
     with %{model: [effective_model | _]} <- thread_context.state do
       effective_value_fetch_success(effective_model, thread_context)
     else
-      _ -> {:error, :not_set}
+      _ ->
+        {:error, :not_set}
     end
   end
 
