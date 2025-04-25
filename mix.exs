@@ -110,7 +110,7 @@ defmodule GenAICore.MixProject do
       {:shortuuid, "~> 3.0", optional: true},
 
       # Core Libraries
-      {:noizu_labs_core, "~> 0.1", optional: true},
+      {:noizu_labs_core, "~> 0.1"},
 
       # JSON/YAML
       {:jason, "~> 1.2", optional: true},
