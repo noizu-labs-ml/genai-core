@@ -148,6 +148,25 @@ defmodule GenAI.InferenceProvider.DefaultProvider do
     end
   end
   
-  
+  def standardize_model(module, encoder, model)
+  def standardize_model(module, encoder, model) when is_atom(model),
+       do: %GenAI.Model{
+         model: model,
+         provider: module,
+         encoder: encoder
+       }
+  def standardize_model(module, encoder, model) when is_bitstring(model),
+       do: %GenAI.Model{
+         model: model,
+         provider: module,
+         encoder: encoder
+       }
+  def standardize_model(model) do
+    if GenAI.Graph.NodeProtocol.is_node?(model, GenAI.Model) do
+      model
+    else
+      raise GenAI.RequestError, "Unsupported Model"
+    end
+  end
   
 end

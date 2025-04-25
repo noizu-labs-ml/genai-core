@@ -49,6 +49,7 @@ defmodule GenAI.InferenceProviderBehaviour do
   @doc "Obtain list of hyper params supported by given model including mapping and conditional rules/alterations"
   @callback hyper_params(model, session, context, options) :: {:ok, {settings, session}} | {:error, term}
   
+  @callback standardize_model(model) :: model
   
   defmacro __using__(options \\ []) do
     quote do
@@ -103,9 +104,13 @@ defmodule GenAI.InferenceProviderBehaviour do
       def effective_settings(model, session, context, options \\ nil),
           do: @provider.effective_settings(__MODULE__, model, session, context, options)
       
-          
+      @default_encoder Module.concat(__MODULE__, Encoder)
+      def standardize_model(model),
+          do: @provider.standardize_model(__MODULE__, @default_encoder, model)
+      
       defoverridable [
         config_key: 0,
+        standardize_model: 1,
         #base_url: 4,
         #base_url: 5,
       ]
