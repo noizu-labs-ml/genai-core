@@ -33,6 +33,8 @@ defmodule GenAI.ExternalModel do
     details: term
   )
   
+  def do_node_type(%__MODULE__{}), do: {:ok, GenAI.Model}
+  
   def apply_node_directives(this, graph_link, graph_container, session, context, options)
   
   def apply_node_directives(this, _, _, session, context, options) do
