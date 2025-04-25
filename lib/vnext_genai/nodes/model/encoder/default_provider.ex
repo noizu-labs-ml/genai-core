@@ -18,9 +18,9 @@ defmodule GenAI.Model.Encoder.DefaultProvider do
     auth =
       cond do
         key = options[:api_key] -> {"Authorization", "Bearer #{key}"}
-        key = settings.model_settings[:api_key] -> {"Authorization", "Bearer #{key}"}
-        key = settings.provider_settings[:api_key] -> {"Authorization", "Bearer #{key}"}
-        key = settings.config_settings[:api_key] -> {"Authorization", "Bearer #{key}"}
+        key = settings[:model_settings][:api_key] -> {"Authorization", "Bearer #{key}"}
+        key = settings[:provider_settings][:api_key] -> {"Authorization", "Bearer #{key}"}
+        key = settings[:config_settings][:api_key] -> {"Authorization", "Bearer #{key}"}
         :else -> raise GenAI.RequestError, message: "API KEY NOT FOUND - #{module}"
       end
 
