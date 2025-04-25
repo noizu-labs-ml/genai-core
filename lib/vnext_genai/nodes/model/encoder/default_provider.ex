@@ -107,28 +107,18 @@ defmodule GenAI.Model.Encoder.DefaultProvider do
     with  {:ok, provider} <- GenAI.ModelProtocol.provider(model),
           %{
            id: id,
-           usage: %{
-             prompt_tokens: prompt_tokens,
-             total_tokens: total_tokens,
-             completion_tokens: completion_tokens
-           },
+           usage: %{},
            model: model,
-           #created: created,
            choices: choices
          } <- json do
-      choices = Enum.map(choices, &module.completion_choices(id, &1, model, settings,  session, context, options))
-                |> Enum.map(fn {:ok, c} -> c end)
-      completion = %GenAI.ChatCompletion{
-        id: id,
-        provider: provider,
-        model: model,
-        usage: %GenAI.ChatCompletion.Usage{
-          prompt_tokens: prompt_tokens,
-          total_tokens: total_tokens,
-          completion_tokens: completion_tokens
-        },
-        choices: choices
-      }
+      
+      choices = choices
+                |> Enum.map(& if {:ok, v} =  module.completion_choices(id, &1, model, settings, session, context, options), do: v  )
+      usage = GenAI.ChatCompletion.Usage.new(json.usage)
+      
+      completion = %{json| usage: usage, choices: choices}
+                   |> put_in([Access.key(:provider)], provider)
+                   |> GenAI.ChatCompletion.from_json()
       {:ok, completion}
     end
   end

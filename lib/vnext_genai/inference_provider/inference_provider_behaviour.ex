@@ -65,7 +65,7 @@ defmodule GenAI.InferenceProviderBehaviour do
       # Core
       #---------------------
       
-      @config_key unquote(options[:config_key]) || (Module.split(__MODULE__) |> List.last() |> Macro.underscore())
+      @config_key unquote(options[:config_key]) || (Module.split(__MODULE__) |> List.last() |> Macro.underscore() |> String.to_atom())
       
       @doc "Return config_key inference provide application config stored under :genai entry"
       def config_key(),
