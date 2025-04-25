@@ -48,7 +48,7 @@ defmodule GenAI.Model.Encoder.DefaultProvider do
     end
   end
 
-  defp apply_hyper_params_and_adjust(module, body, params, model, settings) do
+  def apply_hyper_params_and_adjust(module, body, params, model, settings) do
     body_s1 =
       Enum.reduce(params, body, fn
         hyper_param(name: name, as: nil), body ->

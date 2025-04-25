@@ -3,7 +3,8 @@ defmodule GenAI.Message.Content.ToolResultContent do
   Represents image part of chat message.
   """
   @vsn 1.0
-  defstruct tool_use_id: nil,
+  defstruct tool_name: nil,
+            tool_use_id: nil,
             response: nil,
             fetched_at: nil,
             cached_at: nil,
@@ -12,6 +13,7 @@ defmodule GenAI.Message.Content.ToolResultContent do
 
   def new(options) do
     %__MODULE__{
+      tool_name: options[:tool_name] || options[:name],
       tool_use_id: options[:tool_use_id],
       response: options[:response],
       fetched_at: options[:fetched_at],
