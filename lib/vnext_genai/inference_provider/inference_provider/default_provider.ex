@@ -277,7 +277,6 @@ defmodule GenAI.InferenceProvider.DefaultProvider do
         provider_settings: provider_settings,
         safety_settings: safety_settings
       }
-
       {:ok, {x, session}}
     end
   end

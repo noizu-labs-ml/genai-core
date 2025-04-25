@@ -54,6 +54,9 @@ defmodule GenAI.Thread.Standard do
       end
     end
 
+    def with_tools(thread_context, tools)
+    def with_tools(thread_context, nil),
+        do: thread_context
     def with_tools(thread_context, tools) do
       Enum.reduce(tools, thread_context, fn tool, thread_context ->
         with_tool(thread_context, tool)
@@ -101,6 +104,7 @@ defmodule GenAI.Thread.Standard do
       end
     end
 
+    def with_settings(thread_context, nil), do: thread_context
     def with_settings(thread_context, settings) do
       Enum.reduce(settings, thread_context, fn
         {setting, value}, thread_context -> with_setting(thread_context, setting, value)
@@ -127,6 +131,7 @@ defmodule GenAI.Thread.Standard do
       end
     end
 
+    def with_safety_settings(thread_context, nil), do: thread_context
     def with_safety_settings(thread_context, entries) do
       Enum.reduce(entries, thread_context, fn
         {category, threshold}, thread_context ->
@@ -157,6 +162,8 @@ defmodule GenAI.Thread.Standard do
       end
     end
 
+    def with_provider_settings(thread_context, provider, settings)
+    def with_provider_settings(thread_context, _, nil), do: thread_context
     def with_provider_settings(thread_context, provider, settings) do
       Enum.reduce(settings, thread_context, fn
         {setting, value}, thread_context ->
@@ -167,6 +174,9 @@ defmodule GenAI.Thread.Standard do
       end)
     end
 
+
+    def with_provider_settings(thread_context, settings)
+    def with_provider_settings(thread_context, nil), do: thread_context
     def with_provider_settings(thread_context, settings) do
       Enum.reduce(settings, thread_context, fn
         setting_object, thread_context -> with_provider_setting(thread_context, setting_object)

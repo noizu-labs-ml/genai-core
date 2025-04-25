@@ -148,7 +148,7 @@ defmodule GenAI.Thread.Session do
     #
     # -------------------------------------
     def with_tools(context, tools) do
-      Enum.reduce(tools, context, fn tool, context ->
+      Enum.reduce(tools || [], context, fn tool, context ->
         with_tool(context, tool)
       end)
     end
@@ -231,7 +231,7 @@ defmodule GenAI.Thread.Session do
     #
     # -------------------------------------
     def with_settings(thread_context, settings) do
-      Enum.reduce(settings, thread_context, fn
+      Enum.reduce(settings || [], thread_context, fn
         {setting, value}, thread_context -> with_setting(thread_context, setting, value)
         value, thread_context when is_struct(value) -> with_setting(thread_context, value)
       end)
@@ -267,7 +267,7 @@ defmodule GenAI.Thread.Session do
     #
     # -------------------------------------
     def with_safety_settings(context, safety_settings) do
-      Enum.reduce(safety_settings, context, fn
+      Enum.reduce(safety_settings || [], context, fn
         {category, threshold}, context ->
           with_safety_setting(context, category, threshold)
 
@@ -301,7 +301,7 @@ defmodule GenAI.Thread.Session do
     end
 
     def with_provider_settings(thread_context, provider, settings) do
-      Enum.reduce(settings, thread_context, fn
+      Enum.reduce(settings || [], thread_context, fn
         {setting, value}, thread_context ->
           with_provider_setting(thread_context, provider, setting, value)
 
@@ -311,7 +311,7 @@ defmodule GenAI.Thread.Session do
     end
 
     def with_provider_settings(thread_context, settings) do
-      Enum.reduce(settings, thread_context, fn
+      Enum.reduce(settings || [], thread_context, fn
         setting_object, thread_context -> with_provider_setting(thread_context, setting_object)
       end)
     end
@@ -337,7 +337,7 @@ defmodule GenAI.Thread.Session do
     end
 
     def with_model_settings(thread_context, model, settings) do
-      Enum.reduce(settings, thread_context, fn
+      Enum.reduce(settings || [], thread_context, fn
         {setting, value}, thread_context ->
           with_model_setting(thread_context, model, setting, value)
 
@@ -376,7 +376,7 @@ defmodule GenAI.Thread.Session do
     def with_messages(context, messages, options)
 
     def with_messages(context, messages, options) do
-      Enum.reduce(messages, context, fn message, context ->
+      Enum.reduce(messages || [], context, fn message, context ->
         with_message(context, message, options)
       end)
     end
