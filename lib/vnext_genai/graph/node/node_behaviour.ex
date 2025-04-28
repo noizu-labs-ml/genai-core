@@ -106,8 +106,14 @@ defmodule GenAI.Graph.NodeBehaviour do
       @provider unquote(opts[:provider]) || GenAI.Graph.NodeProtocol.DefaultProvider
       require GenAI.Graph.NodeBehaviour
       import GenAI.Graph.NodeBehaviour, only: [defnodestruct: 1, defnodetype: 1]
-      import GenAI.Graph.NodeProtocol.DefaultProvider
+      # import GenAI.Graph.NodeProtocol.DefaultProvider
       @behaviour GenAI.Graph.NodeBehaviour
+
+      defdelegate inspect_custom_details(subject, opts), to: @provider
+      defdelegate inspect_low_detail(subject, opts), to: @provider
+      defdelegate inspect_medium_detail(subject, opts), to: @provider
+      defdelegate inspect_high_detail(subject, opts), to: @provider
+      defdelegate inspect_full_detail(subject, opts), to: @provider
 
       @defimpl GenAI.Graph.NodeBehaviour
       def new(options \\ nil) do
@@ -134,6 +140,12 @@ defmodule GenAI.Graph.NodeBehaviour do
 
       @defimpl GenAI.Graph.NodeBehaviour
       defdelegate description(graph, default), to: @provider
+
+      defoverridable inspect_custom_details: 2,
+                     inspect_low_detail: 2,
+                     inspect_medium_detail: 2,
+                     inspect_high_detail: 2,
+                     inspect_full_detail: 2
     end
   end
 end

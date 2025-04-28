@@ -1,20 +1,11 @@
 Todo
 =====
 
-# Model Details
-- [ ] Overhaul how model details are loaded to incorporate a model database to fill in model internal details.
-  - [ ] Context Limits
-  - [ ] Function Call Support
-  - [ ] Image Support
-  - [ ] Audio Support
-  - [ ] Video Support
-
-# Providers
-- [ ] Add support for HuggingFace
-- [ ] Add support for OpenVllm
-- [ ] Update API Call logic for Anthropic to use updated api format.
-- [ ] Vision Support for Groq models that support it. 
-- [ ] Tool use via api for Groq models that support it.
-
-# Local Llama
-- [ ] Move LocalLama to extension/add-on module
+- [ ] More advanced link mechanism to point to distant siblings, ancestors etc.
+  - [ ] A Graph Root object builds a full node tree going into nested children. 432 -> [nodea, nodeb, nodec, 432]
+    - [ ] we can use a patch builder that walks across nodes recursively
+  - [ ] Anchored link support $uuid/path
+  - [ ] scoped handles? (local_handle, tag, ...)
+- [ ] document directive process
+  - [ ] concrete, dynamic, etc.
+- [ ] basic implementation or process_nodes (just trace path and set as an artifact) Runtime position?

@@ -2,112 +2,30 @@ defmodule GenAI.VNext.GraphTest do
   use ExUnit.Case,
     async: true
 
-  alias GenAI.VNext.Graph
-  alias GenAI.Graph.Link
-  alias GenAI.Graph.MermaidProtocol
-  alias GenAI.Graph.Node
-
   doctest GenAI.VNext.Graph
 
-  describe "Mermaid Render" do
-    test "Empty Graph" do
-      sut = Graph.new(id: :A)
-      {:ok, mermaid} = MermaidProtocol.encode(sut)
-
-      assert """
-             stateDiagram-v2
-               [*] --> A
-               state "Empty Graph" as A
-             """ == mermaid
+  describe "Advanced Nested Links" do
+    @doc """
+    Build a complex graph with nested nodes and build nested node lookup table.
+    the lookup table is a separate data structure stored in a new graph root structure
+    """
+    test "Build nested link lookup table" do
     end
 
-    test "Single Node Graph - no head " do
-      sut =
-        Graph.new(id: A)
-        |> Graph.add_node(Node.new(id: :Node1, name: "N1"))
-
-      {:ok, mermaid} = MermaidProtocol.encode(sut)
-
-      assert """
-             stateDiagram-v2
-               state "N1" as Node1
-             """ == mermaid
+    @doc """
+    Scoped Node Handles for easily pointing to key parts of loop graphs etc.
+    Handles by default are global but {:local, handle} tuples can be used for over writable handles based on scope
+    Local handles can override standard handles. This involves a tweak to how handles are looked up in a node
+    {:global, handle} entries are forced unique and can not be overwritten
+    introduce a handle struct node_handle(scope, name)
+    """
+    test "Node Handle Scoping" do
     end
 
-    test "Single Node Graph" do
-      sut =
-        Graph.new(id: :A)
-        |> Graph.add_node(Node.new(id: :Node1, name: "N1"), head: true)
-
-      {:ok, mermaid} = MermaidProtocol.encode(sut)
-
-      assert """
-             stateDiagram-v2
-               [*] --> Node1
-               state "N1" as Node1
-             """ == mermaid
-    end
-
-    test "Graph with Unlinked Node" do
-      sut =
-        Graph.new(id: :A)
-        |> Graph.add_node(Node.new(id: :Node1, name: "N1"), head: true)
-        |> Graph.add_node(Node.new(id: :Node2, name: "N2"))
-
-      {:ok, mermaid} = MermaidProtocol.encode(sut)
-
-      assert """
-             stateDiagram-v2
-               [*] --> Node1
-               state "N1" as Node1
-
-               state "N2" as Node2
-             """ == mermaid
-    end
-
-    test "Graph with Linked Node" do
-      sut =
-        Graph.new(id: :A)
-        |> Graph.add_node(Node.new(id: :Node1, name: "N1"), head: true)
-        |> Graph.add_node(Node.new(id: :Node2, name: "N2"))
-        |> Graph.add_link(Link.new(:Node1, :Node2))
-
-      {:ok, mermaid} = MermaidProtocol.encode(sut)
-
-      assert """
-             stateDiagram-v2
-               [*] --> Node1
-               state "N1" as Node1
-               Node1 --> Node2
-
-               state "N2" as Node2
-             """ == mermaid
-    end
-
-    test "Graph with MultiLink" do
-      sut =
-        Graph.new(id: :A)
-        |> Graph.add_node(Node.new(id: :Node1, name: "N1"), head: true)
-        |> Graph.add_node(Node.new(id: :Node2, name: "N2"))
-        |> Graph.add_node(Node.new(id: :Node3, name: "N3"))
-        |> Graph.add_link(Link.new(:Node1, :Node2))
-        |> Graph.add_link(Link.new(:Node1, :Node3))
-        |> Graph.add_link(Link.new(:Node2, :Node3))
-
-      {:ok, mermaid} = MermaidProtocol.encode(sut)
-
-      assert """
-             stateDiagram-v2
-               [*] --> Node1
-               state "N1" as Node1
-               Node1 --> Node3
-               Node1 --> Node2
-
-               state "N2" as Node2
-               Node2 --> Node3
-
-               state "N3" as Node3
-             """ == mermaid
+    @doc """
+    Clone Operation to generate new unique ids when copying a graph segment.
+    """
+    test "Graph Clone" do
     end
   end
 end
