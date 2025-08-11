@@ -455,65 +455,33 @@ defmodule GenAI.Thread.Session do
       end
     end
 
-    #    def merge_scope(Node.scope(session_state: state, session_root: root, session_runtime: runtime), session) do
-    #       {:ok,  %{session| state: state, runtime: runtime, root: root}}
-    #    end
-    #
-    #    def starting_scope(graph_node, graph_link, graph_container, session) do
-    #      Node.scope(
-    #        graph_node: graph_node,
-    #        graph_link: graph_link,
-    #        graph_container: graph_container,
-    #        session_state: session.state,
-    #        session_root: session.root,
-    #        session_runtime: session.runtime
-    #      )
-    #    end
-    #
+    def execute(session, :stream, context, options) do
+      context = context || Noizu.Context.system()
 
-    #  #-------------------------------------
-    #  #
-    #  #-------------------------------------
-    #  @doc """
-    #  Execute a command, such as run prompt fine tuner, dynamic prompt etc.
-    #  # Options
-    #  - report: return a report of the command execution (entire effective conversation with extended timing/loop details.
-    #  - thread: return full thread along with most recent reply, useful for investigating exact dynamic messages generated in flow
-    #  """
-    #  def execute(session, command, context, options) do
-    #    context = context || Noizu.Context.system()
-    #    with {:ok, runtime} <-
-    #           # Set Runtime Mode
-    #           GenAI.Session.Runtime.command(session.runtime, command, context, options),
-    #         {:ok, session_state} <-
-    #           # Refresh state (clear any ephemeral values, etc. for rerun as specified by runtime object
-    #           # set seeds, clear monitor cache, etc.
-    #           GenAI.Session.State.initialize(session.state, runtime, context, options),
-    #         {:ok, {session_state, runtime}} <-
-    #           # Setup telemetry agents, etc.
-    #           GenAI.Session.State.monitor(session_state, runtime, context, options) do
-    #      with x <- GenAI.Session.NodeProtocol.process_node(
-    #        session.graph,
-    #        Node.scope(
-    #          graph_node: session.graph,
-    #          graph_link: nil,
-    #          graph_container: nil,
-    #          session_state: session_state,
-    #          session_runtime: runtime
-    #        ),
-    #        context,
-    #        options) do
-    #        # TODO apply updates, return completion (if any) and session and generated report from monitor agent
-    #        {:ok, :pending2}
-    #      end
-    #    end
-
-    # Spawn Monitor Agent
-    # Register Callbacks to Monitor Agent
-    # Process session
-    # Strip runtime flags from execute
-    # Get metrics from monitor
-
+      with {:ok, session} <-
+             initialize_session(:stream, session, context, options),
+           GenAI.Records.Node.process_end(session: session) <-
+             GenAI.Graph.Root.process_node(session.root, nil, nil, session, context, options),
+           {:ok, session} <- GenAI.Thread.Session.apply_directives(session, context, options),
+           {:effective_model, {model, session}} <-
+             session
+             |> GenAI.ThreadProtocol.effective_model(context, options)
+             |> apply_label(:effective_model),
+           {:effective_provider, provider} <-
+             model
+             |> GenAI.ModelProtocol.provider()
+             |> apply_label(:effective_provider) do
+        # We now have a session populated with directives.
+        # We need to expand directives then run inferences.
+        # response = [:get_model, :get_provider, :call_provider_execute]
+        # {:ok, {response, session}}
+        # TODO - handle existing stream options
+        session = GenAI.with_setting(session, :stream, true)
+        provider.stream(session, context, options)
+      end
+    end
+    
+    
     def effective_model(thread_context, context, options)
 
     def effective_model(this, _, _),

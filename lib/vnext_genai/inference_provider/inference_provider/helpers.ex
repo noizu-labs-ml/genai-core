@@ -37,7 +37,31 @@ defmodule GenAI.InferenceProvider.Helpers do
           details: error
     end
   end
-
+  
+  
+  
+  @doc """
+  Make API Call Via Finch.
+  """
+  def stream_api_call(handler, type, url, headers, body \\ nil, options \\ [])
+  
+  def stream_api_call({acc, cb}, type, url, headers, body = nil, options) do
+    Finch.build(type, url, headers, body)
+    |> Finch.stream_while(GenAI.Finch, acc, cb, finch_options(options))
+  end
+  
+  def stream_api_call({acc, cb}, type, url, headers, body, options) do
+    with {:ok, serialized_body} <- Jason.encode(body) do
+      Finch.build(type, url, headers, serialized_body)
+      |> Finch.stream_while(GenAI.Finch, acc, cb, finch_options(options))
+    else
+      error ->
+        raise GenAI.RequestError,
+              message: "Failed to encode request body: #{inspect(body)}",
+              details: error
+    end
+  end
+  
   @doc """
   Set required setting or raise RequestError if not present.
   """

@@ -276,6 +276,25 @@ defmodule GenAI.Thread.Standard do
       end
     end
 
+    def execute(thread_context, :stream, context, options) do
+      with {:prep, thread_context} <-
+             thread_context.graph
+             |> GenAI.Legacy.NodeProtocol.apply(thread_context)
+             |> apply_label(:prep),
+           {:effective_model, {model, thread_context}} <-
+             thread_context
+             |> GenAI.Thread.LegacyStateProtocol.effective_model(context, options)
+             |> apply_label(:effective_model),
+           {:effective_provider, provider} <-
+             model
+             |> GenAI.ModelProtocol.provider()
+             |> apply_label(:effective_provider) do
+        # TODO - handle existing stream options
+        thread_context = GenAI.with_setting(thread_context, :stream, true)
+        provider.stream(thread_context, context, options)
+      end
+    end
+
     defdelegate effective_model(thread_context, context, options),
       to: GenAI.Thread.LegacyStateProtocol
 

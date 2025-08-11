@@ -361,6 +361,8 @@ defmodule GenAI.Model.Encoder.DefaultProvider do
       hyper_param(name: :temperature),
       hyper_param(name: :top_p),
       hyper_param(name: :user, type: :string),
+      hyper_param(name: :stream, type: :boolean),
+      hyper_param(name: :stream_options),
       hyper_param(
         name: :tool_choice,
         type: :string,
