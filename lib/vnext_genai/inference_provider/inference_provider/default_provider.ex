@@ -20,7 +20,29 @@ defmodule GenAI.InferenceProvider.DefaultProvider do
     end
   end
 
+  # *************************
+  # stream/4
+  # *************************
+  @doc """
+  Run inference in streaming mode and return completion response and updated session
+  """
+  def stream(module, session, context, options \\ nil) do
+    if Code.ensure_loaded?(module) and function_exported?(module, :do_stream, 3) do
+      module.do_stream(session, context, options)
+    else
+      do_stream(module, session, context, options)
+    end
+  end
+
   def do_run(module, session, context, options \\ nil) do
+    do_run_or_stream(:run, module, session, context, options)
+  end
+  
+  def do_stream(module, session, context, options \\ nil) do
+    do_run_or_stream(:stream, module, session, context, options)
+  end
+  
+  def do_run_or_stream(mode, module, session, context, options \\ nil) do
     with {:ok, {model, session}} <- ThreadProtocol.effective_model(session, context, options),
          {:ok, model_encoder} <- GenAI.ModelProtocol.encoder(model),
          {:ok, {effective, session}} <-
@@ -36,26 +58,40 @@ defmodule GenAI.InferenceProvider.DefaultProvider do
              module.headers(model, effective, session, context, options),
            {:ok, {{req_method, req_endpoint}, session}} <-
              module.endpoint(model, effective, session, context, options) do
-        with {:ok, %Finch.Response{status: 200, body: response_body}} <-
-               api_call(req_method, req_endpoint, req_headers, req_body),
-             {:ok, json} <- Jason.decode(response_body, keys: :atoms),
-             {:ok, response} <-
-               model_encoder.completion_response(
-                 json,
-                 model,
-                 effective,
-                 session,
-                 context,
-                 options
-               ),
-             response <-
-               put_in(response, [Access.key(:seed)], req_body[:seed] || req_body[:random_seed]) do
-          {:ok, {response, session}}
+        
+        if mode == :run do
+          with {:ok, %Finch.Response{status: 200, body: response_body}} <-
+                 api_call(req_method, req_endpoint, req_headers, req_body, options[:finch]),
+               {:ok, json} <- Jason.decode(response_body, keys: :atoms),
+               {:ok, response} <-
+                 model_encoder.completion_response(
+                   json,
+                   model,
+                   effective,
+                   session,
+                   context,
+                   options
+                 ),
+               response <-
+                 put_in(response, [Access.key(:seed)], req_body[:seed] || req_body[:random_seed]) do
+            {:ok, {response, session}}
+          end
+        else
+          # Streaming Mode
+          with {:ok, {settings, session}} <- GenAI.ThreadProtocol.effective_settings(session, context, options),
+               stream_handler <- settings[:stream_handler] || GenAI.StreamHandler.Default,
+               {:ok, {handler, session}} <- GenAI.StreamHandler.begin_stream(stream_handler, session, context, options),
+               {:ok, req} <- stream_api_call(handler, req_method, req_endpoint, req_headers, req_body, options[:finch]) do
+            {:ok, {req, session}}
+          end
         end
+        
+
+        
       end
     end
   end
-
+  
   # ------------------
   # chat/7
   # ------------------

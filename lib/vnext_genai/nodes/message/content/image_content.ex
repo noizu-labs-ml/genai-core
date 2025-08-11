@@ -102,10 +102,10 @@ defmodule GenAI.Message.Content.ImageContent do
     merge = is_nil(options[:type]) && [{:type, file_type(options[:source])} | merge] || merge
     merge = is_nil(options[:resolution]) && [{:resolution, resolution(options[:resource])} | merge] || merge
 
-    options = options
-              |> Keyword.merge(merge)
-              |> Enum.filter(&MapSet.member?(keys, elem(&1, 0)))
-              |> __struct__()
+    options
+    |> Keyword.merge(merge)
+    |> Enum.filter(&MapSet.member?(keys, elem(&1, 0)))
+    |> __struct__()
   end
 
 
@@ -128,7 +128,7 @@ defmodule GenAI.Message.Content.ImageContent do
     |> new()
   end
 
-  def new(resource = {:base64, encoded}, options)  do
+  def new(resource = {:base64, _encoded}, options)  do
     {:ok, encoded} = base64(resource, options)
     (options || [])
     |> Enum.to_list()
@@ -145,7 +145,7 @@ defmodule GenAI.Message.Content.ImageContent do
     |> new()
   end
 
-  def new(resource = "http" <> path, options) when is_bitstring(resource) do
+  def new(resource = "http" <> _path, options) when is_bitstring(resource) do
     (options || [])
     |> Enum.to_list()
     |> put_in([:source], {:uri, resource})

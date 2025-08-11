@@ -51,7 +51,7 @@ defimpl Inspect,
   #import Inspect.Algebra
   require GenAI.Records.Link
   
-  def inspect(%{__struct__: module} = subject, opts) do
+  def inspect(%{__struct__: _module} = subject, opts) do
     limit =
       cond do
         opts.limit == :infinity -> :infinity
@@ -63,7 +63,7 @@ defimpl Inspect,
     case limit do
       :infinity ->
         # Show the full object
-        Inspect.Algebra.to_doc(Map.from_strict(subject), opts)
+        Inspect.Algebra.to_doc(Map.from_struct(subject), opts)
       
       _ ->
       

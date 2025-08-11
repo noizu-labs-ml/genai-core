@@ -28,6 +28,9 @@ defmodule GenAI.InferenceProviderBehaviour do
   @doc "Build and run inference thread"
   @callback run(session, context, options) :: {:ok, {completion, session}} | {:error, term}
 
+  @doc "Build and run inference thread in streaming mode"
+  @callback stream(session, context, options) :: {:ok, {completion, session}} | {:error, term} | :nyi
+
   @callback chat(any, any, any, any, any, any, any) :: {:ok, term} | {:error, term}
 
   # ---------------------
@@ -94,7 +97,11 @@ defmodule GenAI.InferenceProviderBehaviour do
       # ---------------------
       @doc "Build and run inference thread"
       def run(session, context, options \\ nil),
-        do: @provider.run(__MODULE__, session, context, options)
+          do: @provider.run(__MODULE__, session, context, options)
+
+      @doc "Build and run inference thread in streaming mode"
+      def stream(session, context, options \\ nil),
+          do: @provider.stream(__MODULE__, session, context, options)
 
       def chat(
             model,
