@@ -97,9 +97,10 @@ defmodule GenAI.InferenceProvider.Helpers do
   Apply setting as_setting or default value if not present.
   """
   def with_setting_as(body, as_setting, setting, settings, default \\ nil)
-
+  
   def with_setting_as(body, as_setting, setting, settings, default) do
-    if value = settings[setting] || default do
+    value = Keyword.get(settings, setting, default)
+    if value || value === false do
       Map.put(body, as_setting, value)
     else
       body
