@@ -44,7 +44,7 @@ defmodule GenAI.ModelDetail.Costing do
             per_request: float | nil,
             per_instance_hour: float | nil,
             # tile_size, base_tokens, tokens_per_tile
-            media: Map.t() | nil,
+            media: map() | nil,
             vsn: float
           }
   defstruct million_input_tokens: nil,
@@ -92,7 +92,7 @@ defmodule GenAI.ModelDetail.UseCaseSupport do
   """
   @vsn 1.0
   @type t :: %__MODULE__{
-          use_cases: Map.t(),
+          use_cases: map(),
           vsn: float
         }
   defstruct use_cases: %{},
@@ -105,7 +105,7 @@ defmodule GenAI.ModelDetail.BenchMarks do
   """
   @vsn 1.0
   @type t :: %__MODULE__{
-          benchmarks: Map.t(),
+          benchmarks: map(),
           vsn: float
         }
   defstruct benchmarks: %{},

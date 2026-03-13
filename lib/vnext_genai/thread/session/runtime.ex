@@ -30,7 +30,7 @@ defmodule GenAI.Session.Runtime do
   """
   def command(runtime, command_config, context, options \\ nil)
 
-  def command(runtime, command_config, context, options) do
+  def command(%__MODULE__{} = runtime, command_config, context, options) do
     {command, config} = prepare_command(command_config, context, options)
     # deal with merging config
     x = %__MODULE__{

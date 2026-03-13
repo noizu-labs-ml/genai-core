@@ -43,6 +43,16 @@ defmodule GenAI.Types.Graph do
   """
   @type link_label :: term
 
+  @typedoc """
+  A GenAI.VNext.Graph Node Handle - logical reference name for a node.
+  """
+  @type node_handle :: term
+
+  @typedoc """
+  A GenAI.VNext.Graph Node Identifier.
+  """
+  @type node_id :: term
+
   # --------------------------------
   # Type Guards
   # --------------------------------

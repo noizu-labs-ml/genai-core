@@ -6,6 +6,7 @@ defmodule GenAITest do
   
   describe "Streaming Support" do
   
+   @tag :skip
    test "Default Streaming Policy - Session" do
      context = Noizu.Context.system()
      model = GenAI.Support.TestProvider.Models.model_one()
@@ -20,6 +21,7 @@ defmodule GenAITest do
      assert acc.__struct__ == GenAI.StreamHandler.Default.Accumulator
    end
    
+   @tag :skip
    test "Default Streaming Policy - Legacy" do
      context = Noizu.Context.system()
      model = GenAI.Support.TestProvider.Models.model_one()

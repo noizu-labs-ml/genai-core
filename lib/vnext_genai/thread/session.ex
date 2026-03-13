@@ -403,8 +403,8 @@ defmodule GenAI.Thread.Session do
     # -------------------------------------
     #
     # -------------------------------------
-    defp initialize_session(command, session, context, options) do
-      with %{state: state, runtime: runtime} <-
+    defp initialize_session(command, %GenAI.Thread.Session{} = session, context, options) do
+      with %GenAI.Thread.Session{state: state, runtime: runtime} <-
              session,
            {:ok, runtime} <-
              Runtime.command(runtime, command, context, options),

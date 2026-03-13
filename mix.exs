@@ -7,13 +7,13 @@ defmodule GenAICore.MixProject do
       name: "GenAI Core",
       description: description(),
       package: package(),
-      version: "0.2.1",
+      version: "0.2.3",
       elixir: "~> 1.16",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       elixirc_paths: elixirc_paths(Mix.env()),
       docs: [
-        main: "GenAI Core",
+        main: "GenAI",
         extras: [
           "README.md",
           "CHANGELOG.md",
@@ -88,12 +88,12 @@ defmodule GenAICore.MixProject do
   defp deps do
     test_deps = [
       {:junit_formatter, "~> 3.3", only: [:test]},
-      {:mimic, "~> 1.0.0", only: :test, optional: true}
+      {:mimic, "~> 2.3", only: :test, optional: true}
     ]
 
     hex_repo_deps = [
       # Documentation Provider
-      {:ex_doc, "~> 0.28.3", only: [:dev, :test], optional: true, runtime: false},
+      {:ex_doc, "~> 0.40", only: [:dev, :test], optional: true, runtime: false},
 
       # Static Analysis: Type Checking
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false, optional: true}
@@ -107,15 +107,15 @@ defmodule GenAICore.MixProject do
 
       # UUID Library
       {:elixir_uuid, "~> 1.2", optional: true},
-      {:shortuuid, "~> 3.0", optional: true},
+      {:shortuuid, "~> 4.0", optional: true},
 
       # Core Libraries
       {:noizu_labs_core, "~> 0.1"},
 
       # JSON/YAML
       {:jason, "~> 1.2", optional: true},
-      {:ymlr, "~> 4.0", optional: true},
-      {:yaml_elixir, "~> 2.9.0", optional: true},
+      {:ymlr, "~> 5.0", optional: true},
+      {:yaml_elixir, "~> 2.9", optional: true},
       {:sweet_xml, "~> 0.7", optional: true}
     ]
 

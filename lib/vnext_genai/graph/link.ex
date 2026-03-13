@@ -580,7 +580,7 @@ defmodule GenAI.Graph.Link do
   """
   @spec putnew_target(graph_link :: T.Graph.graph_link(), target :: term) :: T.Graph.graph_link()
   def putnew_target(
-        graph_link,
+        %__MODULE__{} = graph_link,
         R.Link.connector(
           node: connector_node,
           socket: connector_socket,
@@ -605,7 +605,7 @@ defmodule GenAI.Graph.Link do
     end
   end
 
-  def putnew_target(graph_link, target) when T.Graph.is_node_id(target) do
+  def putnew_target(%__MODULE__{} = graph_link, target) when T.Graph.is_node_id(target) do
     x = graph_link.target || R.Link.connector(node: nil, socket: nil, external: nil)
 
     if is_nil(R.Link.connector(x, :node)) do
@@ -625,7 +625,7 @@ defmodule GenAI.Graph.Link do
     end
   end
 
-  def putnew_target(graph_link, target) when is_struct(target) do
+  def putnew_target(%__MODULE__{} = graph_link, target) when is_struct(target) do
     {:ok, connector_id} = NodeProtocol.id(target)
     x = graph_link.target || R.Link.connector(node: nil, socket: nil, external: false)
 
@@ -688,7 +688,7 @@ defmodule GenAI.Graph.Link do
   """
   @spec putnew_source(graph_link :: T.Graph.graph_link(), source :: term) :: T.Graph.graph_link()
   def putnew_source(
-        graph_link,
+        %__MODULE__{} = graph_link,
         R.Link.connector(
           node: connector_node,
           socket: connector_socket,
@@ -713,7 +713,7 @@ defmodule GenAI.Graph.Link do
     end
   end
 
-  def putnew_source(graph_link, source) when T.Graph.is_node_id(source) do
+  def putnew_source(%__MODULE__{} = graph_link, source) when T.Graph.is_node_id(source) do
     x = graph_link.source || R.Link.connector(node: nil, socket: nil, external: false)
 
     if is_nil(R.Link.connector(x, :node)) do
@@ -733,7 +733,7 @@ defmodule GenAI.Graph.Link do
     end
   end
 
-  def putnew_source(graph_link, source) when is_struct(source) do
+  def putnew_source(%__MODULE__{} = graph_link, source) when is_struct(source) do
     {:ok, connector_id} = NodeProtocol.id(source)
     x = graph_link.source || R.Link.connector(node: nil, socket: nil, external: false)
 

@@ -69,29 +69,30 @@ defmodule GenAI.Helpers do
   Handle error tuple response.
 
   ## Examples
-    iex> {:ok, :return_me} |> GenAI.Helpers.on_error(:label, :unexpected)
-    {:ok, :return_me}
 
-    iex> {:ok, nil} |> GenAI.Helpers.on_error(:label, :unexpected)
-    {:ok, nil}
+      iex> {:ok, :return_me} |> GenAI.Helpers.on_error(:label, :unexpected)
+      {:ok, :return_me}
 
-    iex> {:error, :foo} |> GenAI.Helpers.on_error(:return_value, :bar)
-    {:ok, :bar}
+      iex> {:ok, nil} |> GenAI.Helpers.on_error(:label, :unexpected)
+      {:ok, nil}
 
-    iex> {:error, :foo} |> GenAI.Helpers.on_error(:return_error, :bar)
-    {:error, :bar}
+      iex> {:error, :foo} |> GenAI.Helpers.on_error(:return_value, :bar)
+      {:ok, :bar}
 
-    iex> {:error, :foo} |> GenAI.Helpers.on_error(:return, :bar)
-    :bar
+      iex> {:error, :foo} |> GenAI.Helpers.on_error(:return_error, :bar)
+      {:error, :bar}
 
-    iex> {:error, :foo} |> GenAI.Helpers.on_error(:call, fn -> :biz end)
-    :biz
+      iex> {:error, :foo} |> GenAI.Helpers.on_error(:return, :bar)
+      :bar
 
-    iex> {:error, :foo} |> GenAI.Helpers.on_error(:call, fn x -> {:biz, x} end)
-    {:biz, {:error, :foo}}
+      iex> {:error, :foo} |> GenAI.Helpers.on_error(:call, fn -> :biz end)
+      :biz
 
-    iex> {:error, :foo} |> GenAI.Helpers.on_error(:label, :wrap)
-    {:error, {:wrap, :foo}}
+      iex> {:error, :foo} |> GenAI.Helpers.on_error(:call, fn x -> {:biz, x} end)
+      {:biz, {:error, :foo}}
+
+      iex> {:error, :foo} |> GenAI.Helpers.on_error(:label, :wrap)
+      {:error, {:wrap, :foo}}
   """
   @spec on_error({:ok, any} | {:error, any}, atom, any) :: any
   def on_error(response, action, value)

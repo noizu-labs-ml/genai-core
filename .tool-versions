@@ -1,6 +1,6 @@
-java openjdk-23.0.1
-erlang 26.2.5.6
-elixir 1.16.3-otp-26
-nodejs 23.3.0
+
+erlang 28.4
+elixir 1.19.5-otp-28
+nodejs 20.0.0
 direnv 2.32.2
-yarn 1.21.1
+yarn 1.22.19

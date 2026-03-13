@@ -24,6 +24,21 @@ defmodule GenAI.Types do
   @type finger_print :: term
 
   @typedoc """
+  Node Handle - used to reference a node by a logical name.
+  """
+  @type node_handle :: term
+
+  @typedoc """
+  Node Identifier - unique identifier for a node.
+  """
+  @type node_id :: term
+
+  @typedoc """
+  Link Map - map of links grouped by outlet/socket.
+  """
+  @type link_map :: map()
+
+  @typedoc """
   Error details
   """
   @type details :: tuple | atom | bitstring()

@@ -30,7 +30,7 @@ defimpl Inspect,
 
       :low ->
         # Show id, name, description, and counts of inbound/outbound links
-        module.inspect_low_etail(subject, opts)
+        module.inspect_low_detail(subject, opts)
 
       :medium ->
         # Show parameters with truncated values
