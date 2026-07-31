@@ -11,6 +11,28 @@ defmodule GenAI.Dialogue do
 
   @type status :: :collecting | :complete | :cancelled
 
+  @typedoc """
+  Result of an `extract` callback.
+
+  - `{:cancel}` — user abandoned the dialogue.
+  - `{:ok, attrs}` — slots harvested; the agent message stays schema-driven.
+  - `{:ok, attrs, reply}` — slots harvested AND the extractor supplied its own
+    natural-language reply, which replaces the canned schema question /
+    ready message for this turn.
+  """
+  @type extract_result :: {:cancel} | {:ok, map()} | {:ok, map(), String.t()}
+
+  @typedoc """
+  Extract callback. Both arities are supported:
+
+  - `(text, pending_field)` — legacy 2-arity form.
+  - `(text, pending_field, draft)` — receives the accumulated draft so an
+    LLM-backed extractor can avoid re-asking filled slots.
+  """
+  @type extract_fun ::
+          (String.t(), atom() | nil -> extract_result())
+          | (String.t(), atom() | nil, map() -> extract_result())
+
   @type t :: %__MODULE__{
           status: status(),
           draft: map(),
@@ -18,7 +40,7 @@ defmodule GenAI.Dialogue do
           pending_field: atom() | nil,
           turns: non_neg_integer(),
           last_agent_message: String.t() | nil,
-          extract: (String.t(), atom() | nil -> {:cancel} | {:ok, map()}),
+          extract: extract_fun(),
           ready_message: (map() -> String.t()),
           cancel_message: String.t()
         }
@@ -37,7 +59,8 @@ defmodule GenAI.Dialogue do
   Start a dialogue from the first user utterance.
 
   Options:
-  - `:extract` — `(text, pending_field) -> {:cancel} | {:ok, attrs_map}`
+  - `:extract` — `(text, pending_field)` or `(text, pending_field, draft)`
+    returning `{:cancel} | {:ok, attrs} | {:ok, attrs, reply}`
   - `:initial_draft` — map pre-filled slots
   - `:ready_message` — `(draft) -> String.t()` when complete
   - `:cancel_message` — string on cancel
@@ -68,16 +91,35 @@ defmodule GenAI.Dialogue do
   def turn(%__MODULE__{} = d, text) when is_binary(text) do
     d = %{d | turns: d.turns + 1}
 
-    case d.extract.(text, d.pending_field) do
+    case apply_extract(d, text) do
       {:cancel} ->
         msg = d.cancel_message
         d = %{d | status: :cancelled, pending_field: nil, last_agent_message: msg}
         {d, msg}
 
+      {:ok, attrs, reply} when is_map(attrs) and is_binary(reply) ->
+        draft = merge_draft(d.draft, attrs)
+        advance(%{d | draft: draft}, blank_reply(reply))
+
+      {:ok, attrs, _reply} when is_map(attrs) ->
+        draft = merge_draft(d.draft, attrs)
+        advance(%{d | draft: draft})
+
       {:ok, attrs} when is_map(attrs) ->
         draft = merge_draft(d.draft, attrs)
         advance(%{d | draft: draft})
     end
+  end
+
+  # Supports both the legacy 2-arity extract and the 3-arity (draft-aware) form.
+  defp apply_extract(%__MODULE__{extract: extract} = d, text) when is_function(extract, 3),
+    do: extract.(text, d.pending_field, d.draft)
+
+  defp apply_extract(%__MODULE__{extract: extract} = d, text) when is_function(extract, 2),
+    do: extract.(text, d.pending_field)
+
+  defp blank_reply(reply) do
+    if String.trim(reply) == "", do: nil, else: reply
   end
 
   def complete?(%__MODULE__{status: :complete}), do: true
@@ -89,16 +131,22 @@ defmodule GenAI.Dialogue do
   @doc "Current draft map (atom keys preferred)."
   def draft(%__MODULE__{draft: draft}), do: draft
 
-  defp advance(%__MODULE__{} = d) do
+  # `override_reply`, when non-nil, replaces the canned schema question /
+  # ready message as the agent's utterance for this turn. Slot structure is
+  # still schema-driven — only the *source of the message* changes.
+  defp advance(dialogue, override_reply \\ nil)
+
+  defp advance(%__MODULE__{} = d, override_reply) do
     case Schema.next_question(d.schema, d.draft) do
       nil ->
-        msg = d.ready_message.(d.draft)
+        msg = override_reply || d.ready_message.(d.draft)
         d = %{d | status: :complete, pending_field: nil, last_agent_message: msg}
         {d, msg}
 
       {field, question} ->
-        d = %{d | status: :collecting, pending_field: field, last_agent_message: question}
-        {d, question}
+        msg = override_reply || question
+        d = %{d | status: :collecting, pending_field: field, last_agent_message: msg}
+        {d, msg}
     end
   end
 
