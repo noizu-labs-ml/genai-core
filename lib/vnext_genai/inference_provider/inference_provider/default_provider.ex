@@ -56,6 +56,16 @@ defmodule GenAI.InferenceProvider.DefaultProvider do
            ThreadProtocol.effective_tools(session, model, context, options),
          {:ok, {messages, session}} <-
            ThreadProtocol.effective_messages(session, model, context, options) do
+      # Streaming mode: force the stream flag into the effective settings — thread
+      # implementations append the :stream setting after graph prep, so it would
+      # otherwise never reach the request body.
+      effective =
+        if mode == :stream do
+          Map.update!(effective, :settings, &Keyword.put(&1 || [], :stream, true))
+        else
+          effective
+        end
+
       # Build Request
       with {:ok, {req_body, session}} <-
              module.request_body(model, messages, tools, effective, session, context, options),
@@ -85,7 +95,16 @@ defmodule GenAI.InferenceProvider.DefaultProvider do
           # Streaming Mode
           with {:ok, {settings, session}} <- GenAI.ThreadProtocol.effective_settings(session, context, options),
                stream_handler <- settings[:stream_handler] || GenAI.StreamHandler.Default,
-               {:ok, {handler, session}} <- GenAI.StreamHandler.begin_stream(stream_handler, session, context, options),
+               {:ok, stream_decoder} <- stream_decoder(model_encoder),
+               handler_options =
+                 (options || [])
+                 |> Keyword.merge(
+                   stream_decoder: stream_decoder,
+                   stream_model: model.model,
+                   stream_provider: model.provider
+                 ),
+               {:ok, {handler, session}} <-
+                 GenAI.StreamHandler.begin_stream(stream_handler, session, context, handler_options),
                {:ok, req} <- stream_api_call(handler, req_method, req_endpoint, req_headers, req_body, options[:finch]) do
             {:ok, {req, session}}
           end
@@ -97,6 +116,19 @@ defmodule GenAI.InferenceProvider.DefaultProvider do
     end
   end
   
+  # ⟦𓎦𓇋𓉐𓏁𓃲⟧ stream_decoder :: Resolve the encoder's SSE stream decoder; encoders that don't
+  # export stream_decoder/0 (e.g. Gemini) are streaming-unsupported.
+  defp stream_decoder(model_encoder) do
+    if Code.ensure_loaded?(model_encoder) and function_exported?(model_encoder, :stream_decoder, 0) do
+      case model_encoder.stream_decoder() do
+        nil -> {:error, :streaming_not_supported}
+        decoder when is_atom(decoder) -> {:ok, decoder}
+      end
+    else
+      {:error, :streaming_not_supported}
+    end
+  end
+
   # ------------------
   # chat/7
   # ------------------

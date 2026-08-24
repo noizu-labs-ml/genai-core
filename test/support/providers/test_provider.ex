@@ -119,6 +119,9 @@ defmodule GenAI.Support.TestProvider.EncoderOne do
 
   require GenAI.Records.Directive
 
+  # ⟦𓊝𓉢𓎛𓇑𓏁⟧ stream_decoder :: Decode OpenAI compatible SSE streams in streaming tests.
+  def stream_decoder, do: GenAI.StreamHandler.OpenAI
+
   # ⟦𓎪𓆘𓇐𓂑⟧ headers :: auto-generated pointer for public function headers
   def headers(model, settings, session, context, options)
 
@@ -136,6 +139,15 @@ defmodule GenAI.Support.TestProvider.EncoderOne do
   # ⟦𓍈𓆟𓃂𓊺⟧ request_body :: auto-generated pointer for public function request_body
   def request_body(model, messages, tools, settings, session, _, _) do
     with {:ok, model_name} <- GenAI.ModelProtocol.name(model) do
+      # the DefaultProvider run/stream path passes the full effective-settings map,
+      # while TestProvider.do_run passes a flat keyword list — normalize to keyword.
+      settings =
+        case settings do
+          %{settings: flat} when is_list(flat) -> flat
+          flat when is_list(flat) -> flat
+          other -> other
+        end
+
       # TODO Enum map hyper_params
       body = %{
                model: model_name,
