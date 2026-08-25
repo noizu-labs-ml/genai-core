@@ -133,6 +133,18 @@ defmodule GenAI do
   end
 
   @doc """
+  Runs an explicit, bounded model/tool chain using a `GenAI.Tool.Registry`.
+
+  Unlike `run/1-3`, this opt-in function continues after tool calls, executes
+  them through their registered source, appends normalized responses, and runs
+  inference again. It returns
+  `{:ok, {completion, updated_thread, %GenAI.ToolChain.Summary{}}}`.
+  """
+  def run_with_tools(thread_context, registry, context \\ Noizu.Context.system(), options \\ []) do
+    GenAI.ToolChain.run(thread_context, registry, context, options)
+  end
+
+  @doc """
   Generate media (ADR-016): route a `GenAI.Media.Request` to a provider that declares
   support for its (input, output) modality, and run its `generate_media/2`. Covers
   text -> image/speech/music/sfx/video as well as speech -> text (transcription).
