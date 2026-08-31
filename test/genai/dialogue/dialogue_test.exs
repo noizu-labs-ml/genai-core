@@ -17,6 +17,7 @@ defmodule GenAI.DialogueTest do
 
   test "missing required field → asks next question" do
     schema = create_schema()
+
     extract = fn text, pending ->
       cond do
         String.downcase(String.trim(text)) == "cancel" -> {:cancel}
@@ -107,5 +108,174 @@ defmodule GenAI.DialogueTest do
     assert src =~ "acme"
     assert src =~ "t1"
     assert src =~ ~s(endpoint "plans")
+  end
+
+  # ── tool loop ────────────────────────────────────────────────────────────────
+
+  defp loop_extract(steps) do
+    # Scripted extractor: pops scripted responses; a {:tool_result, _, _}
+    # re-entry consumes the next step.
+    {:ok, agent} = Agent.start_link(fn -> steps end)
+
+    fn input, _pending, _draft ->
+      Agent.get_and_update(agent, fn
+        [next | rest] -> {next, rest}
+        [] -> {{:ok, %{}, "out of script"}, []}
+      end)
+    end
+  end
+
+  defp executor(log) do
+    fn call, _draft ->
+      send(log, {:tool, call})
+      {:cont, %{"answer" => 42}}
+    end
+  end
+
+  test "tool_call executes and the loop continues to a final answer" do
+    schema = create_schema()
+    log = self()
+
+    extract =
+      loop_extract([
+        {:tool_call, %{"tool" => "search"}, "Searching."},
+        {:tool_call, %{"tool" => "fetch"}, "Fetching."},
+        {:ok, %{}, "Done: 42."}
+      ])
+
+    {d, msg} =
+      Dialogue.start(schema, "look it up",
+        extract: extract,
+        tool_executor: executor(log)
+      )
+
+    assert msg == "Done: 42."
+
+    assert [%{call: %{"tool" => "search"}}, %{call: %{"tool" => "fetch"}}] =
+             Dialogue.tool_trace(d)
+
+    assert_received {:tool, %{"tool" => "search"}}
+    assert_received {:tool, %{"tool" => "fetch"}}
+  end
+
+  test "tool result reaches the extractor as a {:tool_result, call, result} input" do
+    schema = create_schema()
+
+    extract = fn input, _pending, _draft ->
+      case input do
+        {:tool_result, _call, %{"answer" => 42}} -> {:ok, %{title: "answer-42"}}
+        _input -> {:tool_call, %{"tool" => "ask"}, "Checking."}
+      end
+    end
+
+    executor = fn _call, _draft -> {:cont, %{"answer" => 42}} end
+
+    {d, _msg} =
+      Dialogue.start(schema, "what is it", extract: extract, tool_executor: executor)
+
+    assert Dialogue.draft(d)[:title] == "answer-42"
+  end
+
+  test "executor halt ends the loop with the halt reply" do
+    schema = create_schema()
+
+    extract =
+      loop_extract([
+        {:tool_call, %{"tool" => "deploy"}, "Deploying."},
+        {:ok, %{}, "unreachable"}
+      ])
+
+    executor = fn _call, _draft -> {:halt, "Needs your approval first."} end
+
+    {d, msg} =
+      Dialogue.start(schema, "deploy", extract: extract, tool_executor: executor)
+
+    assert msg == "Needs your approval first."
+    assert [%{outcome: {:halt, "Needs your approval first."}}] = Dialogue.tool_trace(d)
+  end
+
+  test "max_tool_iterations stops the loop" do
+    schema = create_schema()
+    log = self()
+
+    # Every response is another tool_call — the script never ends.
+    extract = fn _input, _p, _d -> {:tool_call, %{"tool" => "loop"}, "Again."} end
+
+    {d, msg} =
+      Dialogue.start(schema, "go",
+        extract: extract,
+        tool_executor: executor(log),
+        max_tool_iterations: 3
+      )
+
+    assert msg == "I reached the tool-use limit for this turn (3)."
+    assert length(Dialogue.tool_trace(d)) == 3
+  end
+
+  test "per-step timeout halts a hung executor" do
+    schema = create_schema()
+
+    extract =
+      loop_extract([
+        {:tool_call, %{"tool" => "slow"}, "Working."},
+        {:ok, %{}, "unused"}
+      ])
+
+    executor = fn _call, _draft ->
+      Process.sleep(5_000)
+      {:cont, %{}}
+    end
+
+    {d, msg} =
+      Dialogue.start(schema, "go",
+        extract: extract,
+        tool_executor: executor,
+        tool_step_timeout: 50
+      )
+
+    assert msg =~ "timed out"
+    assert [%{outcome: {:halt, halt}}] = Dialogue.tool_trace(d)
+    assert halt =~ "timed out"
+  end
+
+  test "crashing executor halts instead of crashing the turn" do
+    schema = create_schema()
+
+    extract =
+      loop_extract([
+        {:tool_call, %{"tool" => "boom"}, "Trying."},
+        {:ok, %{}, "unused"}
+      ])
+
+    executor = fn _call, _draft -> raise "boom" end
+
+    {_d, msg} = Dialogue.start(schema, "go", extract: extract, tool_executor: executor)
+    assert msg =~ "Tool call failed"
+  end
+
+  test "tool_call without an executor degrades to the model's reply" do
+    schema = create_schema()
+
+    extract = fn _input, _p, _d -> {:tool_call, %{"tool" => "x"}, "Cannot run tools."} end
+
+    {d, msg} = Dialogue.start(schema, "go", extract: extract)
+    assert msg == "Cannot run tools."
+    assert Dialogue.tool_trace(d) == []
+  end
+
+  test "legacy slot path is unchanged alongside loop config" do
+    schema = create_schema()
+
+    extract = fn "acme", nil, _draft -> {:ok, %{organization: "acme"}} end
+
+    executor = fn _c, _d -> flunk("executor must not run without a tool_call") end
+
+    {d, msg} =
+      Dialogue.start(schema, "acme", extract: extract, tool_executor: executor)
+
+    assert d.pending_field == :title
+    assert Dialogue.draft(d)[:organization] == "acme"
+    assert is_binary(msg)
+    assert Dialogue.tool_trace(d) == []
   end
 end
