@@ -1,5 +1,12 @@
 Change Log
 ==============
+
+# Unreleased
+- Added dependency-neutral tool source registration for MCP clients, harnesses,
+  and other external data/tool providers.
+- Added an opt-in bounded tool-chain runner without changing `GenAI.run/1-3`.
+- Added normalized tool calls/results and payload-safe lifecycle telemetry.
+
 # 0.0.1 - Initial Release
 - Initial Text Only Generation.
 
@@ -16,4 +23,3 @@ added support for how to handel local models, etc.
 # 0.2.0 - Refactor
 - Directed Graph Session to allow future advanced feature.
 - Streamline how providers are added with use macros.
-
