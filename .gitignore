@@ -1,5 +1,4 @@
-
-genai_core*.tar
+*.tar
 # intellij
 .envrc
 .idea/
