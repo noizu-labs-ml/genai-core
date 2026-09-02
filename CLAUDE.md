@@ -107,4 +107,12 @@ The codebase follows a dual-structure approach with legacy and vnext implementat
 Required versions (from .tool-versions):
 - Erlang: 26.2.5.6
 - Elixir: 1.16.3-otp-26
+
+## Monorepo Context & Universal Rules (Noizu)
+
+- **Identity**: core LLM client package of the Noizu genai family (with `ai/genai`, `ai/genai-approval`, `ai/ex_llama`); marketed at elixirgenai.dev; consumed by most Noizu Elixir AI apps. Monorepo coupling map: trl-infra `docs/SUBS.md`.
+- **Trinity Protocol REQUIRED**: each response = Orientation → Friction → Response. Full text: monorepo `protocols/the-trinity-protocol.md`.
+- **No shell in main thread** — delegate to taskers; summarize, never dump raw output.
+- **Worktrees**: all work on worktrees; `epic.<group>` consolidation branches off `develop` for integration testing; squash-PR provenance into epics. MAIN checkout owns `deps/_build`; worktrees symlink deps to canonical checkout.
+- **Hex discipline**: published package — version bump + changelog before publish; see monorepo CLAUDE.md for OSS licensing rule (MIT/Apache/BSD-class only).
 - Node.js: 23.3.0 (if needed for assets)
