@@ -1,6 +1,18 @@
-# AGENTS.md
+# AGENTS.md — genai-core
 
-This file provides guidance to coding agents (Grok, Codex, Claude, Cursor) when working with code in this repository.
+Guidance for **Codex**, **Grok**, **Cursor**, and other `AGENTS.md` / `AGENT.md` tools.
+
+Claude Code loads [CLAUDE.md](./CLAUDE.md). Same policy; this file is the harness-shaped sibling (numbered MUST first, markdown headings). If both this file and a parent `AGENTS.md` load, **this file wins on conflict**.
+
+## MUST (every turn)
+
+1. **Identity**: core LLM client package of the Noizu genai family (with `ai/genai`, `ai/genai-approval`, `ai/ex_llama`); marketed at elixirgenai.dev; consumed by most Noizu Elixir AI apps. Monorepo coupling map: trl-infra `docs/SUBS.md`.
+2. **Trinity Protocol REQUIRED**: each response = Orientation → Friction → Response. Full text: monorepo `protocols/the-trinity-protocol.md`.
+3. **No shell in main thread** — delegate to taskers; summarize, never dump raw output.
+4. **Worktrees**: all work on worktrees; `epic.<group>` consolidation branches off `develop` for integration testing; squash-PR provenance into epics. MAIN checkout owns `deps/_build`; worktrees symlink deps to canonical checkout.
+5. **Hex discipline**: published package — version bump + changelog before publish; see monorepo CLAUDE.md for OSS licensing rule (MIT/Apache/BSD-class only).
+6. Node.js: 23.3.0 (if needed for assets)
+7. **PRs target `develop`.** Never merge or push `main` (CI/CD-only release path).
 
 ## Project Overview
 
@@ -108,11 +120,8 @@ Required versions (from .tool-versions):
 - Erlang: 26.2.5.6
 - Elixir: 1.16.3-otp-26
 
-## Monorepo Context & Universal Rules (Noizu)
+## Branch & PR Policy
 
-- **Identity**: core LLM client package of the Noizu genai family (with `ai/genai`, `ai/genai-approval`, `ai/ex_llama`); marketed at elixirgenai.dev; consumed by most Noizu Elixir AI apps. Monorepo coupling map: trl-infra `docs/SUBS.md`.
-- **Trinity Protocol REQUIRED**: each response = Orientation → Friction → Response. Full text: monorepo `protocols/the-trinity-protocol.md`.
-- **No shell in main thread** — delegate to taskers; summarize, never dump raw output.
-- **Worktrees**: all work on worktrees; `epic.<group>` consolidation branches off `develop` for integration testing; squash-PR provenance into epics. MAIN checkout owns `deps/_build`; worktrees symlink deps to canonical checkout.
-- **Hex discipline**: published package — version bump + changelog before publish; see monorepo CLAUDE.md for OSS licensing rule (MIT/Apache/BSD-class only).
-- Node.js: 23.3.0 (if needed for assets)
+- Submodules sit on **`develop`** — keep your checkout on `develop`.
+- All PRs target **`develop`** (feature/bug/task branches fork from `develop`).
+- **`main` is CI/CD-only**: CI/CD automation performs all merges into `main` (release path). Never merge to or push `main` by hand.
