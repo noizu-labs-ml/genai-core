@@ -14,7 +14,7 @@ defmodule GenAI.StreamHandler.OpenAI do
     - `{:finish, atom}`   — normalized stop reason
   """
 
-  # ⟦𓇓𓅱𓃭𓎛𓆄⟧ stream_event :: Convert a decoded chat.completion.chunk into normalized stream events.
+  # <REMOVED UUID HERE> stream_event :: Convert a decoded chat.completion.chunk into normalized stream events.
   def stream_event(json) do
     choice = json[:choices] && List.first(json[:choices])
 
@@ -23,7 +23,7 @@ defmodule GenAI.StreamHandler.OpenAI do
     |> Kernel.++(usage_event(json[:usage] || (json[:x_groq] && json[:x_groq][:usage])))
   end
 
-  # ⟦𓃠𓈖𓉔𓍦𓏏⟧ delta_events :: Extract text/thinking/tool-call deltas.
+  # <REMOVED UUID HERE> delta_events :: Extract text/thinking/tool-call deltas.
   defp delta_events(nil), do: []
 
   defp delta_events(delta) do
@@ -43,11 +43,11 @@ defmodule GenAI.StreamHandler.OpenAI do
 
   defp tool_call_event(_), do: []
 
-  # ⟦𓉬𓎡𓇣𓏌𓍿⟧ finish_event :: Normalize the provider stop reason.
+  # <REMOVED UUID HERE> finish_event :: Normalize the provider stop reason.
   defp finish_event(nil), do: []
   defp finish_event(reason), do: [{:finish, GenAI.StreamHandler.normalize_finish(reason)}]
 
-  # ⟦𓍄𓊝𓂰𓎦𓇋⟧ usage_event :: Normalize usage when present (often only on the final chunk).
+  # <REMOVED UUID HERE> usage_event :: Normalize usage when present (often only on the final chunk).
   defp usage_event(nil), do: []
 
   defp usage_event(usage) do

@@ -5,7 +5,7 @@ defmodule GenAI.ChatCompletion.Usage do
             cache_read_input_tokens: nil,
             cache_creation_input_tokens: nil
   
-  # ⟦𓐄𓊟𓅡𓇤⟧ new :: auto-generated pointer for public function new
+  # <REMOVED UUID HERE> new :: auto-generated pointer for public function new
   def new(options)
   def new(options) when is_struct(options) do
     new(Map.from_struct(options))

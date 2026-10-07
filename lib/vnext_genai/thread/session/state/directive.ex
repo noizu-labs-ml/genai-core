@@ -12,7 +12,7 @@ defmodule GenAI.Session.State.Directive do
             fingerprint: nil,
             vsn: @vsn
 
-  # ⟦𓇁𓁿𓊆𓆘⟧ static :: auto-generated pointer for public function static
+  # <REMOVED UUID HERE> static :: auto-generated pointer for public function static
   def static(entry, value, source) do
     value = concrete_value(value: value)
 
@@ -26,7 +26,7 @@ defmodule GenAI.Session.State.Directive do
   # ----------------------
   # apply_directive
   # ----------------------
-  # ⟦𓍃𓌛𓌭𓍏⟧ apply_directive :: auto-generated pointer for public function apply_directive
+  # <REMOVED UUID HERE> apply_directive :: auto-generated pointer for public function apply_directive
   def apply_directive(directive, session, context, options)
 
   def apply_directive(directive, session, context, options) do
@@ -62,14 +62,14 @@ defmodule GenAI.Session.State.Directive do
   # ----------------------
   # expired?/1
   # ----------------------
-  # ⟦𓏤𓊽𓏆𓊅⟧ expired? :: auto-generated pointer for public function expired?
+  # <REMOVED UUID HERE> expired? :: auto-generated pointer for public function expired?
   def expired?(directive)
   def expired?(_), do: false
 
   # ----------------------
   # fingerprint/1
   # ----------------------
-  # ⟦𓂄𓆷𓊼𓂞⟧ fingerprint :: auto-generated pointer for public function fingerprint
+  # <REMOVED UUID HERE> fingerprint :: auto-generated pointer for public function fingerprint
   def fingerprint(directive)
 
   def fingerprint(directive),

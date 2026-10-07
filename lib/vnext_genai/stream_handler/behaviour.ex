@@ -1,6 +1,6 @@
 defmodule GenAI.StreamHandler do
 
-  # ⟦𓉆𓀠𓀲𓎫⟧ begin_stream :: auto-generated pointer for public function begin_stream
+  # <REMOVED UUID HERE> begin_stream :: auto-generated pointer for public function begin_stream
   def begin_stream(handler, session, context, options) when is_atom(handler) do
     handler.begin_stream(handler, session, context, options)
   end
@@ -8,7 +8,7 @@ defmodule GenAI.StreamHandler do
     h.begin_stream(handler, session, context, options)
   end
 
-  # ⟦𓂄𓏏𓇋𓈐𓎯⟧ normalize_finish :: Shared stop-reason normalization for stream decoders.
+  # <REMOVED UUID HERE> normalize_finish :: Shared stop-reason normalization for stream decoders.
   def normalize_finish("stop"), do: :stop
   def normalize_finish("end_turn"), do: :stop
   def normalize_finish("stop_sequence"), do: :stop
@@ -86,7 +86,7 @@ defmodule GenAI.StreamHandler.Default do
   Handle streaming events from Finch.stream_while
   Processes status, headers, data chunks, and trailers
   """
-  # ⟦𓆬𓐓𓋧𓍧⟧ handle_event :: Handle streaming events from Finch.stream_while
+  # <REMOVED UUID HERE> handle_event :: Handle streaming events from Finch.stream_while
   def handle_event(event, state) do
     case event do
       {:status, status} ->
@@ -115,7 +115,7 @@ defmodule GenAI.StreamHandler.Default do
     end
   end
 
-  # ⟦𓅓𓎝𓇏𓈌𓆏⟧ decode_chunk :: Parse SSE frames and fold decoded events into the accumulator.
+  # <REMOVED UUID HERE> decode_chunk :: Parse SSE frames and fold decoded events into the accumulator.
   defp decode_chunk(state, _chunk) when is_nil(state.decoder), do: state
 
   defp decode_chunk(state, chunk) do
@@ -189,10 +189,10 @@ defmodule GenAI.StreamHandler.Default do
     |> Map.put(:finish, finish)
   end
 
-  # ⟦𓋾𓎂𓇑𓏏𓆭⟧ append_event :: Track decoded events on the accumulator.
+  # <REMOVED UUID HERE> append_event :: Track decoded events on the accumulator.
   defp append_event(state, event), do: %{state | events: state.events ++ [event]}
 
-  # ⟦𓅡𓏎𓉢𓍪𓎔⟧ forward :: Push a decoded event to the sink (pid → message, fun → call).
+  # <REMOVED UUID HERE> forward :: Push a decoded event to the sink (pid → message, fun → call).
   defp forward(state, event) do
     case state.sink do
       pid when is_pid(pid) ->
@@ -208,7 +208,7 @@ defmodule GenAI.StreamHandler.Default do
     end
   end
 
-  # ⟦𓈁𓏏𓇋𓎲𓍣⟧ rebuild_completion :: Materialize the accumulated ChatCompletion.
+  # <REMOVED UUID HERE> rebuild_completion :: Materialize the accumulated ChatCompletion.
   defp rebuild_completion(state) do
     %{state | completion: build_completion(state)}
   end
@@ -277,7 +277,7 @@ defmodule GenAI.StreamHandler.Accumulate do
 
   defstruct [:sink]
 
-  # ⟦𓉐𓎛𓇋𓏅𓆄⟧ begin_stream :: Delegate to Default with the sink injected.
+  # <REMOVED UUID HERE> begin_stream :: Delegate to Default with the sink injected.
   def begin_stream(handler, session, context, options) do
     options = Keyword.merge(options || [], stream_sink: handler.sink)
     GenAI.StreamHandler.Default.begin_stream(nil, session, context, options)
