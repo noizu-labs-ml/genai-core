@@ -51,12 +51,15 @@ defmodule GenAI.StreamHandler.OpenAI do
   defp usage_event(nil), do: []
 
   defp usage_event(usage) do
+    cached = usage[:prompt_tokens_details] && usage[:prompt_tokens_details][:cached_tokens]
+
     [
       {:usage,
        %{
          prompt_tokens: usage[:prompt_tokens],
          completion_tokens: usage[:completion_tokens],
-         total_tokens: usage[:total_tokens]
+         total_tokens: usage[:total_tokens],
+         cache_read_input_tokens: cached
        }}
     ]
   end

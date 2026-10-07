@@ -71,7 +71,9 @@ defmodule GenAI.StreamHandler.Anthropic do
        %{
          prompt_tokens: usage[:input_tokens],
          completion_tokens: usage[:output_tokens],
-         total_tokens: usage[:total_tokens]
+         total_tokens: usage[:total_tokens],
+         cache_read_input_tokens: usage[:cache_read_input_tokens],
+         cache_creation_input_tokens: usage[:cache_creation_input_tokens]
        }}
     ]
   end

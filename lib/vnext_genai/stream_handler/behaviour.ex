@@ -236,7 +236,9 @@ defmodule GenAI.StreamHandler.Default do
             %GenAI.ChatCompletion.Usage{
               prompt_tokens: u[:prompt_tokens],
               completion_tokens: u[:completion_tokens],
-              total_tokens: u[:total_tokens]
+              total_tokens: u[:total_tokens],
+              cache_read_input_tokens: u[:cache_read_input_tokens],
+              cache_creation_input_tokens: u[:cache_creation_input_tokens]
             }
         end
 

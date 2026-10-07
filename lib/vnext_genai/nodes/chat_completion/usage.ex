@@ -1,7 +1,9 @@
 defmodule GenAI.ChatCompletion.Usage do
   defstruct prompt_tokens: nil,
             total_tokens: nil,
-            completion_tokens: nil
+            completion_tokens: nil,
+            cache_read_input_tokens: nil,
+            cache_creation_input_tokens: nil
   
   # ⟦𓐄𓊟𓅡𓇤⟧ new :: auto-generated pointer for public function new
   def new(options)
