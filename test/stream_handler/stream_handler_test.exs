@@ -91,7 +91,9 @@ defmodule GenAI.StreamHandler.OpenAITest do
 
     test "tool call delta" do
       tool_calls = [%{index: 0, id: "call_1", function: %{name: "get_weather", arguments: "{\""}}]
-      assert [{:tool_call, ^tool_calls}] = OpenAI.stream_event(%{choices: [%{delta: %{tool_calls: tool_calls}}]})
+
+      assert [{:tool_call, ^tool_calls}] =
+               OpenAI.stream_event(%{choices: [%{delta: %{tool_calls: tool_calls}}]})
     end
 
     test "finish reason normalized" do
@@ -106,12 +108,27 @@ defmodule GenAI.StreamHandler.OpenAITest do
     end
 
     test "usage chunk (include_usage)" do
-      events = OpenAI.stream_event(%{choices: [], usage: %{prompt_tokens: 5, completion_tokens: 7, total_tokens: 12}})
-      assert events == [{:usage, %{prompt_tokens: 5, completion_tokens: 7, total_tokens: 12}}]
+      events =
+        OpenAI.stream_event(%{
+          choices: [],
+          usage: %{prompt_tokens: 5, completion_tokens: 7, total_tokens: 12}
+        })
+
+      assert events == [
+               {:usage,
+                %{
+                  prompt_tokens: 5,
+                  completion_tokens: 7,
+                  total_tokens: 12,
+                  cache_read_input_tokens: nil
+                }}
+             ]
     end
 
     test "text and finish in same chunk" do
-      events = OpenAI.stream_event(%{choices: [%{delta: %{content: "bye"}, finish_reason: "stop"}]})
+      events =
+        OpenAI.stream_event(%{choices: [%{delta: %{content: "bye"}, finish_reason: "stop"}]})
+
       assert events == [{:text, "bye"}, {:finish, :stop}]
     end
   end
@@ -121,33 +138,124 @@ defmodule GenAI.StreamHandler.AnthropicTest do
   use ExUnit.Case, async: true
   alias GenAI.StreamHandler.Anthropic
 
+  describe "prompt caching usage" do
+    alias GenAI.StreamHandler.Anthropic
+    alias GenAI.StreamHandler.OpenAI
+
+    test "openai cached_tokens maps to cache_read_input_tokens" do
+      events =
+        OpenAI.stream_event(%{
+          choices: [],
+          usage: %{
+            prompt_tokens: 2548,
+            completion_tokens: 22,
+            total_tokens: 2570,
+            prompt_tokens_details: %{cached_tokens: 1920}
+          }
+        })
+
+      assert events == [
+               {:usage,
+                %{
+                  prompt_tokens: 2548,
+                  completion_tokens: 22,
+                  total_tokens: 2570,
+                  cache_read_input_tokens: 1920
+                }}
+             ]
+    end
+
+    test "anthropic message_delta carries cache read/creation tokens" do
+      events =
+        GenAI.StreamHandler.Anthropic.stream_event(%{
+          type: "message_delta",
+          delta: %{stop_reason: "end_turn"},
+          usage: %{
+            output_tokens: 40,
+            cache_creation_input_tokens: 2095,
+            cache_read_input_tokens: 0
+          }
+        })
+
+      assert {:usage, usage} = Enum.find(events, &match?({:usage, _}, &1))
+      assert usage.cache_creation_input_tokens == 2095
+      assert usage.cache_read_input_tokens == 0
+    end
+  end
+
   describe "Anthropic Decoder" do
     test "message_start yields input usage" do
-      events = Anthropic.stream_event(%{type: "message_start", message: %{usage: %{input_tokens: 25, output_tokens: 1}}})
-      assert events == [{:usage, %{prompt_tokens: 25, completion_tokens: 1, total_tokens: nil}}]
+      events =
+        Anthropic.stream_event(%{
+          type: "message_start",
+          message: %{usage: %{input_tokens: 25, output_tokens: 1}}
+        })
+
+      assert events == [
+               {:usage,
+                %{
+                  prompt_tokens: 25,
+                  completion_tokens: 1,
+                  total_tokens: nil,
+                  cache_read_input_tokens: nil,
+                  cache_creation_input_tokens: nil
+                }}
+             ]
     end
 
     test "text delta" do
       assert [{:text, "Hel"}] =
-               Anthropic.stream_event(%{type: "content_block_delta", index: 0, delta: %{type: "text_delta", text: "Hel"}})
+               Anthropic.stream_event(%{
+                 type: "content_block_delta",
+                 index: 0,
+                 delta: %{type: "text_delta", text: "Hel"}
+               })
     end
 
     test "thinking delta" do
       assert [{:thinking, "so"}] =
-               Anthropic.stream_event(%{type: "content_block_delta", index: 0, delta: %{type: "thinking_delta", thinking: "so"}})
+               Anthropic.stream_event(%{
+                 type: "content_block_delta",
+                 index: 0,
+                 delta: %{type: "thinking_delta", thinking: "so"}
+               })
     end
 
     test "tool use block start and json delta" do
       assert [{:tool_call, %{index: 1, id: "toolu_1", name: "get_weather"}}] =
-               Anthropic.stream_event(%{type: "content_block_start", index: 1, content_block: %{type: "tool_use", id: "toolu_1", name: "get_weather"}})
+               Anthropic.stream_event(%{
+                 type: "content_block_start",
+                 index: 1,
+                 content_block: %{type: "tool_use", id: "toolu_1", name: "get_weather"}
+               })
 
       assert [{:tool_call, %{index: 1, partial_json: "{\"loc"}}] =
-               Anthropic.stream_event(%{type: "content_block_delta", index: 1, delta: %{type: "input_json_delta", partial_json: "{\"loc"}})
+               Anthropic.stream_event(%{
+                 type: "content_block_delta",
+                 index: 1,
+                 delta: %{type: "input_json_delta", partial_json: "{\"loc"}
+               })
     end
 
     test "message_delta yields finish and output usage" do
-      events = Anthropic.stream_event(%{type: "message_delta", delta: %{stop_reason: "end_turn"}, usage: %{output_tokens: 40}})
-      assert events == [{:finish, :stop}, {:usage, %{prompt_tokens: nil, completion_tokens: 40, total_tokens: nil}}]
+      events =
+        GenAI.StreamHandler.Anthropic.stream_event(%{
+          type: "message_delta",
+          delta: %{stop_reason: "end_turn"},
+          usage: %{output_tokens: 40}
+        })
+
+      assert events == [
+               {:finish, :stop},
+               {:usage,
+                %{
+                  prompt_tokens: nil,
+                  completion_tokens: 40,
+                  total_tokens: nil,
+                  cache_read_input_tokens: nil,
+                  cache_creation_input_tokens: nil
+                }}
+             ]
     end
 
     test "ping ignored" do
@@ -173,8 +281,16 @@ defmodule GenAI.StreamHandler.DefaultTest do
         )
 
       {:cont, state} = cb.({:status, 200}, state)
-      {:cont, state} = cb.({:data, ~S(data: {"choices":[{"index":0,"delta":{"content":"Hi"}}]}) <> "\n\n"}, state)
-      {:cont, state} = cb.({:data, ~S(data: {"choices":[{"index":0,"delta":{"content":"!"}}]}) <> "\n\n"}, state)
+
+      {:cont, state} =
+        cb.(
+          {:data, ~S(data: {"choices":[{"index":0,"delta":{"content":"Hi"}}]}) <> "\n\n"},
+          state
+        )
+
+      {:cont, state} =
+        cb.({:data, ~S(data: {"choices":[{"index":0,"delta":{"content":"!"}}]}) <> "\n\n"}, state)
+
       {:cont, state} = cb.({:data, "data: [DONE]\n\n"}, state)
 
       assert state.completed
@@ -196,7 +312,9 @@ defmodule GenAI.StreamHandler.DefaultTest do
           stream_sink: fn event -> send(test, {:forwarded, event}) end
         )
 
-      {:cont, state} = cb.({:data, ~S(data: {"choices":[{"index":0,"delta":{"content":"x"}}]}) <> "\n\n"}, state)
+      {:cont, state} =
+        cb.({:data, ~S(data: {"choices":[{"index":0,"delta":{"content":"x"}}]}) <> "\n\n"}, state)
+
       assert_received {:forwarded, {:text, "x"}}
       assert state.text == "x"
     end
