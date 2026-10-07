@@ -13,7 +13,7 @@ defmodule GenAI.Tool do
   defnodestruct(parameters: nil)
   defnodetype(parameters: term)
 
-  # ⟦𓎾𓈁𓎹𓊔⟧ apply_node_directives :: auto-generated pointer for public function apply_node_directives
+  # <REMOVED UUID HERE> apply_node_directives :: auto-generated pointer for public function apply_node_directives
   def apply_node_directives(this, graph_link, graph_container, session, context, options)
 
   def apply_node_directives(this, _, _, session, context, options) do
@@ -25,7 +25,7 @@ defmodule GenAI.Tool do
   @doc """
   Extract function from json.
   """
-  # ⟦𓁡𓆎𓅩𓋩⟧ from_json :: Extract function from json.
+  # <REMOVED UUID HERE> from_json :: Extract function from json.
   def from_json(json_string) when is_bitstring(json_string) do
     with {:ok, json} <- Jason.decode(json_string) do
       do_from_json(json)
@@ -35,7 +35,7 @@ defmodule GenAI.Tool do
   @doc """
   Extract function from yaml.
   """
-  # ⟦𓊥𓉀𓂾𓃗⟧ from_yaml :: Extract function from yaml.
+  # <REMOVED UUID HERE> from_yaml :: Extract function from yaml.
   def from_yaml(yaml_string) when is_bitstring(yaml_string) do
     with {:ok, json} <- YamlElixir.read_from_string(yaml_string) do
       do_from_json(json)
@@ -62,13 +62,13 @@ defmodule GenAI.Tool do
   end
   
   
-  # ⟦𓃔𓌯𓆈𓉂⟧ inspect_custom_details :: auto-generated pointer for public function inspect_custom_details
+  # <REMOVED UUID HERE> inspect_custom_details :: auto-generated pointer for public function inspect_custom_details
   def inspect_custom_details(subject, opts) do
     ["parameters:", Inspect.Algebra.to_doc(subject.parameters, opts), ", "]
   end
   
   defimpl GenAI.ToolProtocol do
-    # ⟦𓍥𓂾𓎯𓀣⟧ name :: auto-generated pointer for public function name
+    # <REMOVED UUID HERE> name :: auto-generated pointer for public function name
     def name(subject), do: {:ok, subject.name}
   end
 end

@@ -12,7 +12,7 @@ defimpl GenAI.Thread.LegacyStateProtocol, for: GenAI.Thread.Standard do
   @doc """
   Add a model selector/constraint
   """
-  # ⟦𓃣𓀲𓅊𓋡⟧ apply_model :: Add a model selector/constraint
+  # <REMOVED UUID HERE> apply_model :: Add a model selector/constraint
   def apply_model(thread_context, model)
 
   def apply_model(thread_context, model) do
@@ -24,7 +24,7 @@ defimpl GenAI.Thread.LegacyStateProtocol, for: GenAI.Thread.Standard do
   @doc """
   Add a setting selector/constraint
   """
-  # ⟦𓁟𓁔𓆾𓄤⟧ apply_setting :: Add a setting selector/constraint
+  # <REMOVED UUID HERE> apply_setting :: Add a setting selector/constraint
   def apply_setting(thread_context, node)
 
   def apply_setting(thread_context, node) do
@@ -39,7 +39,7 @@ defimpl GenAI.Thread.LegacyStateProtocol, for: GenAI.Thread.Standard do
   @doc """
   Add a provider specific setting selector/constraint
   """
-  # ⟦𓍵𓂩𓀳𓋧⟧ apply_provider_setting :: Add a provider specific setting selector/constraint
+  # <REMOVED UUID HERE> apply_provider_setting :: Add a provider specific setting selector/constraint
   def apply_provider_setting(thread_context, node)
 
   def apply_provider_setting(thread_context, node) do
@@ -60,7 +60,7 @@ defimpl GenAI.Thread.LegacyStateProtocol, for: GenAI.Thread.Standard do
   @doc """
   Add a model specific setting selector/constraint
   """
-  # ⟦𓉽𓇇𓏃𓄁⟧ apply_model_setting :: Add a model specific setting selector/constraint
+  # <REMOVED UUID HERE> apply_model_setting :: Add a model specific setting selector/constraint
   def apply_model_setting(thread_context, node)
 
   def apply_model_setting(thread_context, node) do
@@ -83,7 +83,7 @@ defimpl GenAI.Thread.LegacyStateProtocol, for: GenAI.Thread.Standard do
   @doc """
   Add a model specific setting selector/constraint
   """
-  # ⟦𓎩𓏅𓊚𓈮⟧ apply_safety_setting :: Add a model specific setting selector/constraint
+  # <REMOVED UUID HERE> apply_safety_setting :: Add a model specific setting selector/constraint
   def apply_safety_setting(thread_context, node)
 
   def apply_safety_setting(thread_context, node) do
@@ -98,7 +98,7 @@ defimpl GenAI.Thread.LegacyStateProtocol, for: GenAI.Thread.Standard do
   @doc """
   Add a tool
   """
-  # ⟦𓀧𓐊𓋸𓂏⟧ apply_tool :: Add a tool
+  # <REMOVED UUID HERE> apply_tool :: Add a tool
   def apply_tool(thread_context, tool)
 
   def apply_tool(thread_context, tool) do
@@ -112,7 +112,7 @@ defimpl GenAI.Thread.LegacyStateProtocol, for: GenAI.Thread.Standard do
   @doc """
   Add a tools
   """
-  # ⟦𓋂𓄭𓌧𓁁⟧ apply_tools :: Add a tools
+  # <REMOVED UUID HERE> apply_tools :: Add a tools
   def apply_tools(thread_context, tools)
   def apply_tools(thread_context, nil), do: {:ok, thread_context}
 
@@ -133,7 +133,7 @@ defimpl GenAI.Thread.LegacyStateProtocol, for: GenAI.Thread.Standard do
   @doc """
   Add message
   """
-  # ⟦𓈮𓋁𓂂𓆛⟧ apply_message :: Add message
+  # <REMOVED UUID HERE> apply_message :: Add message
   def apply_message(thread_context, message)
 
   def apply_message(thread_context, message) do
@@ -148,7 +148,7 @@ defimpl GenAI.Thread.LegacyStateProtocol, for: GenAI.Thread.Standard do
   @doc """
   Add messages
   """
-  # ⟦𓆄𓏮𓁩𓀖⟧ apply_messages :: Add messages
+  # <REMOVED UUID HERE> apply_messages :: Add messages
   def apply_messages(thread_context, messages)
 
   def apply_messages(thread_context, messages) when is_list(messages) do
@@ -160,7 +160,7 @@ defimpl GenAI.Thread.LegacyStateProtocol, for: GenAI.Thread.Standard do
     |> ok()
   end
 
-  # ⟦𓆋𓇟𓂎𓈳⟧ set_artifact :: auto-generated pointer for public function set_artifact
+  # <REMOVED UUID HERE> set_artifact :: auto-generated pointer for public function set_artifact
   def set_artifact(thread_context, artifact, value)
 
   def set_artifact(thread_context, artifact, value) do
@@ -169,7 +169,7 @@ defimpl GenAI.Thread.LegacyStateProtocol, for: GenAI.Thread.Standard do
     |> ok()
   end
 
-  # ⟦𓌇𓈋𓊯𓄻⟧ get_artifact :: auto-generated pointer for public function get_artifact
+  # <REMOVED UUID HERE> get_artifact :: auto-generated pointer for public function get_artifact
   def get_artifact(thread_context, artifact)
 
   def get_artifact(thread_context, artifact) do
@@ -182,7 +182,7 @@ defimpl GenAI.Thread.LegacyStateProtocol, for: GenAI.Thread.Standard do
   Obtain the effective model as of current thread_context.
   @note temporary logic - pending support for context specific dynamic selection
   """
-  # ⟦𓄉𓇾𓃊𓎣⟧ effective_model :: Obtain the effective model as of current thread_context.
+  # <REMOVED UUID HERE> effective_model :: Obtain the effective model as of current thread_context.
   def effective_model(thread_context, context, options)
 
   def effective_model(thread_context, _, _) do
@@ -198,7 +198,7 @@ defimpl GenAI.Thread.LegacyStateProtocol, for: GenAI.Thread.Standard do
   Obtain the effective settings as of current thread_context.
   @note temporary logic - pending support for context specific dynamic selection
   """
-  # ⟦𓄖𓃶𓆀𓃔⟧ effective_settings :: Obtain the effective settings as of current thread_context.
+  # <REMOVED UUID HERE> effective_settings :: Obtain the effective settings as of current thread_context.
   def effective_settings(thread_context, _, _) do
     Enum.map(
       thread_context.state.settings,
@@ -214,7 +214,7 @@ defimpl GenAI.Thread.LegacyStateProtocol, for: GenAI.Thread.Standard do
     |> effective_value_fetch_success(thread_context)
   end
 
-  # ⟦𓏰𓎫𓂔𓅠⟧ effective_model_settings :: auto-generated pointer for public function effective_model_settings
+  # <REMOVED UUID HERE> effective_model_settings :: auto-generated pointer for public function effective_model_settings
   def effective_model_settings(thread_context, model, _, _) do
     with {:ok, m} <- GenAI.ModelProtocol.name(model),
          {:ok, p} <- GenAI.ModelProtocol.provider(model) do
@@ -240,7 +240,7 @@ defimpl GenAI.Thread.LegacyStateProtocol, for: GenAI.Thread.Standard do
   Obtain the effective provider settings as of current thread_context.
   @note temporary logic - pending support for context specific dynamic selection
   """
-  # ⟦𓅎𓁊𓎴𓀬⟧ effective_provider_settings :: Obtain the effective provider settings as of current thread_context.
+  # <REMOVED UUID HERE> effective_provider_settings :: Obtain the effective provider settings as of current thread_context.
   def effective_provider_settings(thread_context, model, _, _) do
     with {:ok, provider} <- GenAI.ModelProtocol.provider(model),
          settings = %{} <- thread_context.state.provider_settings[provider] do
@@ -258,7 +258,7 @@ defimpl GenAI.Thread.LegacyStateProtocol, for: GenAI.Thread.Standard do
     end
   end
 
-  # ⟦𓄴𓉢𓐃𓈤⟧ effective_safety_settings :: auto-generated pointer for public function effective_safety_settings
+  # <REMOVED UUID HERE> effective_safety_settings :: auto-generated pointer for public function effective_safety_settings
   def effective_safety_settings(thread_context, _, _) do
     {:ok, {thread_context.state.safety_settings |> Enum.to_list(), thread_context}}
   end
@@ -270,7 +270,7 @@ defimpl GenAI.Thread.LegacyStateProtocol, for: GenAI.Thread.Standard do
     end
   end
 
-  # ⟦𓊥𓄖𓏏𓁏⟧ effective_messages :: auto-generated pointer for public function effective_messages
+  # <REMOVED UUID HERE> effective_messages :: auto-generated pointer for public function effective_messages
   def effective_messages(thread_context, model, context, options) do
     with {:ok, encoder} <- GenAI.ModelProtocol.encoder(model) do
       {messages, thread_context} =
@@ -298,7 +298,7 @@ defimpl GenAI.Thread.LegacyStateProtocol, for: GenAI.Thread.Standard do
     end
   end
 
-  # ⟦𓌅𓃄𓅙𓃥⟧ effective_tools :: auto-generated pointer for public function effective_tools
+  # <REMOVED UUID HERE> effective_tools :: auto-generated pointer for public function effective_tools
   def effective_tools(thread_context, model, context, options) do
     with {:ok, encoder} <- GenAI.ModelProtocol.encoder(model) do
       {tools, thread_context} =

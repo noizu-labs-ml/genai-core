@@ -17,7 +17,7 @@ defmodule GenAI.StreamHandler.SSE do
   separators split across chunk boundaries.
   """
 
-  # ⟦𓊖𓉶𓋿𓍚𓎝⟧ feed :: Incrementally parse SSE frames from the wire.
+  # <REMOVED UUID HERE> feed :: Incrementally parse SSE frames from the wire.
   def feed(buffer \\ "", chunk \\ "")
 
   def feed(buffer, chunk) do
@@ -26,7 +26,7 @@ defmodule GenAI.StreamHandler.SSE do
     {Enum.flat_map(frames, &parse_frame/1), rest}
   end
 
-  # ⟦𓄿𓂉𓈖𓂀𓍁⟧ split_frames :: Split buffer on blank-line separators, keeping any trailing partial frame.
+  # <REMOVED UUID HERE> split_frames :: Split buffer on blank-line separators, keeping any trailing partial frame.
   defp split_frames(buffer) do
     normalized =
       buffer
@@ -48,7 +48,7 @@ defmodule GenAI.StreamHandler.SSE do
     end
   end
 
-  # ⟦𓋴𓂧𓎼𓈋𓆑⟧ parse_frame :: Extract data payload (or [DONE]) from a single frame.
+  # <REMOVED UUID HERE> parse_frame :: Extract data payload (or [DONE]) from a single frame.
   defp parse_frame(frame) do
     data_lines =
       frame

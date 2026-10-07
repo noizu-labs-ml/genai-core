@@ -29,7 +29,7 @@ defmodule GenAI.Helpers do
       {:foo, :bop}
 
   """
-  # ⟦𓋩𓊵𓉀𓅘⟧ with_label :: label block response
+  # <REMOVED UUID HERE> with_label :: label block response
   defmacro with_label(label, do: block) do
     quote do
       unquote(block)
@@ -58,7 +58,7 @@ defmodule GenAI.Helpers do
       {:foo, :bop}
 
   """
-  # ⟦𓈫𓊛𓀴𓎰⟧ apply_label :: label response
+  # <REMOVED UUID HERE> apply_label :: label response
   def apply_label(response, label) do
     case response do
       {:ok, response} -> {label, response}
@@ -97,7 +97,7 @@ defmodule GenAI.Helpers do
       {:error, {:wrap, :foo}}
   """
   @spec on_error({:ok, any} | {:error, any}, atom, any) :: any
-  # ⟦𓈯𓃅𓎋𓊗⟧ on_error :: Handle error tuple response.
+  # <REMOVED UUID HERE> on_error :: Handle error tuple response.
   def on_error(response, action, value)
   def on_error(response = {:ok, _}, _, _), do: response
   def on_error({:error, _}, :return_value, value), do: {:ok, value}
@@ -136,7 +136,7 @@ defmodule GenAI.Helpers do
 
   """
   @spec on_nil({:ok, any} | {:error, any}, atom, any) :: any
-  # ⟦𓉾𓅇𓅨𓌪⟧ on_nil :: Handle {:ok, nil} tuple response.
+  # <REMOVED UUID HERE> on_nil :: Handle {:ok, nil} tuple response.
   def on_nil(response, action, value)
   def on_nil({:ok, nil}, :return_value, value), do: {:ok, value}
   def on_nil({:ok, nil}, :return_error, value), do: {:error, value}
