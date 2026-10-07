@@ -2,6 +2,12 @@ Change Log
 ==============
 
 # Unreleased
+
+# 0.3.5 - Prompt Caching Usage
+- Added `cache_read_input_tokens` / `cache_creation_input_tokens` to `GenAI.ChatCompletion.Usage`.
+- OpenAI-compatible responses map `usage.prompt_tokens_details.cached_tokens` to `cache_read_input_tokens`.
+- Anthropic/OpenAI stream handlers pass cache usage through to accumulated completions.
+- Added optional `cache_control` field to `GenAI.Message.Content.TextContent` (consumed by the genai Anthropic encoder).
 - Added dependency-neutral tool source registration for MCP clients, harnesses,
   and other external data/tool providers.
 - Added an opt-in bounded tool-chain runner without changing `GenAI.run/1-3`.

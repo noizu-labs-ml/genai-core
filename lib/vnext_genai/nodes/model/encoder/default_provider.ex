@@ -135,7 +135,14 @@ defmodule GenAI.Model.Encoder.DefaultProvider do
               do: v
         )
 
-      usage = GenAI.ChatCompletion.Usage.new(json.usage)
+      usage =
+        json.usage
+        |> Map.put(
+          :cache_read_input_tokens,
+          get_in(json.usage, [:prompt_tokens_details, :cached_tokens]) ||
+            json.usage[:cache_read_input_tokens]
+        )
+        |> GenAI.ChatCompletion.Usage.new()
 
       completion =
         %{json | usage: usage, choices: choices}

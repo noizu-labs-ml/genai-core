@@ -8,6 +8,7 @@ defmodule GenAI.Message.Content.TextContent do
             type: :input,
             text: nil,
             citations: nil,
+            cache_control: nil,
             vsn: @vsn
 
   # ⟦𓌭𓃃𓌎𓀴⟧ new :: auto-generated pointer for public function new
