@@ -1,6 +1,34 @@
-# CLAUDE.md
+# AGENTS.md — genai-core
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guidance for **Codex**, **Grok**, **Cursor**, and other `AGENTS.md` / `AGENT.md` tools.
+
+Claude Code loads [CLAUDE.md](./CLAUDE.md). Same policy; this file is the harness-shaped sibling (numbered MUST first, markdown headings). If both this file and a parent `AGENTS.md` load, **this file wins on conflict**.
+
+## MUST (every turn)
+
+1. **Identity**: core LLM client package of the Noizu genai family (with `ai/genai`, `ai/genai-approval`, `ai/ex_llama`); marketed at elixirgenai.dev; consumed by most Noizu Elixir AI apps. Monorepo coupling map: trl-infra `docs/SUBS.md`.
+2. **Trinity Protocol REQUIRED**: each response = Orientation → Friction → Response. Full text: monorepo `protocols/the-trinity-protocol.md`.
+3. **No shell in main thread** — delegate to taskers; summarize, never dump raw output.
+## Worktrees — Canonical Convention (REQUIRED)
+
+All work happens on git worktrees, created from **this repo's own `.git`** — never work directly on a shared checkout of `develop`/`main`.
+
+- **Placement (fixed):** every worktree lives inside this repo's checkout at **`.claude/worktrees/<name>/`** — never siblings (`<repo>.worktrees/`), never ad-hoc paths. Matches Claude Code's native worktree tooling, so harness-created and manual worktrees coexist.
+- **Naming:** `<name>` = branch name with `/` → `-` (branch `feature/vfs-wave1` → `.claude/worktrees/feature-vfs-wave1`).
+- **Creation** — from this repo's own `.git`, based on `develop` (never `main`):
+  ```bash
+  git -C <this-repo> worktree add .claude/worktrees/<name> -b <branch> develop
+  ```
+- **Hygiene:** `.claude/worktrees/` is gitignored in this repo; never commit its contents. One worktree per task; remove it when the work lands (`git worktree remove .claude/worktrees/<name>` — keep the branch).
+- **Addressing:** `git -C <this-repo>/.claude/worktrees/<name> …`; verify branch + clean index before any git write; no `git stash`.
+- **Elixir projects:** the MAIN checkout owns `deps/` + `_build/`; each worktree symlinks `deps` (and `_build` where needed) to the canonical checkout by **absolute path** — no per-worktree re-fetch/recompile.
+- **Legacy placements** (`.worktrees/`, `.wt/`, `<repo>.worktrees/` siblings, `staging/`) are grandfathered — do not create new ones; migrate opportunistically. `staging/` remains local-only experiments (never pushed/submoduled).
+- **Branch & PR policy unchanged:** worktree branches fork from `develop`; PRs target `develop`; `main` is CI/CD-only (automation merges only).
+
+
+5. **Hex discipline**: published package — version bump + changelog before publish; see monorepo CLAUDE.md for OSS licensing rule (MIT/Apache/BSD-class only).
+6. Node.js: 23.3.0 (if needed for assets)
+7. **PRs target `develop`.** Never merge or push `main` (CI/CD-only release path).
 
 ## Project Overview
 
@@ -107,31 +135,6 @@ The codebase follows a dual-structure approach with legacy and vnext implementat
 Required versions (from .tool-versions):
 - Erlang: 26.2.5.6
 - Elixir: 1.16.3-otp-26
-
-## Monorepo Context & Universal Rules (Noizu)
-
-- **Identity**: core LLM client package of the Noizu genai family (with `ai/genai`, `ai/genai-approval`, `ai/ex_llama`); marketed at elixirgenai.dev; consumed by most Noizu Elixir AI apps. Monorepo coupling map: trl-infra `docs/SUBS.md`.
-- **Trinity Protocol REQUIRED**: each response = Orientation → Friction → Response. Full text: monorepo `protocols/the-trinity-protocol.md`.
-- **No shell in main thread** — delegate to taskers; summarize, never dump raw output.
-## Worktrees — Canonical Convention (REQUIRED)
-
-All work happens on git worktrees, created from **this repo's own `.git`** — never work directly on a shared checkout of `develop`/`main`.
-
-- **Placement (fixed):** every worktree lives inside this repo's checkout at **`.claude/worktrees/<name>/`** — never siblings (`<repo>.worktrees/`), never ad-hoc paths. Matches Claude Code's native worktree tooling, so harness-created and manual worktrees coexist.
-- **Naming:** `<name>` = branch name with `/` → `-` (branch `feature/vfs-wave1` → `.claude/worktrees/feature-vfs-wave1`).
-- **Creation** — from this repo's own `.git`, based on `develop` (never `main`):
-  ```bash
-  git -C <this-repo> worktree add .claude/worktrees/<name> -b <branch> develop
-  ```
-- **Hygiene:** `.claude/worktrees/` is gitignored in this repo; never commit its contents. One worktree per task; remove it when the work lands (`git worktree remove .claude/worktrees/<name>` — keep the branch).
-- **Addressing:** `git -C <this-repo>/.claude/worktrees/<name> …`; verify branch + clean index before any git write; no `git stash`.
-- **Elixir projects:** the MAIN checkout owns `deps/` + `_build/`; each worktree symlinks `deps` (and `_build` where needed) to the canonical checkout by **absolute path** — no per-worktree re-fetch/recompile.
-- **Legacy placements** (`.worktrees/`, `.wt/`, `<repo>.worktrees/` siblings, `staging/`) are grandfathered — do not create new ones; migrate opportunistically. `staging/` remains local-only experiments (never pushed/submoduled).
-- **Branch & PR policy unchanged:** worktree branches fork from `develop`; PRs target `develop`; `main` is CI/CD-only (automation merges only).
-
-
-- **Hex discipline**: published package — version bump + changelog before publish; see monorepo CLAUDE.md for OSS licensing rule (MIT/Apache/BSD-class only).
-- Node.js: 23.3.0 (if needed for assets)
 
 ## Branch & PR Policy
 
