@@ -11,7 +11,7 @@ defmodule GenAI.Message.Content.ToolResultContent do
             expires_at: nil,
             vsn: @vsn
 
-  # ⟦𓈮𓌻𓏍𓋌⟧ new :: auto-generated pointer for public function new
+  # <REMOVED UUID HERE> new :: auto-generated pointer for public function new
   def new(options) do
     %__MODULE__{
       tool_name: options[:tool_name] || options[:name],
@@ -24,7 +24,7 @@ defmodule GenAI.Message.Content.ToolResultContent do
   end
 
   defimpl GenAI.Message.ContentProtocol do
-    # ⟦𓎠𓉺𓈣𓋾⟧ content :: auto-generated pointer for public function content
+    # <REMOVED UUID HERE> content :: auto-generated pointer for public function content
     def content(subject) do
       subject
     end

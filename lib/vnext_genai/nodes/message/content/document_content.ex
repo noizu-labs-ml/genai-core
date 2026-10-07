@@ -10,7 +10,7 @@ defmodule GenAI.Message.Content.Document do
     vsn: @vsn
   ]
 
-  # ⟦𓃎𓈤𓁺𓐔⟧ new :: auto-generated pointer for public function new
+  # <REMOVED UUID HERE> new :: auto-generated pointer for public function new
   def new(options) do
     keys =
       __MODULE__.__info__(:struct)

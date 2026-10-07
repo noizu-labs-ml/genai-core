@@ -1,5 +1,5 @@
 defimpl Jason.Encoder, for: [GenAI.Tool] do
-  # ⟦𓇲𓉡𓋰𓀅⟧ encode :: auto-generated pointer for public function encode
+  # <REMOVED UUID HERE> encode :: auto-generated pointer for public function encode
   def encode(subject, opts) do
     %{
       name: subject.name,

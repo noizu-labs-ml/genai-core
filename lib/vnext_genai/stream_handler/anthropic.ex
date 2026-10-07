@@ -17,7 +17,7 @@ defmodule GenAI.StreamHandler.Anthropic do
   `ping` and unknown event types decode to `[]`.
   """
 
-  # ⟦𓂔𓎟𓋹𓈖𓍲⟧ stream_event :: Convert a decoded Anthropic stream event into normalized stream events.
+  # <REMOVED UUID HERE> stream_event :: Convert a decoded Anthropic stream event into normalized stream events.
   def stream_event(json) do
     case json[:type] do
       "message_start" ->
@@ -38,14 +38,14 @@ defmodule GenAI.StreamHandler.Anthropic do
     end
   end
 
-  # ⟦𓇑𓏏𓈅𓎖𓍎⟧ block_start_event :: Announce a tool_use block (id + name) when one starts.
+  # <REMOVED UUID HERE> block_start_event :: Announce a tool_use block (id + name) when one starts.
   defp block_start_event(index, %{type: "tool_use"} = block) do
     [{:tool_call, %{index: index, id: block[:id], name: block[:name]}}]
   end
 
   defp block_start_event(_, _), do: []
 
-  # ⟦𓃒𓏎𓉐𓇋𓍯⟧ delta_event :: Convert content block deltas.
+  # <REMOVED UUID HERE> delta_event :: Convert content block deltas.
   defp delta_event(_index, %{type: "text_delta"} = delta),
     do: [{:text, delta[:text]}]
 
@@ -57,12 +57,12 @@ defmodule GenAI.StreamHandler.Anthropic do
 
   defp delta_event(_, _), do: []
 
-  # ⟦𓉪𓏌𓎛𓄤𓍧⟧ finish_event :: Normalize the Anthropic stop reason.
+  # <REMOVED UUID HERE> finish_event :: Normalize the Anthropic stop reason.
   defp finish_event(nil), do: []
 
   defp finish_event(reason), do: [{:finish, GenAI.StreamHandler.normalize_finish(reason)}]
 
-  # ⟦𓊃𓍇𓏤𓎁𓆉⟧ usage_event :: Normalize usage (input_tokens / output_tokens → prompt/completion).
+  # <REMOVED UUID HERE> usage_event :: Normalize usage (input_tokens / output_tokens → prompt/completion).
   defp usage_event(nil), do: []
 
   defp usage_event(usage) do

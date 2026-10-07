@@ -16,7 +16,7 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
   # new/2
   # -------------------------
   @spec new(module, any) :: struct
-  # ⟦𓉈𓇧𓌔𓂔⟧ new :: auto-generated pointer for public function new
+  # <REMOVED UUID HERE> new :: auto-generated pointer for public function new
   def new(module, options) do
     if Code.ensure_loaded?(module) and function_exported?(module, :do_new, 1) do
       module.do_new(options)
@@ -26,7 +26,7 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
   end
 
   @spec do_new(module, any) :: any
-  # ⟦𓄾𓀾𓈒𓋦⟧ do_new :: auto-generated pointer for public function do_new
+  # <REMOVED UUID HERE> do_new :: auto-generated pointer for public function do_new
   def do_new(module, nil) do
     options = [
       id: UUID.uuid4(),
@@ -60,7 +60,7 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
   # node/2
   # -------------------------
   @spec node(G.graph_node(), term) :: T.result(G.graph_node_id(), T.details())
-  # ⟦𓃱𓅩𓂥𓅶⟧ node :: auto-generated pointer for public function node
+  # <REMOVED UUID HERE> node :: auto-generated pointer for public function node
   def node(graph_node = %{__struct__: module}, id) do
     if Code.ensure_loaded?(module) and function_exported?(module, :do_node, 2) do
       module.do_node(graph_node, id)
@@ -73,7 +73,7 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
   # node/2
   # -------------------------
   @spec nodes(G.graph_node(), term) :: T.result(G.graph_node_id(), T.details())
-  # ⟦𓍧𓀳𓏷𓁿⟧ nodes :: auto-generated pointer for public function nodes
+  # <REMOVED UUID HERE> nodes :: auto-generated pointer for public function nodes
   def nodes(graph_node = %{__struct__: module}, options \\ nil) do
     if Code.ensure_loaded?(module) and function_exported?(module, :nodes, 2) do
       module.nodes(graph_node, options)
@@ -82,7 +82,7 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
     end
   end
 
-  # ⟦𓂤𓉶𓋤𓀩⟧ build_node_lookup :: auto-generated pointer for public function build_node_lookup
+  # <REMOVED UUID HERE> build_node_lookup :: auto-generated pointer for public function build_node_lookup
   def build_node_lookup(graph_node, options \\ nil) do
     with {:ok, id} <- GenAI.Graph.NodeProtocol.id(graph_node),
          {:ok, type} <- GenAI.Graph.NodeProtocol.node_type(graph_node),
@@ -132,7 +132,7 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
     end
   end
 
-  # ⟦𓀵𓂗𓈵𓁐⟧ build_handle_lookup :: auto-generated pointer for public function build_handle_lookup
+  # <REMOVED UUID HERE> build_handle_lookup :: auto-generated pointer for public function build_handle_lookup
   def build_handle_lookup(graph_node, options \\ nil) do
     with {:ok, id} <- GenAI.Graph.NodeProtocol.id(graph_node),
          {:ok, nodes} <- GenAI.Graph.NodeProtocol.nodes(graph_node, options) do
@@ -184,7 +184,7 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
   # node_type/1
   # -------------------------
   @spec node_type(G.graph_node()) :: T.result(G.graph_node_id(), T.details())
-  # ⟦𓅩𓌵𓀳𓂡⟧ node_type :: auto-generated pointer for public function node_type
+  # <REMOVED UUID HERE> node_type :: auto-generated pointer for public function node_type
   def node_type(graph_node = %{__struct__: module}) do
     if Code.ensure_loaded?(module) and function_exported?(module, :do_node_type, 1) do
       module.do_node_type(graph_node)
@@ -194,7 +194,7 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
   end
 
   @spec do_node_type(G.graph_node()) :: T.result(G.graph_node_id(), T.details())
-  # ⟦𓋹𓀀𓍆𓍛⟧ do_node_type :: auto-generated pointer for public function do_node_type
+  # <REMOVED UUID HERE> do_node_type :: auto-generated pointer for public function do_node_type
   def do_node_type(graph_node)
   def do_node_type(%{__struct__: module}), do: {:ok, module}
 
@@ -202,7 +202,7 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
   # id/1
   # -------------------------
   @spec id(G.graph_node()) :: T.result(G.graph_node_id(), T.details())
-  # ⟦𓏑𓐡𓇀𓎥⟧ id :: auto-generated pointer for public function id
+  # <REMOVED UUID HERE> id :: auto-generated pointer for public function id
   def id(graph_node = %{__struct__: module}) do
     if Code.ensure_loaded?(module) and function_exported?(module, :do_id, 1) do
       module.do_id(graph_node)
@@ -212,7 +212,7 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
   end
 
   @spec do_id(G.graph_node()) :: T.result(G.graph_node_id(), T.details())
-  # ⟦𓍯𓎭𓂻𓆀⟧ do_id :: auto-generated pointer for public function do_id
+  # <REMOVED UUID HERE> do_id :: auto-generated pointer for public function do_id
   def do_id(graph_node)
   def do_id(%{id: nil}), do: {:error, {:id, :is_nil}}
   def do_id(%{id: id}), do: {:ok, id}
@@ -221,7 +221,7 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
   # handle/1
   # -------------------------
   @spec handle(G.graph_node()) :: T.result(T.handle(), T.details())
-  # ⟦𓍕𓃵𓊈𓋎⟧ handle :: auto-generated pointer for public function handle
+  # <REMOVED UUID HERE> handle :: auto-generated pointer for public function handle
   def handle(graph_node = %{__struct__: module}) do
     if Code.ensure_loaded?(module) and function_exported?(module, :do_handle, 1) do
       module.do_handle(graph_node)
@@ -231,7 +231,7 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
   end
 
   @spec do_handle(G.graph_node()) :: T.result(T.handle(), T.details())
-  # ⟦𓏗𓃹𓁷𓊜⟧ do_handle :: auto-generated pointer for public function do_handle
+  # <REMOVED UUID HERE> do_handle :: auto-generated pointer for public function do_handle
   def do_handle(graph_node)
   def do_handle(%{handle: nil}), do: {:error, {:handle, :is_nil}}
   def do_handle(%{handle: L.graph_handle(name: handle)}), do: {:ok, handle}
@@ -241,7 +241,7 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
   # handle_record/1
   # -------------------------
   @spec handle_record(G.graph_node()) :: T.result(T.handle(), T.details())
-  # ⟦𓊓𓌒𓅂𓁢⟧ handle_record :: auto-generated pointer for public function handle_record
+  # <REMOVED UUID HERE> handle_record :: auto-generated pointer for public function handle_record
   def handle_record(graph_node = %{__struct__: module}) do
     if Code.ensure_loaded?(module) and function_exported?(module, :do_handle_record, 1) do
       module.do_handle_record(graph_node)
@@ -251,7 +251,7 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
   end
 
   @spec do_handle_record(G.graph_node()) :: T.result(T.handle(), T.details())
-  # ⟦𓇂𓋢𓈓𓅏⟧ do_handle_record :: auto-generated pointer for public function do_handle_record
+  # <REMOVED UUID HERE> do_handle_record :: auto-generated pointer for public function do_handle_record
   def do_handle_record(graph_node)
   def do_handle_record(%{handle: nil}), do: {:error, {:handle, :is_nil}}
   def do_handle_record(%{handle: handle}), do: {:ok, handle}
@@ -277,7 +277,7 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
   # name/1
   # -------------------------
   @spec name(G.graph_node()) :: T.result(T.name(), T.details())
-  # ⟦𓂯𓍼𓆔𓀬⟧ name :: auto-generated pointer for public function name
+  # <REMOVED UUID HERE> name :: auto-generated pointer for public function name
   def name(graph_node = %{__struct__: module}) do
     if Code.ensure_loaded?(module) and function_exported?(module, :do_name, 1) do
       module.do_name(graph_node)
@@ -287,7 +287,7 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
   end
 
   @spec do_name(G.graph_node()) :: T.result(T.name(), T.details())
-  # ⟦𓎅𓂇𓃕𓁪⟧ do_name :: auto-generated pointer for public function do_name
+  # <REMOVED UUID HERE> do_name :: auto-generated pointer for public function do_name
   def do_name(graph_node)
   def do_name(%{name: nil}), do: {:error, {:name, :is_nil}}
   def do_name(%{name: name}), do: {:ok, name}
@@ -313,7 +313,7 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
   # description/1
   # -------------------------
   @spec description(G.graph_node()) :: T.result(T.description(), T.details())
-  # ⟦𓊐𓏘𓉒𓎰⟧ description :: auto-generated pointer for public function description
+  # <REMOVED UUID HERE> description :: auto-generated pointer for public function description
   def description(graph_node = %{__struct__: module}) do
     if Code.ensure_loaded?(module) and function_exported?(module, :do_description, 1) do
       module.do_description(graph_node)
@@ -323,7 +323,7 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
   end
 
   @spec do_description(G.graph_node()) :: T.result(T.description(), T.details())
-  # ⟦𓌻𓂈𓊑𓀖⟧ do_description :: auto-generated pointer for public function do_description
+  # <REMOVED UUID HERE> do_description :: auto-generated pointer for public function do_description
   def do_description(graph_node)
   def do_description(%{description: nil}), do: {:error, {:description, :is_nil}}
   def do_description(%{description: description}), do: {:ok, description}
@@ -349,7 +349,7 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
   # with_id/2
   # -------------------------
   @spec with_id(G.graph_node()) :: T.result(G.graph_node(), T.details())
-  # ⟦𓆹𓍫𓉭𓌂⟧ with_id :: auto-generated pointer for public function with_id
+  # <REMOVED UUID HERE> with_id :: auto-generated pointer for public function with_id
   def with_id(graph_node = %{__struct__: module}) do
     if Code.ensure_loaded?(module) and function_exported?(module, :do_with_id, 1) do
       module.do_with_id(graph_node)
@@ -359,7 +359,7 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
   end
 
   @spec do_with_id(G.graph_node()) :: T.result(G.graph_node(), T.details())
-  # ⟦𓈹𓄮𓏏𓁭⟧ do_with_id :: auto-generated pointer for public function do_with_id
+  # <REMOVED UUID HERE> do_with_id :: auto-generated pointer for public function do_with_id
   def do_with_id(graph_node) do
     graph_node
     |> do_with_id!()
@@ -367,7 +367,7 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
   end
 
   @spec do_with_id!(G.graph_node()) :: G.graph_node()
-  # ⟦𓁴𓆄𓀈𓇮⟧ do_with_id! :: auto-generated pointer for public function do_with_id!
+  # <REMOVED UUID HERE> do_with_id! :: auto-generated pointer for public function do_with_id!
   def do_with_id!(graph_node) do
     cond do
       graph_node.id == nil ->
@@ -386,7 +386,7 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
   # -------------------------
   @spec register_link(G.graph_node(), G.graph(), G.graph_link(), map) ::
           T.result(G.graph_node(), T.details())
-  # ⟦𓋚𓈒𓈱𓄯⟧ register_link :: auto-generated pointer for public function register_link
+  # <REMOVED UUID HERE> register_link :: auto-generated pointer for public function register_link
   def register_link(graph_node = %{__struct__: module}, graph, link, options) do
     if Code.ensure_loaded?(module) and function_exported?(module, :do_register_link, 4) do
       module.do_register_link(graph_node, graph, link, options)
@@ -397,7 +397,7 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
 
   @spec do_register_link(G.graph_node(), G.graph(), G.graph_link(), map) ::
           T.result(G.graph_node(), T.details())
-  # ⟦𓁈𓋟𓎘𓋕⟧ do_register_link :: auto-generated pointer for public function do_register_link
+  # <REMOVED UUID HERE> do_register_link :: auto-generated pointer for public function do_register_link
   def do_register_link(graph_node, graph, link, options)
 
   def do_register_link(graph_node, _, link, _) do
@@ -436,7 +436,7 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
   # outbound_links/4
   # -------------------------
   @spec outbound_links(G.graph_node(), G.graph(), map) :: {:ok, map} | {:error, term}
-  # ⟦𓏥𓋑𓌜𓍌⟧ outbound_links :: auto-generated pointer for public function outbound_links
+  # <REMOVED UUID HERE> outbound_links :: auto-generated pointer for public function outbound_links
   def outbound_links(graph_node = %{__struct__: module}, graph, options) do
     if Code.ensure_loaded?(module) and function_exported?(module, :do_outbound_links, 3) do
       module.do_outbound_links(graph_node, graph, options)
@@ -446,7 +446,7 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
   end
 
   @spec do_outbound_links(G.graph_node(), G.graph(), map) :: {:ok, map} | {:error, term}
-  # ⟦𓄢𓍸𓍲𓆎⟧ do_outbound_links :: auto-generated pointer for public function do_outbound_links
+  # <REMOVED UUID HERE> do_outbound_links :: auto-generated pointer for public function do_outbound_links
   def do_outbound_links(graph_node, graph, options) do
     if options[:expand] do
       links =
@@ -475,7 +475,7 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
   # inbound_links/4
   # -------------------------
   @spec inbound_links(G.graph_node(), G.graph(), map) :: {:ok, map} | {:error, term}
-  # ⟦𓐍𓂏𓌾𓈰⟧ inbound_links :: auto-generated pointer for public function inbound_links
+  # <REMOVED UUID HERE> inbound_links :: auto-generated pointer for public function inbound_links
   def inbound_links(graph_node = %{__struct__: module}, graph, options) do
     if Code.ensure_loaded?(module) and function_exported?(module, :do_inbound_links, 3) do
       module.do_inbound_links(graph_node, graph, options)
@@ -485,7 +485,7 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
   end
 
   @spec do_inbound_links(G.graph_node(), G.graph(), map) :: {:ok, map} | {:error, term}
-  # ⟦𓍤𓎬𓈇𓁋⟧ do_inbound_links :: auto-generated pointer for public function do_inbound_links
+  # <REMOVED UUID HERE> do_inbound_links :: auto-generated pointer for public function do_inbound_links
   def do_inbound_links(graph_node, graph, options) do
     if options[:expand] do
       links =
@@ -516,7 +516,7 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
   @doc """
   Apply/process a node. check/update fingerprint and add any appropriate directives to state.
   """
-  # ⟦𓍀𓄗𓏳𓎻⟧ process_node :: Apply/process a node.
+  # <REMOVED UUID HERE> process_node :: Apply/process a node.
   def process_node(graph_node, graph_link, graph_container, session, context, options)
 
   def process_node(
@@ -538,7 +538,7 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
   # -----------------------------------------------
   # do_process_node
   # -----------------------------------------------
-  # ⟦𓃵𓐀𓋀𓂱⟧ do_process_node :: auto-generated pointer for public function do_process_node
+  # <REMOVED UUID HERE> do_process_node :: auto-generated pointer for public function do_process_node
   def do_process_node(graph_node, graph_link, graph_container, session, context, options)
 
   def do_process_node(graph_node, graph_link, graph_container, session, context, options) do
@@ -561,7 +561,7 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
   @doc """
   Apply/process a node. check/update fingerprint and add any appropriate directives to state.
   """
-  # ⟦𓂨𓄸𓏬𓂪⟧ apply_node_directives :: Apply/process a node.
+  # <REMOVED UUID HERE> apply_node_directives :: Apply/process a node.
   def apply_node_directives(graph_node, graph_link, graph_container, session, context, options)
 
   def apply_node_directives(
@@ -592,7 +592,7 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
   @doc """
   Apply/process a node. check/update fingerprint and add any appropriate directives to state.
   """
-  # ⟦𓅾𓍝𓉄𓎞⟧ process_node_response :: Apply/process a node.
+  # <REMOVED UUID HERE> process_node_response :: Apply/process a node.
   def process_node_response(graph_node, graph_link, graph_container, session, context, options)
 
   def process_node_response(
@@ -620,7 +620,7 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
   # -----------------------------------------------
   # do_process_node_response
   # -----------------------------------------------
-  # ⟦𓍖𓀐𓅷𓉁⟧ do_process_node_response :: auto-generated pointer for public function do_process_node_response
+  # <REMOVED UUID HERE> do_process_node_response :: auto-generated pointer for public function do_process_node_response
   def do_process_node_response(graph_node, graph_link, graph_container, session, context, options)
 
   def do_process_node_response(graph_node, graph_link, graph_container, session, _, _) do
@@ -656,11 +656,11 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
     end
   end
   
-  # ⟦𓀲𓊚𓉾𓍣⟧ inspect_custom_details :: auto-generated pointer for public function inspect_custom_details
+  # <REMOVED UUID HERE> inspect_custom_details :: auto-generated pointer for public function inspect_custom_details
   def inspect_custom_details(subject, opts)
   def inspect_custom_details(_, _), do: []
   
-  # ⟦𓂺𓇒𓁫𓉨⟧ inspect_low_detail :: auto-generated pointer for public function inspect_low_detail
+  # <REMOVED UUID HERE> inspect_low_detail :: auto-generated pointer for public function inspect_low_detail
   def inspect_low_detail(%{__struct__: module} = subject, opts) do
     
     id = case UUID.info(subject.id) do
@@ -692,13 +692,13 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
     Inspect.Algebra.concat(top_fields ++ middle_fields ++ bottom_fields)
   end
   
-  # ⟦𓅮𓄂𓁐𓁅⟧ inspect_medium_detail :: auto-generated pointer for public function inspect_medium_detail
+  # <REMOVED UUID HERE> inspect_medium_detail :: auto-generated pointer for public function inspect_medium_detail
   def inspect_medium_detail(subject, opts) do
     inspect_low_detail(subject, opts)
   end
   
   require GenAI.Records.Link
-  # ⟦𓍶𓊯𓌰𓂉⟧ inspect_high_detail :: auto-generated pointer for public function inspect_high_detail
+  # <REMOVED UUID HERE> inspect_high_detail :: auto-generated pointer for public function inspect_high_detail
   def inspect_high_detail(%{__struct__: module} = subject, opts) do
     
     {:ok, inbound_links} = GenAI.Graph.NodeProtocol.inbound_links(subject, %{}, expand: true)
@@ -736,7 +736,7 @@ defmodule GenAI.Graph.NodeProtocol.DefaultProvider do
     Inspect.Algebra.concat(top_fields ++ middle_fields ++ bottom_fields)
   end
   
-  # ⟦𓎃𓄮𓊜𓋒⟧ inspect_full_detail :: auto-generated pointer for public function inspect_full_detail
+  # <REMOVED UUID HERE> inspect_full_detail :: auto-generated pointer for public function inspect_full_detail
   def inspect_full_detail(subject, opts) do
     Inspect.Algebra.to_doc(Map.from_struct(subject), opts)
   end

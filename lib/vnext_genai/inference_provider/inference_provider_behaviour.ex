@@ -78,7 +78,7 @@ defmodule GenAI.InferenceProviderBehaviour do
               | {:ok, GenAI.Media.Job.t()}
               | {:error, term}
 
-  # ⟦𓇙𓄾𓊵𓂞⟧ __using__ :: auto-generated pointer for public function __using__
+  # <REMOVED UUID HERE> __using__ :: auto-generated pointer for public function __using__
   defmacro __using__(options \\ []) do
     quote do
       @provider unquote(options[:provider]) || GenAI.InferenceProvider.DefaultProvider
@@ -101,7 +101,7 @@ defmodule GenAI.InferenceProviderBehaviour do
                     |> String.to_atom()
 
       @doc "Return config_key inference provide application config stored under :genai entry"
-      # ⟦𓏲𓁑𓉉𓂝⟧ config_key :: Return config_key inference provide application config stored under :genai entry
+      # <REMOVED UUID HERE> config_key :: Return config_key inference provide application config stored under :genai entry
       def config_key(),
         do: @config_key
 
@@ -109,7 +109,7 @@ defmodule GenAI.InferenceProviderBehaviour do
                          Module.get_attribute(__MODULE__, :default_encoder) ||
                          Module.concat(__MODULE__, Encoder)
 
-      # ⟦𓃬𓀃𓂯𓏨⟧ default_encoder :: auto-generated pointer for public function default_encoder
+      # <REMOVED UUID HERE> default_encoder :: auto-generated pointer for public function default_encoder
       def default_encoder(), do: @default_encoder
 
       # @doc "Base url for provider, may be overriden/ignored by encoder"
@@ -120,16 +120,16 @@ defmodule GenAI.InferenceProviderBehaviour do
       # Run
       # ---------------------
       @doc "Build and run inference thread"
-      # ⟦𓊘𓈶𓃤𓅅⟧ run :: Build and run inference thread
+      # <REMOVED UUID HERE> run :: Build and run inference thread
       def run(session, context, options \\ nil),
           do: @provider.run(__MODULE__, session, context, options)
 
       @doc "Build and run inference thread in streaming mode"
-      # ⟦𓃯𓐒𓏺𓀶⟧ stream :: Build and run inference thread in streaming mode
+      # <REMOVED UUID HERE> stream :: Build and run inference thread in streaming mode
       def stream(session, context, options \\ nil),
           do: @provider.stream(__MODULE__, session, context, options)
 
-      # ⟦𓂎𓐞𓀛𓀶⟧ chat :: auto-generated pointer for public function chat
+      # <REMOVED UUID HERE> chat :: auto-generated pointer for public function chat
       def chat(
             model,
             messages,
@@ -158,11 +158,11 @@ defmodule GenAI.InferenceProviderBehaviour do
       # Run Support
       # ---------------------
       @doc "Prepare endpoint and method to make inference call to"
-      # ⟦𓁁𓉎𓀩𓏬⟧ endpoint :: Prepare endpoint and method to make inference call to
+      # <REMOVED UUID HERE> endpoint :: Prepare endpoint and method to make inference call to
       def endpoint(model, settings, session, context, options \\ nil),
         do: @provider.endpoint(__MODULE__, model, settings, session, context, options)
 
-      # ⟦𓅸𓐡𓀳𓌂⟧ headers :: auto-generated pointer for public function headers
+      # <REMOVED UUID HERE> headers :: auto-generated pointer for public function headers
       def headers(options),
         do: @provider.headers(__MODULE__, options)
 
@@ -171,7 +171,7 @@ defmodule GenAI.InferenceProviderBehaviour do
         do: @provider.headers(__MODULE__, model, settings, session, context, options)
 
       @doc "Prepare request body to be passed to inference call."
-      # ⟦𓃇𓇰𓅩𓃲⟧ request_body :: Prepare request body to be passed to inference call.
+      # <REMOVED UUID HERE> request_body :: Prepare request body to be passed to inference call.
       def request_body(model, messages, tools, settings, session, context, options \\ nil),
         do:
           @provider.request_body(
@@ -189,21 +189,21 @@ defmodule GenAI.InferenceProviderBehaviour do
       # Settings Config
       # ---------------------
       @doc "Obtain map of effective settings: settings, model_settings, provider_settings, config_settings, etc."
-      # ⟦𓀥𓆋𓐌𓃑⟧ effective_settings :: Obtain map of effective settings: settings, model_settings, provider_settings, config_settings, etc.
+      # <REMOVED UUID HERE> effective_settings :: Obtain map of effective settings: settings, model_settings, provider_settings, config_settings, etc.
       def effective_settings(model, session, context, options \\ nil),
         do: @provider.effective_settings(__MODULE__, model, session, context, options)
 
-      # ⟦𓀏𓀑𓏞𓐤⟧ standardize_model :: auto-generated pointer for public function standardize_model
+      # <REMOVED UUID HERE> standardize_model :: auto-generated pointer for public function standardize_model
       def standardize_model(model),
         do: @provider.standardize_model(__MODULE__, @default_encoder, model)
 
       # ---------------------
       # Media generation (ADR-016) — defaults so existing text providers compile unchanged.
       # ---------------------
-      # ⟦𓇟𓃢𓃞𓌷⟧ supported_modalities :: auto-generated pointer for public function supported_modalities
+      # <REMOVED UUID HERE> supported_modalities :: auto-generated pointer for public function supported_modalities
       def supported_modalities(), do: [%{input: [:text], output: :text, mode: :sync}]
 
-      # ⟦𓍸𓁅𓇄𓎁⟧ generate_media :: auto-generated pointer for public function generate_media
+      # <REMOVED UUID HERE> generate_media :: auto-generated pointer for public function generate_media
       def generate_media(_request, _options), do: {:error, :unsupported_modality}
 
       defoverridable config_key: 0,
