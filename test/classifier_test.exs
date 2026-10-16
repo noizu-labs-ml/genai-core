@@ -53,6 +53,16 @@ defmodule GenAI.ClassifierTest do
     def classify(_, _), do: raise("payload should not appear in router error")
   end
 
+  defmodule ThrowsCapabilities do
+    def classifier_capabilities, do: throw(%{private: "must not appear"})
+    def classify(_, _), do: raise("must reject before invoking")
+  end
+
+  defmodule ExitsCapabilities do
+    def classifier_capabilities, do: exit(%{private: "must not appear"})
+    def classify(_, _), do: raise("must reject before invoking")
+  end
+
   defp choice_request(options \\ []) do
     %Request{
       input: "candidate",
@@ -327,6 +337,16 @@ defmodule GenAI.ClassifierTest do
 
     assert {:error, {:classifier_exception, Raises, RuntimeError}} =
              GenAI.classify(choice_request(), provider: Raises)
+  end
+
+  test "normalizes capability callback throws without retaining the thrown payload" do
+    assert {:error, {:invalid_classifier_capabilities, ThrowsCapabilities}} =
+             GenAI.classify(choice_request(), provider: ThrowsCapabilities)
+  end
+
+  test "normalizes capability callback exits without retaining the exit reason" do
+    assert {:error, {:invalid_classifier_capabilities, ExitsCapabilities}} =
+             GenAI.classify(choice_request(), provider: ExitsCapabilities)
   end
 
   test "rejects invalid call options" do

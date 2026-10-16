@@ -63,7 +63,8 @@ or extraction alongside the concrete structured extractor.
 
 `Pipeline.aggregate(selector, direction: :forward | :backward, role: role,
 format: :list | :text | :json | :yaml)` walks messages and collects results.
-YAML output is built in; Core includes Ymlr as a required runtime dependency.
+JSON and YAML output are built in; Core includes Jason and Ymlr as required runtime dependencies.
+Unserializable aggregate payloads return a tagged error without retaining the payload in the error.
 Missing selections are skipped by default; `missing: :error` fails instead.
 Tool responses expose their raw response payload. Thread projection applies
 pending graph messages and configuration without provider encoding or inference;

@@ -67,6 +67,8 @@ defmodule GenAI.Classifier.Router do
     end
   rescue
     _ -> {:error, {:invalid_classifier_capabilities, request.provider}}
+  catch
+    _, _ -> {:error, {:invalid_classifier_capabilities, request.provider}}
   end
 
   defp capabilities(capabilities, request) when is_map(capabilities) do

@@ -116,7 +116,7 @@ defmodule GenAICore.MixProject do
       {:noizu_labs_core, "~> 0.1"},
 
       # JSON/YAML
-      {:jason, "~> 1.2", optional: true},
+      {:jason, "~> 1.2"},
       {:ymlr, "~> 5.0"},
       {:yaml_elixir, "~> 2.9", optional: true},
       {:sweet_xml, "~> 0.7", optional: true}

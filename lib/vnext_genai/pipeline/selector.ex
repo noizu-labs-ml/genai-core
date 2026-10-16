@@ -142,13 +142,24 @@ defmodule GenAI.Pipeline.Selector do
 
   defp json_path(_, _), do: {:error, :not_found}
   defp format({:ok, values}, :list), do: {:ok, values}
-  defp format({:ok, values}, :json), do: Jason.encode(values)
-  defp format({:ok, values}, :yaml), do: {:ok, Ymlr.document!(values)}
-  defp format({:ok, values}, :text), do: {:ok, Enum.map_join(values, "\n", &render/1)}
+  defp format({:ok, values}, :json), do: serialize(fn -> Jason.encode!(values) end)
+  defp format({:ok, values}, :yaml), do: serialize(fn -> Ymlr.document!(values) end)
+
+  defp format({:ok, values}, :text),
+    do: serialize(fn -> Enum.map_join(values, "\n", &render/1) end)
+
   defp format({:error, _} = error, _), do: error
   defp format(_, _), do: {:error, :unsupported_format}
   defp render(value) when is_binary(value), do: value
   defp render(value), do: Jason.encode!(value)
+
+  defp serialize(callback) do
+    {:ok, callback.()}
+  rescue
+    exception -> {:error, {:aggregate_serialization, exception.__struct__}}
+  catch
+    kind, _reason -> {:error, {:aggregate_serialization, kind}}
+  end
 
   @doc false
   def invoke(callback) do

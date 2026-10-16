@@ -108,6 +108,31 @@ defmodule GenAI.PipelineTest do
              Pipeline.extract(thread(), {:inference, fn _, _ -> raise "failed" end})
   end
 
+  test "aggregate serialization failures remain tagged without retaining the tool payload" do
+    source =
+      GenAI.with_message(
+        thread(),
+        GenAI.Message.ToolResponse.new(
+          tool_call_id: "fixture-call",
+          tool_name: "fixture",
+          tool_response: %{private: fn -> "private-payload" end}
+        )
+      )
+
+    for format <- [:json, :yaml, :text] do
+      assert {:error, {:aggregate_serialization, reason}} =
+               Pipeline.aggregate(source, :content, role: :tool, format: format)
+
+      assert is_atom(reason)
+
+      assert {:error, {:aggregate_serialization, ^reason}} =
+               source
+               |> Pipeline.aggregate(:content, role: :tool, format: format)
+               |> Pipeline.append_result()
+               |> Pipeline.next_turn()
+    end
+  end
+
   test "transform changes continuing thread and invalidates frames; manual stale frames rejected" do
     {:ok, p} = Pipeline.extract(thread(), :last_message)
 
