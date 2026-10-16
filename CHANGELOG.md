@@ -3,7 +3,7 @@ Change Log
 
 # Unreleased
 
-- 2026-10-16: Opened PR #15 targeting `develop` for typed classifiers, conversation pipelines, and scoped develop CI (Core 0.4.0), including required JSON/YAML serializers, safe aggregate serialization errors and guarded classifier capability callbacks; not yet merged or published.
+- 2026-10-16: Opened PR #15 targeting `develop` for typed classifiers, conversation pipelines, and scoped develop CI (Core 0.4.0), including required JSON/YAML serializers, safe aggregate serialization errors and guarded classifier capability callbacks; merged → `develop` on 2026-10-17; not published.
 
 # 0.3.5 - Prompt Caching Usage
 - Added `cache_read_input_tokens` / `cache_creation_input_tokens` to `GenAI.ChatCompletion.Usage`.
