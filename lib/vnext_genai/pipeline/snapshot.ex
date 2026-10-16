@@ -27,7 +27,23 @@ defmodule GenAI.Pipeline.Snapshot do
   def materialize(%GenAI.Thread.Standard{} = thread, _context, _options) do
     with :ok <- neutral_graph(thread.graph),
          {:ok, updated} <- GenAI.Legacy.NodeProtocol.apply(thread.graph, thread) do
-      {:ok, %{updated | graph: %GenAI.Graph{}}}
+      result =
+        updated.state.messages
+        |> Enum.reverse()
+        |> Enum.reduce_while({:ok, {[], %{}}}, fn message, {:ok, {messages, ids}} ->
+          id = Map.get(message, :id)
+
+          case {id, Map.fetch(ids, id)} do
+            {nil, _} -> {:cont, {:ok, {[message | messages], ids}}}
+            {_, :error} -> {:cont, {:ok, {[message | messages], Map.put(ids, id, message)}}}
+            {_, {:ok, ^message}} -> {:cont, {:ok, {messages, ids}}}
+            _ -> {:halt, {:error, {:conflicting_message_id, id}}}
+          end
+        end)
+
+      with {:ok, {messages, _ids}} <- result do
+        {:ok, %{updated | state: %{updated.state | messages: messages}, graph: %GenAI.Graph{}}}
+      end
     end
   end
 

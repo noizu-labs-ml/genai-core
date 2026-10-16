@@ -2,13 +2,14 @@ defmodule GenAI.Pipeline do
   @moduledoc """
   Explicit immutable conversation processing. Extraction pushes typed values onto a
   branch-local stack; classification consumes payload and criteria. Transformations
-  invalidate existing frames. Forks use `{:fork, [Branch.t()]}` and every join must
+  invalidate existing frames. Forks are `GenAI.Thread.Fork` thread values and every join must
   specify `:reduce`, `:select` or `:append`.
 
   Operations accept a thread, pipeline, or `{:ok, pipeline}` and return tagged
   results, so ordinary Elixir pipes preserve failures without additional inference.
   """
   alias GenAI.Pipeline.{Branch, Frame, Selector, Snapshot}
+  alias GenAI.Thread.Fork
   defstruct [:thread, frames: [], context: nil, options: [], artifacts: %{}]
 
   @type t :: %__MODULE__{
@@ -20,7 +21,11 @@ defmodule GenAI.Pipeline do
         }
 
   @doc "Constructs a pipeline and resolves pending graph nodes without inference."
-  def new(thread, options \\ []) do
+  def new(thread, options \\ [])
+  def new(%Fork{} = fork, _options), do: Fork.normalize(fork)
+  def new({:fork, _} = legacy, _options), do: Fork.normalize(legacy)
+
+  def new(thread, options) do
     context = Keyword.get(options, :context, Noizu.Context.system())
 
     with {:ok, thread} <- Snapshot.materialize(thread, context, options) do
@@ -30,9 +35,17 @@ defmodule GenAI.Pipeline do
 
   @doc "Extracts a value using last-message, callback/MFA, or a safe selector."
   def extract(input, selector, options \\ [])
-  def extract({:ok, {:fork, _} = fork}, selector, options), do: extract(fork, selector, options)
 
-  def extract({:fork, _} = fork, selector, options),
+  def extract({:ok, {:fork, _} = legacy}, selector, options),
+    do: extract(legacy, selector, options)
+
+  def extract({:fork, _} = legacy, selector, options) do
+    with {:ok, fork} <- Fork.normalize(legacy), do: extract(fork, selector, options)
+  end
+
+  def extract({:ok, %Fork{} = fork}, selector, options), do: extract(fork, selector, options)
+
+  def extract(%Fork{} = fork, selector, options),
     do: broadcast(fork, &extract(&1, selector, options), options)
 
   def extract(input, selector, options) do
@@ -76,8 +89,14 @@ defmodule GenAI.Pipeline do
 
   @doc "Consumes the latest payload/criteria frames; classifier defaults are separate from chat defaults."
   def classify(input, options \\ [])
-  def classify({:ok, {:fork, _} = fork}, options), do: classify(fork, options)
-  def classify({:fork, _} = fork, options), do: broadcast(fork, &classify(&1, options), options)
+  def classify({:ok, {:fork, _} = legacy}, options), do: classify(legacy, options)
+
+  def classify({:fork, _} = legacy, options) do
+    with {:ok, fork} <- Fork.normalize(legacy), do: classify(fork, options)
+  end
+
+  def classify({:ok, %Fork{} = fork}, options), do: classify(fork, options)
+  def classify(%Fork{} = fork, options), do: broadcast(fork, &classify(&1, options), options)
 
   def classify(input, options) do
     with {:ok, pipeline} <- coerce(input),
@@ -115,10 +134,17 @@ defmodule GenAI.Pipeline do
   @doc "Replaces the continuing thread and invalidates all extraction frames."
   def transform(input, callback, options \\ [])
 
-  def transform({:ok, {:fork, _} = fork}, callback, options),
+  def transform({:ok, {:fork, _} = legacy}, callback, options),
+    do: transform(legacy, callback, options)
+
+  def transform({:fork, _} = legacy, callback, options) do
+    with {:ok, fork} <- Fork.normalize(legacy), do: transform(fork, callback, options)
+  end
+
+  def transform({:ok, %Fork{} = fork}, callback, options),
     do: transform(fork, callback, options)
 
-  def transform({:fork, _} = fork, callback, options),
+  def transform(%Fork{} = fork, callback, options),
     do: broadcast(fork, &transform(&1, callback, options), options)
 
   def transform(input, callback, options) do
@@ -131,9 +157,15 @@ defmodule GenAI.Pipeline do
 
   @doc "Appends a correlated assistant tool call and tool response; optional final text/JSON is deterministic."
   def append_result(input, options \\ [])
-  def append_result({:ok, {:fork, _} = fork}, options), do: append_result(fork, options)
+  def append_result({:ok, {:fork, _} = legacy}, options), do: append_result(legacy, options)
 
-  def append_result({:fork, _} = fork, options),
+  def append_result({:fork, _} = legacy, options) do
+    with {:ok, fork} <- Fork.normalize(legacy), do: append_result(fork, options)
+  end
+
+  def append_result({:ok, %Fork{} = fork}, options), do: append_result(fork, options)
+
+  def append_result(%Fork{} = fork, options),
     do: broadcast(fork, &append_result(&1, options), options)
 
   def append_result(input, options) do
@@ -184,7 +216,13 @@ defmodule GenAI.Pipeline do
   end
 
   @doc "Forks into named isolated pipelines. Nested forks are explicit; joins reject uncollapsed nested results."
-  def fork(input, branches, options \\ []) do
+  def fork(input, branches, options \\ [])
+  def fork({:ok, input}, branches, options), do: fork(input, branches, options)
+
+  def fork(%Fork{} = input, branches, options),
+    do: broadcast(input, fn pipeline -> fork(pipeline, branches, options) end, options)
+
+  def fork(input, branches, options) do
     with {:ok, pipeline} <- coerce(input), {:ok, pipeline} <- refresh(pipeline) do
       entries = Enum.to_list(branches)
       ids = Enum.map(entries, fn {id, _} -> id end)
@@ -209,7 +247,7 @@ defmodule GenAI.Pipeline do
             seeds,
             fn {branch, callback} ->
               case Selector.invoke(fn -> callback.(branch.pipeline) end) do
-                {:ok, {:fork, _} = nested} ->
+                {:ok, %Fork{} = nested} ->
                   %{branch | pipeline: nested}
 
                 {:ok, value} ->
@@ -239,10 +277,16 @@ defmodule GenAI.Pipeline do
 
   @doc "Runs one inference per branch (bounded parallelism) and appends its first assistant choice once."
   def next_turn(input, options \\ [])
+  def next_turn({:ok, {:fork, _} = legacy}, options), do: next_turn(legacy, options)
+
+  def next_turn({:fork, _} = legacy, options) do
+    with {:ok, fork} <- Fork.normalize(legacy), do: next_turn(fork, options)
+  end
+
   def next_turn({:ok, input}, options), do: next_turn(input, options)
   def next_turn({:error, _} = error, _options), do: error
 
-  def next_turn({:fork, _} = fork, options), do: broadcast(fork, &next_turn(&1, options), options)
+  def next_turn(%Fork{} = fork, options), do: broadcast(fork, &next_turn(&1, options), options)
 
   def next_turn(input, options) do
     with {:ok, pipeline} <- coerce(input),
@@ -269,10 +313,16 @@ defmodule GenAI.Pipeline do
 
   @doc "Joins with an explicit :reduce, :select, or :append mode; failed branches prevent convergence."
   def join(input, options \\ [])
+  def join({:ok, {:fork, _} = legacy}, options), do: join(legacy, options)
+
+  def join({:fork, _} = legacy, options) do
+    with {:ok, fork} <- Fork.normalize(legacy), do: join(fork, options)
+  end
+
   def join({:ok, input}, options), do: join(input, options)
   def join({:error, _} = error, _options), do: error
 
-  def join({:fork, branches}, options) when is_list(branches) do
+  def join(%Fork{branches: branches}, options) when is_list(branches) do
     with {:ok, branches} <- normalize_branches(branches) do
       cond do
         options[:mode] not in [:reduce, :select, :append] ->
@@ -284,7 +334,7 @@ defmodule GenAI.Pipeline do
         Enum.any?(branches, & &1.error) ->
           {:error, {:branch_failures, branches}}
 
-        Enum.any?(branches, &match?({:fork, _}, &1.pipeline)) ->
+        Enum.any?(branches, &match?(%Fork{}, &1.pipeline)) ->
           {:error, :nested_join_required}
 
         true ->
@@ -489,84 +539,8 @@ defmodule GenAI.Pipeline do
   defp extract_value(pipeline, selector, options),
     do: Selector.extract(Snapshot.messages(pipeline.thread), selector, options)
 
-  defp broadcast({:fork, branches}, callback, options) do
-    with {:ok, branches} <- normalize_tree(branches),
-         work = leaf_work(branches),
-         {:fork, completed} <-
-           parallel(
-             Enum.map(work, fn {_path, branch} -> {branch, nil} end),
-             fn {branch, _} ->
-               if branch.error do
-                 branch
-               else
-                 case Selector.invoke(fn -> callback.(branch.pipeline) end) do
-                   {:ok, {:fork, _} = nested} -> %{branch | pipeline: nested}
-                   {:ok, %__MODULE__{} = pipeline} -> %{branch | pipeline: pipeline}
-                   {:error, reason} -> %{branch | error: reason}
-                   _ -> %{branch | error: :invalid_branch_result}
-                 end
-               end
-             end,
-             options
-           ) do
-      by_path =
-        Map.new(Enum.zip(work, completed), fn {{path, _branch}, result} -> {path, result} end)
-
-      {:fork, rebuild_tree(branches, by_path)}
-    end
-  end
-
-  defp normalize_tree(branches) do
-    with {:ok, branches} <- normalize_branches(branches) do
-      Enum.reduce_while(branches, {:ok, []}, fn branch, {:ok, acc} ->
-        case branch.pipeline do
-          {:fork, nested} when is_nil(branch.error) ->
-            case normalize_tree(nested) do
-              {:ok, nested} -> {:cont, {:ok, acc ++ [%{branch | pipeline: {:fork, nested}}]}}
-              error -> {:halt, error}
-            end
-
-          _ ->
-            {:cont, {:ok, acc ++ [branch]}}
-        end
-      end)
-    end
-  end
-
-  defp leaf_work(branches, index_path \\ [], identity_path \\ []) do
-    branches
-    |> Enum.with_index()
-    |> Enum.flat_map(fn {branch, index} ->
-      path = index_path ++ [index]
-      identities = identity_path ++ [branch.id]
-
-      case branch.pipeline do
-        {:fork, nested} when is_nil(branch.error) -> leaf_work(nested, path, identities)
-        _ -> [{path, %{branch | path: identities}}]
-      end
-    end)
-  end
-
-  defp rebuild_tree(branches, completed, index_path \\ [], identity_path \\ []) do
-    branches
-    |> Enum.with_index()
-    |> Enum.map(fn {branch, index} ->
-      path = index_path ++ [index]
-      identities = identity_path ++ [branch.id]
-
-      case branch.pipeline do
-        {:fork, nested} when is_nil(branch.error) ->
-          %{
-            branch
-            | path: identities,
-              pipeline: {:fork, rebuild_tree(nested, completed, path, identities)}
-          }
-
-        _ ->
-          Map.fetch!(completed, path)
-      end
-    end)
-  end
+  defp broadcast(%Fork{} = fork, callback, options),
+    do: Fork.map_pipelines(fork, callback, options)
 
   defp unique_delta_ids(deltas, prefix) do
     seen = Map.new(prefix, &{Map.get(&1, :id), :base}) |> Map.delete(nil)
@@ -632,7 +606,7 @@ defmodule GenAI.Pipeline do
             {{:exit, reason}, {branch, _}} -> %{branch | error: {:branch_exit, reason}}
           end)
 
-        {:fork, results}
+        %Fork{branches: results, options: options}
       after
         Supervisor.stop(supervisor)
       end
@@ -720,6 +694,8 @@ defmodule GenAI.Pipeline do
   @doc false
   def coerce({:ok, value}), do: coerce(value)
   def coerce({:error, _} = error), do: error
+  def coerce(%Fork{} = fork), do: Fork.normalize(fork)
+  def coerce({:fork, _} = legacy), do: Fork.normalize(legacy)
   def coerce(%__MODULE__{} = pipeline), do: {:ok, pipeline}
   def coerce(thread), do: new(thread)
 

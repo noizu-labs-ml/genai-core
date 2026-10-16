@@ -39,7 +39,8 @@ jobs:
       if: github.base_ref == 'develop' || github.ref_name == 'develop'
       run: >-
         mix test test/classifier_test.exs test/pipeline_test.exs
-        test/inference_extractor_test.exs
+        test/inference_extractor_test.exs test/fork_thread_test.exs
+        test/fork_tool_chain_test.exs
     - name: Run release-branch tests
       if: github.base_ref != 'develop' && github.ref_name != 'develop'
       run: mix test

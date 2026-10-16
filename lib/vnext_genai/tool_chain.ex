@@ -9,6 +9,14 @@ defmodule GenAI.ToolChain do
 
   The configurable limits are themselves capped (`64` iterations and `256`
   calls) so untrusted options cannot create an unbounded agent loop.
+
+  Forks run each leaf through the same loop using the fork's shared bounded
+  executor. Each successful outcome contains `%{completion: completion,
+  summary: summary}`; its updated leaf retains the assistant tool calls and
+  tool responses. Failed outcomes retain the last completed continuation.
+  The registry is immutable, but external tool sources may have side effects:
+  callers must choose sources that permit concurrent branch execution, or set
+  `max_concurrency: 1`.
   """
 
   alias GenAI.Tool.{Call, Registry, Result, Telemetry}
@@ -23,13 +31,48 @@ defmodule GenAI.ToolChain do
   @default_iterations 8
   @default_tool_calls 32
 
-  @type result :: {:ok, {GenAI.ChatCompletion.t(), term(), Summary.t()}} | {:error, term()}
+  @type result ::
+          {:ok, {GenAI.ChatCompletion.t(), term(), Summary.t()}}
+          | {:ok, {%GenAI.Thread.Fork.Result{}, %GenAI.Thread.Fork{}}}
+          | {:error, term()}
 
   @doc "Runs a thread through a bounded sequence of inference and tool calls."
   @spec run(term(), Registry.t(), term(), keyword()) :: result()
   def run(thread, registry, context, options \\ [])
 
+  def run(%GenAI.Thread.Fork{} = fork, %Registry{} = registry, context, options)
+      when is_list(options),
+      do: run_fork(fork, registry, context, options)
+
+  def run({:fork, _} = fork, %Registry{} = registry, context, options)
+      when is_list(options),
+      do: run_fork(fork, registry, context, options)
+
   def run(thread, %Registry{} = registry, context, options) when is_list(options) do
+    case run_scalar(thread, registry, context, options) do
+      {:error, reason, _thread} -> {:error, reason}
+      result -> result
+    end
+  end
+
+  defp run_fork(fork, registry, context, options) do
+    GenAI.Thread.Fork.evaluate(
+      fork,
+      :run_with_tools,
+      fn thread, _path ->
+        case run_scalar(thread, registry, context, options) do
+          {:ok, {completion, updated, summary}} ->
+            {:ok, {%{completion: completion, summary: summary}, updated}}
+
+          {:error, reason, updated} ->
+            {:error, reason, updated}
+        end
+      end,
+      options
+    )
+  end
+
+  defp run_scalar(thread, registry, context, options) do
     started = System.monotonic_time()
     limits = limits(options)
     thread = GenAI.with_tools(thread, Registry.tools(registry))
@@ -59,7 +102,7 @@ defmodule GenAI.ToolChain do
           options
         )
 
-      {:error, reason} ->
+      {:error, reason, _updated} ->
         Telemetry.emit(
           [:tool_chain, :run, :stop],
           %{duration: duration},
@@ -78,61 +121,73 @@ defmodule GenAI.ToolChain do
         options
       )
 
-      {:error, {:chain_exception, exception}}
+      {:error, {:chain_exception, exception}, thread}
   catch
-    kind, reason -> {:error, {:chain_exception, {kind, reason}}}
+    kind, reason -> {:error, {:chain_exception, {kind, reason}}, thread}
   end
 
   defp iterate(thread, registry, context, options, limits, summary) do
     if summary.iterations >= limits.iterations do
-      {:error, {:chain_limit, :max_iterations, summary}}
+      {:error, {:chain_limit, :max_iterations, summary}, thread}
     else
-      with {:ok, {completion, updated_thread}} <- run_inference(thread, context, options),
-           {:ok, calls} <- extract_calls(completion) do
-        summary = %{summary | iterations: summary.iterations + 1}
-
-        cond do
-          calls == [] ->
-            {:ok, {completion, updated_thread, %{summary | stop_reason: :complete}}}
-
-          summary.tool_calls + length(calls) > limits.tool_calls ->
-            {:error, {:chain_limit, :max_tool_calls, summary}}
-
-          true ->
-            assistant_messages = tool_usage_messages(completion)
-
-            next_thread =
-              if Keyword.get(options, :append_assistant_message, true),
-                do: GenAI.with_messages(updated_thread, assistant_messages),
-                else: updated_thread
-
-            {next_thread, summary, halt_error} =
-              Enum.reduce_while(calls, {next_thread, summary, nil}, fn call,
-                                                                       {acc_thread, acc_summary,
-                                                                        _} ->
-                {outcome, result} = execute_call(registry, call, context, options)
-
-                next_summary = %{
-                  acc_summary
-                  | tool_calls: acc_summary.tool_calls + 1,
-                    tool_errors:
-                      acc_summary.tool_errors + if(result.status == :error, do: 1, else: 0)
-                }
-
-                next_thread = GenAI.with_message(acc_thread, Result.to_message(result))
-
-                if outcome == :error and Keyword.get(options, :on_tool_error, :continue) == :halt do
-                  {:halt, {next_thread, next_summary, {:tool_error, result}}}
-                else
-                  {:cont, {next_thread, next_summary, nil}}
-                end
-              end)
-
-            if halt_error,
-              do: {:error, halt_error},
-              else: iterate(next_thread, registry, context, options, limits, summary)
-        end
+      with {:ok, {completion, updated_thread}} <- run_inference(thread, context, options) do
+        advance(updated_thread, completion, registry, context, options, limits, summary)
+      else
+        {:error, reason} -> {:error, reason, thread}
       end
+    end
+  rescue
+    exception -> {:error, {:chain_exception, exception}, thread}
+  catch
+    kind, reason -> {:error, {:chain_exception, {kind, reason}}, thread}
+  end
+
+  defp advance(updated_thread, completion, registry, context, options, limits, summary) do
+    with {:ok, calls} <- extract_calls(completion) do
+      summary = %{summary | iterations: summary.iterations + 1}
+
+      cond do
+        calls == [] ->
+          {:ok, {completion, updated_thread, %{summary | stop_reason: :complete}}}
+
+        summary.tool_calls + length(calls) > limits.tool_calls ->
+          {:error, {:chain_limit, :max_tool_calls, summary}, updated_thread}
+
+        true ->
+          assistant_messages = tool_usage_messages(completion)
+
+          next_thread =
+            if Keyword.get(options, :append_assistant_message, true),
+              do: GenAI.with_messages(updated_thread, assistant_messages),
+              else: updated_thread
+
+          {next_thread, summary, halt_error} =
+            Enum.reduce_while(calls, {next_thread, summary, nil}, fn call,
+                                                                     {acc_thread, acc_summary, _} ->
+              {outcome, result} = execute_call(registry, call, context, options)
+
+              next_summary = %{
+                acc_summary
+                | tool_calls: acc_summary.tool_calls + 1,
+                  tool_errors:
+                    acc_summary.tool_errors + if(result.status == :error, do: 1, else: 0)
+              }
+
+              next_thread = GenAI.with_message(acc_thread, Result.to_message(result))
+
+              if outcome == :error and Keyword.get(options, :on_tool_error, :continue) == :halt do
+                {:halt, {next_thread, next_summary, {:tool_error, result}}}
+              else
+                {:cont, {next_thread, next_summary, nil}}
+              end
+            end)
+
+          if halt_error,
+            do: {:error, halt_error, next_thread},
+            else: iterate(next_thread, registry, context, options, limits, summary)
+      end
+    else
+      {:error, reason} -> {:error, reason, updated_thread}
     end
   end
 
