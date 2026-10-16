@@ -3,6 +3,8 @@ Change Log
 
 # Unreleased
 
+- 2026-10-16: Opened PR #15 targeting `develop` for typed classifiers, conversation pipelines, and scoped develop CI (Core 0.4.0); not yet merged or published.
+
 # 0.3.5 - Prompt Caching Usage
 - Added `cache_read_input_tokens` / `cache_creation_input_tokens` to `GenAI.ChatCompletion.Usage`.
 - OpenAI-compatible responses map `usage.prompt_tokens_details.cached_tokens` to `cache_read_input_tokens`.
