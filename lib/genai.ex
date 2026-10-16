@@ -1,4 +1,8 @@
 defmodule GenAI do
+  @doc "Execute an explicitly selected classifier independently of ordinary chat inference."
+  @spec classify(term(), keyword()) :: {:ok, GenAI.Classifier.Result.t()} | {:error, term()}
+  defdelegate classify(request, options \\ []), to: GenAI.Classifier.Router
+
   @doc """
   Creates a new chat context.
   """
