@@ -63,6 +63,7 @@ or extraction alongside the concrete structured extractor.
 
 `Pipeline.aggregate(selector, direction: :forward | :backward, role: role,
 format: :list | :text | :json | :yaml)` walks messages and collects results.
+YAML output is built in; Core includes Ymlr as a required runtime dependency.
 Missing selections are skipped by default; `missing: :error` fails instead.
 Tool responses expose their raw response payload. Thread projection applies
 pending graph messages and configuration without provider encoding or inference;
