@@ -9,10 +9,10 @@ adapters, outside Core. This delivery executes text; contracts can identify
 other modalities for adapters to reject or support explicitly.
 
 Conversation processing is opt-in through `GenAI.Pipeline`. Existing
-`GenAI.run/1` and `run/3` continue to run one inference. Tool chains retain their
-existing behavior. Pipeline operations return `{:ok, pipeline}` or tagged errors;
-forks return `{:fork, [%GenAI.Pipeline.Branch{}]}`. Errors pass through subsequent
-operations. The original thread remains immutable.
+`GenAI.run/1` and `run/3` continue to run one inference for a scalar thread.
+Scalar tool chains retain their existing behavior. Pipeline operations return
+`{:ok, pipeline}` or tagged errors; fork constructors and operations return a
+`%GenAI.Thread.Fork{}` thread value. The original thread remains immutable.
 
 ## Extraction and classification
 
@@ -108,6 +108,62 @@ join before the parent can converge. Arbitrary callback side effects cannot be
 rolled back by canceling a task; callbacks should use immutable results.
 
 ## Evaluation forks
+
+A fork is a thread, so ordinary public APIs dispatch to every leaf:
+
+```elixir
+fork = thread |> Pipeline.split(3) |> GenAI.with_setting(:temperature, 0)
+fork = GenAI.with_message(fork, GenAI.Message.user("Compare the alternatives"))
+{:ok, {results, updated_fork}} = GenAI.run(fork, nil, max_concurrency: 2)
+{:ok, completion} = GenAI.Thread.Fork.Result.fetch(results, [0])
+```
+
+Each branch contains its own pipeline (thread, frames and artifacts), or another
+fork for nested branches. `with_model`, message/configuration mutators, artifact
+operations and every `GenAI.ThreadProtocol` reader dispatch to leaves. Readers
+materialize pending neutral graph state before reading; provider encoders see
+only scalar leaves, with that leaf's model. Encoder-updated state is retained.
+An effective-model result can be passed to the model-dependent readers; each
+path receives its own model rather than the first branch's model. Message
+mutations invalidate extraction frames; settings-only changes preserve them.
+
+`GenAI.run/3`, `GenAI.stream/3` and `GenAI.run_with_tools/2` return
+`{:ok, {%GenAI.Thread.Fork.Result{}, updated_fork}}`. The result has an
+`operation` and ordered `outcomes`; each outcome has `id`, full root-to-leaf
+`path`, `status`, `value` and `reason`. Values preserve the scalar API output:
+completion for run, the provider's finalized accumulator for stream, and
+`%{completion: completion, summary: summary}` for a tool chain. `GenAI.run/1`
+keeps its completion-only convention and returns `{:ok, result}`. Ordinary run
+does not append an extra assistant message.
+
+Effective readers return `{:ok, {result, updated_fork}}`; artifact reads return
+`{:ok, result}` and artifact writes return `{:ok, updated_fork}`. There is no
+implicit first-branch scalar result. A partial execution/reader failure returns
+`{:error, %GenAI.Thread.Fork.Error{fork: updated_fork, result: result}}`, retaining
+successful sibling values and the latest available failed-leaf continuation.
+Failed branches remain marked and are not executed by later broadcasts. Errors
+from pipeline broadcasts remain on the returned fork's branches and explicit
+joins reject them. Timeouts kill the leaf task and identify its full path;
+callback side effects remain the caller's responsibility.
+
+Streaming preserves each leaf's configured handler, accumulator and provider
+finalization. Default/Accumulate pid sinks receive
+`{:genai, {:branch, path, event}}`; function sinks receive `{:branch, path, event}`.
+Custom handlers keep their scalar callback contract and receive `:fork_path` in
+the begin-stream options so they can identify events they emit themselves.
+Fork execution does not inject a persistent handler directive. As with scalar
+threads, there is no implemented `report` command: forks return a tagged
+`{:unsupported_fork_command, :report}` error rather than invoking inference.
+
+Legacy `{:fork, branches}` input is still accepted by pipeline operations and
+`GenAI.Thread.Fork.normalize/1`. Plain legacy thread entries receive numeric
+IDs. New operations always produce the canonical Fork value. Direct protocol
+dispatch requires normalization of a legacy tuple first.
+
+A successful explicit join returns `{:ok, %GenAI.Pipeline{}}`. That scalar
+pipeline owns an extraction stack and is not itself a thread: continue pipeline
+operations on it, or pass `pipeline.thread` to ordinary `GenAI` APIs. Fork values
+implement the thread protocol directly while retaining each branch's stack.
 
 ```elixir
 thread

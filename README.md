@@ -26,6 +26,10 @@ See the [classifier pipeline guide](docs/classifier-pipelines.md) for standalone
 and inline classification, agent postprocessing, evaluation forks and adapter
 contracts. The existing `GenAI.run/1-3` and tool-chain behavior is preserved.
 
+Forks are `GenAI.Thread.Fork` thread values: normal message/model/settings APIs,
+inference, streaming and tool chains dispatch to isolated leaves. Results carry
+ordered full branch paths, and partial failures retain successful siblings.
+
 ## Tool sources and bounded chains
 
 `GenAI.Tool.Registry` lets an application expose tools from MCP clients,

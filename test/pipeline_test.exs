@@ -166,7 +166,7 @@ defmodule GenAI.PipelineTest do
   end
 
   test "fork state, artifacts and frames are isolated, and append joins deltas in stable order" do
-    {:fork, branches} =
+    %GenAI.Thread.Fork{branches: branches} =
       Pipeline.fork(thread(),
         a: fn p ->
           {:ok, p} =
@@ -188,8 +188,11 @@ defmodule GenAI.PipelineTest do
 
     assert Enum.map(branches, & &1.id) == [:a, :b]
     assert Enum.map(branches, & &1.pipeline.artifacts.memory) == ["a", "b"]
-    assert {:error, :explicit_join_mode_required} = Pipeline.join({:fork, branches})
-    {:ok, joined} = Pipeline.join({:fork, branches}, mode: :append)
+
+    assert {:error, :explicit_join_mode_required} =
+             Pipeline.join(%GenAI.Thread.Fork{branches: branches})
+
+    {:ok, joined} = Pipeline.join(%GenAI.Thread.Fork{branches: branches}, mode: :append)
     {:ok, joined} = Pipeline.refresh(joined)
 
     assert Enum.map(Snapshot.messages(joined.thread), & &1.content) == [
@@ -201,22 +204,27 @@ defmodule GenAI.PipelineTest do
              "B"
            ]
 
-    {:ok, selected} = Pipeline.join({:fork, branches}, mode: :select, branch: :b)
+    {:ok, selected} =
+      Pipeline.join(%GenAI.Thread.Fork{branches: branches}, mode: :select, branch: :b)
+
     assert selected.artifacts.memory == "b"
 
     assert {:error, :unknown_branch} =
-             Pipeline.join({:fork, branches}, mode: :select, branch: :unknown)
+             Pipeline.join(%GenAI.Thread.Fork{branches: branches},
+               mode: :select,
+               branch: :unknown
+             )
   end
 
   test "agent postprocess reduces independently extracted memory and mood to one appended result" do
-    {:fork, branches} =
+    %GenAI.Thread.Fork{branches: branches} =
       Pipeline.fork(thread(),
         memory: &Pipeline.extract(&1, {:literal, %{memory: "remember"}}),
         mood: &Pipeline.extract(&1, {:literal, %{interest: 0.9}})
       )
 
     {:ok, joined} =
-      Pipeline.join({:fork, branches},
+      Pipeline.join(%GenAI.Thread.Fork{branches: branches},
         mode: :reduce,
         reducer: fn branches -> Map.new(branches, &{&1.id, hd(&1.pipeline.frames).value}) end
       )
@@ -240,7 +248,7 @@ defmodule GenAI.PipelineTest do
       {:ok, {completion, t}}
     end
 
-    {:fork, branches} =
+    %GenAI.Thread.Fork{branches: branches} =
       thread() |> Pipeline.split(3) |> Pipeline.next_turn(run: run, max_concurrency: 2)
 
     for _ <- 1..3, do: assert_receive(:called)
@@ -277,7 +285,7 @@ defmodule GenAI.PipelineTest do
   end
 
   test "fork catches branch exceptions and times out workers without losing identity or partial successes" do
-    {:fork, branches} =
+    %GenAI.Thread.Fork{branches: branches} =
       Pipeline.fork(
         thread(),
         [ok: fn p -> p end, bad: fn _ -> raise "bad" end, slow: fn _ -> Process.sleep(100) end],
@@ -290,7 +298,7 @@ defmodule GenAI.PipelineTest do
     assert Enum.at(branches, 2).error == {:branch_exit, :timeout}
 
     assert {:error, {:branch_failures, ^branches}} =
-             Pipeline.join({:fork, branches}, mode: :append)
+             Pipeline.join(%GenAI.Thread.Fork{branches: branches}, mode: :append)
 
     assert {:error, :invalid_parallel_limits} = Pipeline.split(thread(), 2, max_concurrency: 0)
     assert {:error, :invalid_split_count} = Pipeline.split(thread(), 65)
@@ -300,7 +308,7 @@ defmodule GenAI.PipelineTest do
     nested = Pipeline.fork(thread(), a: &Pipeline.split(&1, 2))
     assert {:error, :nested_join_required} = Pipeline.join(nested, mode: :append)
 
-    {:fork, branches} =
+    %GenAI.Thread.Fork{branches: branches} =
       Pipeline.fork(thread(),
         a: fn p -> p end,
         b: fn p ->
@@ -310,7 +318,8 @@ defmodule GenAI.PipelineTest do
         end
       )
 
-    assert {:error, :incompatible_branch_prefix} = Pipeline.join({:fork, branches}, mode: :append)
+    assert {:error, :incompatible_branch_prefix} =
+             Pipeline.join(%GenAI.Thread.Fork{branches: branches}, mode: :append)
   end
 
   test "errors flow through ordinary pipeline pipes" do
@@ -444,10 +453,10 @@ defmodule GenAI.PipelineTest do
   end
 
   test "evaluation joins support index-only classifier answers and forward grading instructions" do
-    {:fork, branches} = Pipeline.split(thread(), 2)
+    %GenAI.Thread.Fork{branches: branches} = Pipeline.split(thread(), 2)
 
     {:ok, selected} =
-      Pipeline.join({:fork, branches},
+      Pipeline.join(%GenAI.Thread.Fork{branches: branches},
         mode: :select,
         selector:
           {:classifier,
@@ -468,7 +477,9 @@ defmodule GenAI.PipelineTest do
         }, t}}
     end
 
-    {:fork, branches} = Pipeline.next_turn({:fork, [thread(), thread()]}, run: run)
+    %GenAI.Thread.Fork{branches: branches} =
+      Pipeline.next_turn(%GenAI.Thread.Fork{branches: [thread(), thread()]}, run: run)
+
     assert Enum.map(branches, & &1.id) == [0, 1]
     assert Enum.all?(branches, &is_nil(&1.error))
   end
@@ -516,7 +527,7 @@ defmodule GenAI.PipelineTest do
   end
 
   test "all conversation operations broadcast to isolated fork branches" do
-    {:fork, classified} =
+    %GenAI.Thread.Fork{branches: classified} =
       thread()
       |> Pipeline.split(2)
       |> Pipeline.extract(:last_response)
@@ -530,14 +541,16 @@ defmodule GenAI.PipelineTest do
       assert branch.error == nil
     end
 
-    {:fork, represented} = Pipeline.append_result({:fork, classified}, final: :json)
+    %GenAI.Thread.Fork{branches: represented} =
+      Pipeline.append_result(%GenAI.Thread.Fork{branches: classified}, final: :json)
 
-    {:fork, transformed} =
-      Pipeline.transform({:fork, represented}, fn t, _ ->
+    %GenAI.Thread.Fork{branches: transformed} =
+      Pipeline.transform(%GenAI.Thread.Fork{branches: represented}, fn t, _ ->
         GenAI.with_message(t, GenAI.Message.user("follow-up"))
       end)
 
-    {:fork, aggregated} = Pipeline.aggregate({:fork, transformed}, :content, role: :user)
+    %GenAI.Thread.Fork{branches: aggregated} =
+      Pipeline.aggregate(%GenAI.Thread.Fork{branches: transformed}, :content, role: :user)
 
     for branch <- aggregated do
       assert hd(branch.pipeline.frames).value == ["first", "pending last", "follow-up"]
@@ -547,13 +560,13 @@ defmodule GenAI.PipelineTest do
 
   test "fork broadcasting preserves nested identities and branch failures" do
     nested = Pipeline.fork(thread(), outer: &Pipeline.split(&1, 2))
-    {:fork, [outer]} = Pipeline.extract(nested, :last_message)
+    %GenAI.Thread.Fork{branches: [outer]} = Pipeline.extract(nested, :last_message)
     assert outer.id == :outer
-    {:fork, inner} = outer.pipeline
+    %GenAI.Thread.Fork{branches: inner} = outer.pipeline
     assert Enum.map(inner, & &1.id) == [0, 1]
     assert Enum.all?(inner, &(hd(&1.pipeline.frames).value == "pending last"))
     failed = Pipeline.fork(thread(), ok: fn p -> p end, bad: fn _ -> {:error, :failed} end)
-    {:fork, branches} = Pipeline.extract(failed, :last_message)
+    %GenAI.Thread.Fork{branches: branches} = Pipeline.extract(failed, :last_message)
     assert Enum.map(branches, & &1.error) == [nil, :failed]
     assert hd(hd(branches).pipeline.frames).value == "pending last"
   end
@@ -576,23 +589,26 @@ defmodule GenAI.PipelineTest do
     end
 
     nested = Pipeline.fork(thread(), left: &Pipeline.split(&1, 3), right: &Pipeline.split(&1, 3))
-    {:fork, branches} = Pipeline.next_turn(nested, run: run, max_concurrency: 2)
+
+    %GenAI.Thread.Fork{branches: branches} =
+      Pipeline.next_turn(nested, run: run, max_concurrency: 2)
+
     assert %{active: 0, peak: peak, calls: 6} = Agent.get(counter, & &1)
     assert peak in 1..2
     assert Enum.map(branches, & &1.id) == [:left, :right]
 
     for outer <- branches do
-      {:fork, inner} = outer.pipeline
+      %GenAI.Thread.Fork{branches: inner} = outer.pipeline
       assert Enum.map(inner, & &1.id) == [0, 1, 2]
       assert Enum.map(inner, & &1.path) == [[outer.id, 0], [outer.id, 1], [outer.id, 2]]
       assert Enum.all?(inner, &is_nil(&1.error))
     end
 
-    {:fork, failed} =
+    %GenAI.Thread.Fork{branches: failed} =
       Pipeline.next_turn(nested, run: fn _, _, _ -> {:error, :rejected} end, max_concurrency: 2)
 
     for outer <- failed do
-      {:fork, inner} = outer.pipeline
+      %GenAI.Thread.Fork{branches: inner} = outer.pipeline
       assert Enum.map(inner, & &1.error) == [:rejected, :rejected, :rejected]
       assert Enum.map(inner, & &1.path) == [[outer.id, 0], [outer.id, 1], [outer.id, 2]]
     end
