@@ -7,7 +7,7 @@ defmodule GenAICore.MixProject do
       name: "GenAI Core",
       description: description(),
       package: package(),
-      version: "0.3.5",
+      version: "0.4.0",
       elixir: "~> 1.16",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -17,6 +17,7 @@ defmodule GenAICore.MixProject do
         extras: [
           "README.md",
           "CHANGELOG.md",
+          "docs/classifier-pipelines.md",
           "TODO.md",
           "CONTRIBUTING.md",
           "LICENSE"
@@ -51,6 +52,8 @@ defmodule GenAICore.MixProject do
         "lib",
         "BOOK.md",
         "CONTRIBUTING.md",
+        "CHANGELOG.md",
+        "docs/classifier-pipelines.md",
         "LICENSE",
         "mix.exs",
         "README.md",
@@ -113,8 +116,8 @@ defmodule GenAICore.MixProject do
       {:noizu_labs_core, "~> 0.1"},
 
       # JSON/YAML
-      {:jason, "~> 1.2", optional: true},
-      {:ymlr, "~> 5.0", optional: true},
+      {:jason, "~> 1.2"},
+      {:ymlr, "~> 5.0"},
       {:yaml_elixir, "~> 2.9", optional: true},
       {:sweet_xml, "~> 0.7", optional: true}
     ]
