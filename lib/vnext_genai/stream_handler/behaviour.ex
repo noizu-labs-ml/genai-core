@@ -1,9 +1,9 @@
 defmodule GenAI.StreamHandler do
-
   # <REMOVED UUID HERE> begin_stream :: auto-generated pointer for public function begin_stream
   def begin_stream(handler, session, context, options) when is_atom(handler) do
     handler.begin_stream(handler, session, context, options)
   end
+
   def begin_stream(%{__struct__: h} = handler, session, context, options) do
     h.begin_stream(handler, session, context, options)
   end
@@ -20,40 +20,40 @@ defmodule GenAI.StreamHandler do
   def normalize_finish("content_filter"), do: :content_filter
   def normalize_finish(reason) when is_atom(reason), do: reason
   def normalize_finish(reason) when is_binary(reason), do: String.to_atom(reason)
-
 end
 
 defmodule GenAI.StreamHandler.Behaviour do
-  @callback begin_stream(handler :: term, session :: term, context :: term, options :: term) :: {:ok, {{state :: term, handler :: term}, session :: term}} | {:error, reason :: term}
-  @callback handle_event(event :: term, state :: term) :: {:cont, state :: term} | {:halt, state :: term}
+  @callback begin_stream(handler :: term, session :: term, context :: term, options :: term) ::
+              {:ok, {{state :: term, handler :: term}, session :: term}}
+              | {:error, reason :: term}
+  @callback handle_event(event :: term, state :: term) ::
+              {:cont, state :: term} | {:halt, state :: term}
 end
 
 defmodule GenAI.StreamHandler.Default do
   @behaviour GenAI.StreamHandler.Behaviour
 
   defmodule Accumulator do
-    defstruct [
-      headers: nil,
-      status: nil,
-      chunks: [],
-      buffer: "",
-      completed: false,
-      error: nil,
-      trailers: nil,
-      # Streaming decode state (populated when a stream decoder is registered)
-      decoder: nil,
-      sink: nil,
-      sse_buffer: "",
-      events: [],
-      text: "",
-      thinking: "",
-      tool_calls: [],
-      usage: nil,
-      finish: nil,
-      model: nil,
-      provider: nil,
-      completion: nil
-    ]
+    defstruct headers: nil,
+              status: nil,
+              chunks: [],
+              buffer: "",
+              completed: false,
+              error: nil,
+              trailers: nil,
+              # Streaming decode state (populated when a stream decoder is registered)
+              decoder: nil,
+              sink: nil,
+              sse_buffer: "",
+              events: [],
+              text: "",
+              thinking: "",
+              tool_calls: [],
+              usage: nil,
+              finish: nil,
+              model: nil,
+              provider: nil,
+              completion: nil
   end
 
   @doc """
@@ -73,7 +73,7 @@ defmodule GenAI.StreamHandler.Default do
     # Initialize state for collecting stream chunks
     initial_state = %Accumulator{
       decoder: options[:stream_decoder],
-      sink: options[:stream_sink],
+      sink: GenAI.Thread.Fork.Stream.sink(options[:stream_sink], options[:fork_path]),
       model: options[:stream_model],
       provider: options[:stream_provider]
     }
@@ -99,10 +99,12 @@ defmodule GenAI.StreamHandler.Default do
 
       {:data, chunk} ->
         # Accumulate data chunks (and decode when a decoder is registered)
-        updated_state = state
+        updated_state =
+          state
           |> Map.update(:chunks, [chunk], &(&1 ++ [chunk]))
           |> Map.update(:buffer, chunk, &(&1 <> chunk))
           |> decode_chunk(chunk)
+
         {:cont, updated_state}
 
       {:trailers, trailers} ->

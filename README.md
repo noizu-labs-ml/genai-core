@@ -15,6 +15,21 @@ extensibility more straight forward and to
 isolate the exllama support as an add to make using with livebook more straight 
 forward.
 
+## Classifiers and conversation pipelines
+
+`GenAI.classify/2` supports typed choice, boolean and score decisions through
+explicit classifier adapters. `GenAI.Pipeline` adds extraction, inference-assisted
+preparation, transformations, result insertion, and isolated fork/join processing
+with a global concurrency budget across nested branches.
+
+See the [classifier pipeline guide](docs/classifier-pipelines.md) for standalone
+and inline classification, agent postprocessing, evaluation forks and adapter
+contracts. The existing `GenAI.run/1-3` and tool-chain behavior is preserved.
+
+Forks are `GenAI.Thread.Fork` thread values: normal message/model/settings APIs,
+inference, streaming and tool chains dispatch to isolated leaves. Results carry
+ordered full branch paths, and partial failures retain successful siblings.
+
 ## Tool sources and bounded chains
 
 `GenAI.Tool.Registry` lets an application expose tools from MCP clients,

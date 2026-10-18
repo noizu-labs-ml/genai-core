@@ -7,9 +7,9 @@ name: Elixir CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [develop, "main", stage]
   pull_request:
-    branches: [ "main" ]
+    branches: [develop, "main", stage]
 
 permissions:
   contents: read
@@ -35,7 +35,14 @@ jobs:
         restore-keys: ${{ runner.os }}-mix-
     - name: Install dependencies
       run: mix deps.get
-    - name: Run tests
+    - name: Run slim develop acceptance
+      if: github.base_ref == 'develop' || github.ref_name == 'develop'
+      run: >-
+        mix test test/classifier_test.exs test/pipeline_test.exs
+        test/inference_extractor_test.exs test/fork_thread_test.exs
+        test/fork_tool_chain_test.exs
+    - name: Run release-branch tests
+      if: github.base_ref != 'develop' && github.ref_name != 'develop'
       run: mix test
 
 
