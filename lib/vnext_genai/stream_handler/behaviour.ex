@@ -1,4 +1,8 @@
 defmodule GenAI.StreamHandler do
+  @moduledoc """
+  〚🔌:9cfb3a25-3eda-575e-a576-1a4fb7bcfafb〛 GenAI.StreamHandler :: Stream handler dispatch: begin_stream, event handling, finish normalization.
+  """
+
   # <REMOVED UUID HERE> begin_stream :: auto-generated pointer for public function begin_stream
   def begin_stream(handler, session, context, options) when is_atom(handler) do
     handler.begin_stream(handler, session, context, options)

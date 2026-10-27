@@ -1,4 +1,8 @@
 defprotocol GenAI.ThreadProtocol do
+  @moduledoc """
+  〚🔌:edccec9f-f15f-51ef-ba05-efffcb1959cc〛 GenAI.ThreadProtocol :: Main thread protocol: model/tool/setting builders and inference dispatch.
+  """
+
   @doc """
   Specify a specific model or model picker.
 

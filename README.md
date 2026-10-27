@@ -1,5 +1,6 @@
 # Contributing
-Please feel free to submit an feature request/issues/clarification items you ahve under Issues! ^_^. 
+<!-- 〚📁:9b5636f2-d88a-5eeb-a2dc-77be1fe92423〛 genai-core README :: Entry point for the genai_core library: classifiers, pipelines, fork threads, tool sources. -->
+Please feel free to submit an feature request/issues/clarification items you ahve under Issues! ^_^.
 
 -----
 

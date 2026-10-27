@@ -1,4 +1,10 @@
 defmodule GenAI do
+  @moduledoc """
+  〚📁:8eed36db-6cff-581c-88e2-35d645d48992〛 GenAI legacy entry module :: Legacy top-level API: chat, stream, and inference entry points.
+
+  Legacy top-level convenience module kept for compatibility under branch-by-abstraction.
+  """
+
   @doc "Execute an explicitly selected classifier independently of ordinary chat inference."
   @spec classify(term(), keyword()) :: {:ok, GenAI.Classifier.Result.t()} | {:error, term()}
   defdelegate classify(request, options \\ []), to: GenAI.Classifier.Router
