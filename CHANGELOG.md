@@ -3,7 +3,7 @@ Change Log
 
 # Unreleased
 
-- 2026-10-26: doc sweep 2026-10-26 — refreshed PROJ-LAYOUT/ARCH/SCHEMA + THREAT-MODEL (classifiers, pipelines, fork threads, prompt-cache usage fields; version 0.4.0; new threat entries T-009); doc-pointer seed landed via `docs/pointer-sync-2026-10-26` PR into `develop`.
+- 2026-10-26: doc sweep 2026-10-26 — refreshed PROJ-LAYOUT/ARCH/SCHEMA + THREAT-MODEL (classifiers, pipelines, fork threads, prompt-cache usage fields; version 0.4.0; new threat entries T-009); doc-pointer seed (10 markers) landed via PR #20 into `develop`.
 - 2026-10-17: Opened PR #16 targeting `develop` for first-class fork threads, full thread API dispatch, bounded nested execution, branch-keyed results and isolated streaming/tool chains; merged → `develop` on 2026-10-17; not published.
 - 2026-10-16: Opened PR #15 targeting `develop` for typed classifiers, conversation pipelines, and scoped develop CI (Core 0.4.0), including required JSON/YAML serializers, safe aggregate serialization errors and guarded classifier capability callbacks; merged → `develop` on 2026-10-17; not published.
 
