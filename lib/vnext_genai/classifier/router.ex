@@ -1,5 +1,7 @@
 defmodule GenAI.Classifier.Router do
   @moduledoc """
+  〚📦:fae19efc-9a32-572c-9519-490776c76a6e〛 GenAI.Classifier.Router :: Explicit classifier dispatch with validated request/result boundaries.
+
   Explicit classifier dispatch with validated request/result boundaries.
 
   Model/provider precedence is call options, request, then

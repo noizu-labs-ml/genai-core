@@ -1,5 +1,7 @@
 defmodule GenAI.Thread.Fork do
   @moduledoc """
+  〚📦:6b13b631-5b58-5cf2-a9d6-53237ab32dca〛 GenAI.Thread.Fork :: Immutable fork tree: leaf-isolated pipelines, ThreadProtocol dispatch.
+
   An immutable thread tree. Leaf branches own isolated pipelines; internal
   branches own another Fork. All ThreadProtocol operations dispatch to leaves.
   A raw `{:fork, branches}` is accepted at ingress, never returned by new operations.

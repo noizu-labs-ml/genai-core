@@ -1,4 +1,8 @@
 defmodule GenAI.InferenceProviderBehaviour do
+  @moduledoc """
+  〚🔌:0fd155c7-d243-5a66-b36d-38b3499d8ed2〛 GenAI.InferenceProviderBehaviour :: Provider adapter contract: completion, streaming, and encoder hooks.
+  """
+
   @type session :: any
   @type context :: any
   @type options :: any
