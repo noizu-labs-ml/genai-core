@@ -21,11 +21,17 @@ lib/
 │       ├── default_provider.ex     #     Default provider mapping
 │       └── provider_behavior.ex    #     Metadata lookup behaviour
 │
-└── vnext_genai.ex                  # Current top-level convenience module
-    └── vnext_genai/                # CURRENT API (primary focus)
+└── vnext_genai/                    # CURRENT API (primary focus)
         ├── config.ex               #   Library runtime config
         ├── helpers.ex              #   Shared helper functions
         ├── tool_chain.ex           #   Tool-chaining orchestration
+        ├── classifier/             #   Typed classification
+        │   ├── provider_behaviour.ex #  Adapter contract (classify/2 + capabilities)
+        │   ├── question.ex         #     Decision: choice | boolean | score
+        │   ├── request.ex          #     Provider-neutral classifier input
+        │   ├── result.ex           #     Typed answers + distributions
+        │   ├── router.ex           #     Explicit dispatch + validation
+        │   └── validation.ex       #     Shared normalization helpers
         ├── error/
         │   └── request_error.ex    #     Typed request errors
         ├── graph/                  #   Computation graphs
@@ -50,6 +56,13 @@ lib/
         │   ├── model(.ex|/)        #     Model reference nodes
         │   ├── setting(.ex|/)      #     Model/provider/safety settings
         │   └── tool(.ex|/)         #     Tool definitions + schemas
+        ├── pipeline.ex             #   Conversation pipelines (immutable, branch-local)
+        ├── pipeline/               #   Pipeline internals
+        │   ├── branch.ex           #     Branch identity + isolation
+        │   ├── frame.ex            #     Branch-local extracted values
+        │   ├── inference_extractor.ex #  Isolated inference-assisted extraction
+        │   ├── selector.ex         #     JSON-path / XPath / regex selectors
+        │   └── snapshot.ex         #     Thread materialization + revisions
         ├── records/                #   Core records
         │   ├── directive.ex        #     Directive record
         │   ├── link.ex             #     Link record
@@ -61,6 +74,10 @@ lib/
         │   ├── sse.ex              #     Generic SSE parsing
         │   └── behaviour.ex        #     Handler behaviour
         ├── thread/                 #   Conversation threads
+        │   ├── fork.ex             #     Immutable fork trees (branch dispatch)
+        │   ├── fork/               #     Fork results + streaming
+        │   │   ├── result.ex       #       Leaf outcomes (ordered paths)
+        │   │   └── stream.ex       #       Fork stream helpers
         │   ├── session(.ex|/)      #     Sessions: state + directives + runtime
         │   ├── state(.ex|/)        #     Immutable state, structured access
         │   ├── standard.ex         #     Standard thread impl (ThreadProtocol)
@@ -73,4 +90,5 @@ lib/
 ```
 
 Key protocols/behaviours: `ThreadProtocol`, `NodeProtocol`, `MermaidProtocol`,
-`DirectiveBehaviour`, `InferenceProvider` behaviour, `StreamHandler` behaviour.
+`DirectiveBehaviour`, `InferenceProvider` behaviour, `StreamHandler` behaviour,
+`Classifier.ProviderBehaviour`.

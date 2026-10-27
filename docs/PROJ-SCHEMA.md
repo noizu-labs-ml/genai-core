@@ -53,7 +53,7 @@ All content structs share `vsn` versioning.
 
 | Struct | Fields | Notes |
 |--------|--------|-------|
-| TextContent | `system`, text | system role override |
+| TextContent | `system`, text, `cache_control` | system role override; optional `cache_control` consumed by the Anthropic encoder |
 | ImageContent / AudioContent | `source` | source: `{:file,path}` \| `:response` \| `{:uri,path}` |
 | ThinkingContent | `thinking` | reasoning output |
 | RedactedThinkingContent | `data` | opaque redacted reasoning |
@@ -67,7 +67,28 @@ All content structs share `vsn` versioning.
 | Struct | Fields |
 |--------|--------|
 | Choice | `index`, message, finish_reason |
-| Usage | `prompt_tokens`, completion_tokens, … |
+| Usage | `prompt_tokens`, completion_tokens, `cache_read_input_tokens`, `cache_creation_input_tokens`, … |
+
+OpenAI-compatible responses map `usage.prompt_tokens_details.cached_tokens` to
+`cache_read_input_tokens`; both stream handlers pass cache usage through.
+
+### Classifiers (`GenAI.Classifier.*`)
+
+| Struct | Fields | Notes |
+|--------|--------|-------|
+| Question | `id`, `type` (`:choice`\|`:boolean`\|`:score`), `instructions`, `choices`, `rubric`, `metadata` | stable string id; choices are strings or `{id, label}` maps; rubrics ordered `{id, label, score}`; boolean order fixed `[false, true]` |
+| Request | `input`, `questions`, `model`, `provider`, `modality`, `metadata`, `options` | provider-neutral; `provider` selects the adapter independently of the model's chat provider |
+| Result (+`Answer`) | `question_id`, `type`, `value`, `index`, `choice_id`, `distribution`, `selected_probability`, `provider_confidence` | missing provider fields stay nil; score distribution vs expected score must agree within `1.0e-6 * max(1, abs(mean))` |
+
+### Pipelines & forks (`GenAI.Pipeline.*`, `GenAI.Thread.Fork.*`)
+
+| Struct | Fields | Notes |
+|--------|--------|-------|
+| Pipeline | `thread`, `frames`, `context`, `options`, `artifacts` | immutable processing context; ops accept thread/pipeline/`{:ok, pipeline}` and return tagged results |
+| Pipeline.Branch | `id`, `base`, `pipeline`, `error`, `path` | `path` lists enclosing branch ids root→leaf; state never crosses leaves |
+| Pipeline.Frame | `kind` (`:payload`\|`:criteria`\|`:result`), `value`, `revision`, `source`, `metadata` | branch-local extraction bound to a thread revision; transforms invalidate frames |
+| Thread.Fork | `branches`, `context`, `options` | immutable tree; raw `{:fork, branches}` accepted at ingress only; ≤64 uniquely-id branches |
+| Thread.Fork.Result | `id`, `value`, `reason`, `path`, `status` | one leaf outcome; join results (`:reduce`/`:select`/`:append`) aggregate outcomes |
 
 ### Tool schema types (`GenAI.Nodes.Tool.Schema.Type.*`)
 
@@ -144,8 +165,12 @@ graph LR
     Session -->|directives| DirRec[Records.Directive]
     Thread --> Messages[Message + Content.*]
     Thread --> Tools[Tool Registry]
+    Fork[Fork tree] --> Branches[Pipeline.Branch]
+    Branches --> Frames[Pipeline.Frame]
+    Pipeline[Pipeline] --> Fork
     Graph[Graph] --> Nodes[Nodes: ChatCompletion/Message/Model/Setting/Tool]
     Graph --> Link[Link + Records.Link]
-    Nodes -->|stream| SSE[SSE Events]
+    Nodes -->|stream| SSE[SSE Events + cache usage]
+    ClsReq[Classifier.Request] --> ClsRes[Classifier.Result]
     Tools --> ToolChain[ToolChain state]
 ```
