@@ -4,8 +4,13 @@ Change Log
 # Unreleased
 
 - 2026-10-26: doc sweep 2026-10-26 — refreshed PROJ-LAYOUT/ARCH/SCHEMA + THREAT-MODEL (classifiers, pipelines, fork threads, prompt-cache usage fields; version 0.4.0; new threat entries T-009); doc-pointer seed (10 markers) landed via PR #20 into `develop`.
-- 2026-10-17: Opened PR #16 targeting `develop` for first-class fork threads, full thread API dispatch, bounded nested execution, branch-keyed results and isolated streaming/tool chains; merged → `develop` on 2026-10-17; not published.
-- 2026-10-16: Opened PR #15 targeting `develop` for typed classifiers, conversation pipelines, and scoped develop CI (Core 0.4.0), including required JSON/YAML serializers, safe aggregate serialization errors and guarded classifier capability callbacks; merged → `develop` on 2026-10-17; not published.
+
+# 0.4.0 - Typed Classifiers, Conversation Pipelines, Fork Threads
+
+Published to hex as `genai_core` 0.4.0 on 2026-10-18 (release ladder PRs #17/#18).
+
+- 2026-10-17: First-class fork pipelines as threads (PR #16) — full thread API dispatch, bounded nested execution, branch-keyed results, isolated streaming/tool chains per leaf; merged → `develop` on 2026-10-17.
+- 2026-10-16: Typed classifiers and conversation pipelines (PR #15) — typed choice/boolean/score decisions via explicit classifier adapters, required JSON/YAML serializers, safe aggregate serialization errors, guarded classifier capability callbacks, scoped develop CI (Core 0.4.0); merged → `develop` on 2026-10-17.
 
 # 0.3.5 - Prompt Caching Usage
 - Added `cache_read_input_tokens` / `cache_creation_input_tokens` to `GenAI.ChatCompletion.Usage`.
