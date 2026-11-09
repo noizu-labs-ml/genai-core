@@ -1,6 +1,17 @@
 defprotocol GenAI.ThreadProtocol do
   @moduledoc """
   〚🔌:edccec9f-f15f-51ef-ba05-efffcb1959cc〛 GenAI.ThreadProtocol :: Main thread protocol: model/tool/setting builders and inference dispatch.
+
+  The dispatcher behind the `GenAI` entry API. Every constraint builder
+  (`with_model`, `with_tool`, `with_setting`, `with_message`, ...) and every
+  execution entry (`run`, `stream`, `execute`) is a protocol function
+  implemented by each thread flavour — `GenAI.Thread.Standard` (linear
+  conversations), `GenAI.Thread.Session` (graph/directive-driven sessions),
+  and `GenAI.Thread.Fork` thread values (isolated pipeline leaves) — so new
+  thread types can be introduced without touching call sites.
+
+  Extenders: implement the callbacks defined here for your thread struct;
+  the `GenAI` module's delegates then work against it unchanged.
   """
 
   @doc """

@@ -1,8 +1,36 @@
 defmodule GenAI do
   @moduledoc """
-  〚📁:8eed36db-6cff-581c-88e2-35d645d48992〛 GenAI legacy entry module :: Legacy top-level API: chat, stream, and inference entry points.
+  〚📁:8eed36db-6cff-581c-88e2-35d645d48992〛 GenAI entry module :: Top-level API: chat, stream, classify, media, and inference entry points.
 
-  Legacy top-level convenience module kept for compatibility under branch-by-abstraction.
+  The public entry surface of `genai_core`. Every call delegates through
+  `GenAI.ThreadProtocol` onto the thread implementation carried by the
+  context, so the same builder + execution API covers both thread flavours.
+
+  Primary entry points:
+
+    * `chat/2` — open a thread: `:default` / `:standard` create a
+      `GenAI.Thread.Standard` (linear conversation), `:session` creates a
+      `GenAI.Thread.Session` (graph/directive-driven VNext thread).
+    * `with_model/2`, `with_tool/2`, `with_tools/2`, `with_message/2-3`,
+      `with_messages/2-3`, `with_setting/2-3`, `with_settings/2`,
+      `with_safety_setting/2-3`, and the provider/model-scoped variants —
+      constraint builders dispatched to the thread.
+    * `run/1-3` — run inference; returns the chat completion (and the
+      updated thread with `run/3`).
+    * `stream/3` — run inference in streaming mode; interstitial (dynamic)
+      messages go to the thread's stream handler (see
+      `with_stream_handler/3` and `GenAI.StreamHandler.Behaviour`).
+    * `run_with_tools/2-3` — explicit, bounded model/tool chain over a
+      `GenAI.Tool.Registry`.
+    * `classify/2` — execute an explicitly selected classifier
+      independently of ordinary chat inference (typed choice/boolean/score
+      decisions, returns `GenAI.Classifier.Result`).
+    * `generate_media/2` — media generation (ADR-016): route a
+      `GenAI.Media.Request` through the `GenAI.Media.Router` modality
+      registry to a provider's `generate_media/2`.
+    * `execute/4` / `report/3` — command execution against a thread, e.g.
+      full reports or optimization/grid-search loop results that ordinary
+      `run` processing does not return.
   """
 
   @doc "Execute an explicitly selected classifier independently of ordinary chat inference."
