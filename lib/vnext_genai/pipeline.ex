@@ -1,5 +1,7 @@
 defmodule GenAI.Pipeline do
   @moduledoc """
+  〚📦:5e9e6212-2fb3-5e94-b712-e2fa8d6a2840〛 GenAI.Pipeline :: Immutable conversation pipeline: extraction, transforms, fork/join.
+
   Explicit immutable conversation processing. Extraction pushes typed values onto a
   branch-local stack; classification consumes payload and criteria. Transformations
   invalidate existing frames. Forks are `GenAI.Thread.Fork` thread values and every join must
