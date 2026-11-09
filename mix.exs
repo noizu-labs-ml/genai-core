@@ -7,7 +7,7 @@ defmodule GenAICore.MixProject do
       name: "GenAI Core",
       description: description(),
       package: package(),
-      version: "0.4.0",
+      version: "0.4.1",
       elixir: "~> 1.16",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -99,7 +99,10 @@ defmodule GenAICore.MixProject do
       {:ex_doc, "~> 0.40", only: [:dev, :test], optional: true, runtime: false},
 
       # Static Analysis: Type Checking
-      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false, optional: true}
+      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false, optional: true},
+
+      # Security: Dependency Vulnerability Auditing
+      {:mix_audit, "~> 2.1", only: :dev, runtime: false, optional: true}
       # {:credo, "~> 1.0", runtime: false},
     ]
 
