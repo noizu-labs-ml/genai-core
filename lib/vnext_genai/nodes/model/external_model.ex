@@ -1,4 +1,16 @@
 defmodule GenAI.ExternalModel do
+  @moduledoc """
+  Graph node for a model owned/managed by an external resource.
+
+  Pairs a `resource_handle` with the `manager` that owns the backing model
+  resource, plus optional `provider`, `encoder`, `model`, `details`, and
+  `configuration` fields. The node participates in session graphs via
+  `GenAI.Graph.NodeProtocol` — `apply_node_directives/6` registers a static
+  model directive into the session state — and implements
+  `GenAI.ModelProtocol` so the inference pipeline resolves its handle,
+  provider, encoder (defaulting to `<Provider>.Encoder`), and name like any
+  other model value.
+  """
   @vsn 1.0
   
   

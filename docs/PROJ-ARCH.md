@@ -4,8 +4,9 @@
 
 `genai_core` is a pure Elixir library providing the base protocols and structures for
 generative-AI applications: model/session/dialogue abstraction, graph-based prompt
-construction, inference-provider routing, streaming (SSE), media generation, and tool
-chaining. It ships no infrastructure of its own — consuming applications (most Noizu
+construction, inference-provider routing, streaming (SSE), media generation, tool
+chaining, typed classification, and conversation pipelines over immutable fork trees.
+It ships no infrastructure of its own — consuming applications (most Noizu
 Elixir AI apps) embed it and supply provider credentials.
 
 The defining architectural pattern is **branch by abstraction**: a legacy
@@ -21,6 +22,8 @@ graph TB
     subgraph Public API
         TP[ThreadProtocol<br/>with_model/with_tool/with_setting...]
         MC[Model pickers<br/>smartest/cheapest]
+        CL[GenAI.classify/2<br/>Classifier.Router]
+        PL[GenAI.Pipeline<br/>extract/transform/fork-join]
     end
     subgraph Graph Layer
         G[Graph] --> N[Nodes:<br/>ChatCompletion, Message, Model, Setting, Tool]
@@ -29,18 +32,26 @@ graph TB
     subgraph Session Layer
         S[Session.State] --> ST[Thread.State]
         S --> D[Directives<br/>queued commands]
+        F[Fork tree] -->|leaf dispatch| PLX[Branch pipelines]
     end
     subgraph Providers
         IPB[InferenceProvider behaviour]
         SHR[StreamHandler.Behaviour]
         SSE[SSE parser]
         MR[Media.Router<br/>modality registry]
+        CPB[Classifier.ProviderBehaviour]
+        IE[InferenceExtractor<br/>isolated turn]
     end
     TP --> S
     G --> S
+    PL --> F
+    PL --> SEL[Selector: json-path/<br/>xpath/regex]
+    CL --> CPB
     N --> IPB
     IPB --> SHR --> SSE
+    PL --> IE --> IPB
     MR --> MPROV[config :genai, :media_providers]
+    CL -.->|config :genai, :classifier| CFGC[default model/adapter]
 ```
 
 ## Core Components
@@ -54,6 +65,9 @@ graph TB
 | Stream handling | Provider SSE normalization (Anthropic, OpenAI) behind a common behaviour |
 | Media | Modality-based routing to registered providers (`supported_modalities/0`) |
 | Tooling | Tool registry + JSON-schema builders + tool-chain loop state |
+| Classifiers | `GenAI.classify/2`: typed choice/boolean/score decisions via explicit `ProviderBehaviour` adapters; capability-checked, no implicit chat fallback |
+| Pipelines | `GenAI.Pipeline`: immutable extraction/transform flows over branch-local frames; fork/join via `GenAI.Thread.Fork` |
+| Fork threads | `GenAI.Thread.Fork`: immutable thread trees; all ThreadProtocol ops dispatch to isolated leaves; results carry ordered branch paths |
 | Model metadata | Model details (limits, pricing, capabilities) for pickers |
 
 → *Components ↔ directories: see [PROJ-LAYOUT.md](PROJ-LAYOUT.md) → [layout/lib.md](layout/lib.md)*
@@ -73,10 +87,17 @@ graph TB
   provider handlers normalize to common events.
 - **Model pickers**: `Model.smartest()`/`Model.cheapest()` select at inference time
   from model metadata, rather than hardcoding a model id.
+- **Explicit classifier dispatch**: adapters must export `classify/2`; ordinary chat
+  and generative judging are never implicit fallbacks. Precedence: call options →
+  request → `config :genai, :classifier`.
+- **Isolated extraction**: `InferenceExtractor` copies the conversation into a
+  temporary turn and discards returned threads — extraction never rewrites history.
+- **Bounded fork trees**: forks cap at 64 uniquely-id branches; internal branches own
+  sub-forks, leaves own isolated pipelines; every join names `:reduce`/`:select`/`:append`.
 
 ## Technology Stack
 
-Elixir 1.19 / OTP 28 · Finch (HTTP) · Jason · Floki · noizu_labs_core · ExDoc/Dialyxir (dev) · ExUnit CI (`.github/workflows/elixir.yml`).
+Elixir 1.19 / OTP 28 · Finch (HTTP) · Jason · YAML (ymlr/yaml_elixir) · SweetXml (XPath selectors) · Floki · noizu_labs_core · ExDoc/Dialyxir (dev) · ExUnit CI (`.github/workflows/elixir.yml`).
 
 ## References
 

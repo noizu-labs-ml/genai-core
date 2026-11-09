@@ -1,0 +1,122 @@
+---
+pointers:
+  0fd155c7-d243-5a66-b36d-38b3499d8ed2:
+    created_at: 2026-10-27T02:49:02.626309Z
+    description: 'Provider adapter contract: completion, streaming, and encoder hooks.'
+    file_path: lib/vnext_genai/inference_provider/inference_provider_behaviour.ex
+    function: GenAI.InferenceProviderBehaviour
+    kind: interface
+    line: 3
+    locations:
+      - file_path: lib/vnext_genai/inference_provider/inference_provider_behaviour.ex
+        line: 3
+    token: 𓶻𔌌𓎁𔙲
+    updated_at: 2026-10-27T02:49:02.626309Z
+  3d92929f-3679-5845-8707-6ec0b8bde19e:
+    created_at: 2026-10-27T02:49:02.626305Z
+    description: Global/per-process runtime config defaults.
+    file_path: lib/vnext_genai/config.ex
+    function: GenAI.Config
+    kind: module
+    line: 3
+    locations:
+      - file_path: lib/vnext_genai/config.ex
+        line: 3
+    token: 𓨄𓰍𓃫𓷞
+    updated_at: 2026-10-27T02:49:02.626305Z
+  5e9e6212-2fb3-5e94-b712-e2fa8d6a2840:
+    created_at: 2026-10-27T02:49:02.626320Z
+    description: 'Immutable conversation pipeline: extraction, transforms, fork/join.'
+    file_path: lib/vnext_genai/pipeline.ex
+    function: GenAI.Pipeline
+    kind: module
+    line: 3
+    locations:
+      - file_path: lib/vnext_genai/pipeline.ex
+        line: 3
+    token: 𔂍𔑛𓭚𔃰
+    updated_at: 2026-10-27T02:49:02.626320Z
+  6b13b631-5b58-5cf2-a9d6-53237ab32dca:
+    created_at: 2026-10-27T02:49:02.626291Z
+    description: 'Immutable fork tree: leaf-isolated pipelines, ThreadProtocol dispatch.'
+    file_path: lib/vnext_genai/thread/fork.ex
+    function: GenAI.Thread.Fork
+    kind: module
+    line: 3
+    locations:
+      - file_path: lib/vnext_genai/thread/fork.ex
+        line: 3
+    token: 𓖫𔏴𔔡𓱪
+    updated_at: 2026-10-27T02:49:02.626291Z
+  7327786e-3692-5d80-a7e3-f2e1b3e0c36e:
+    created_at: 2026-10-27T02:49:02.626287Z
+    description: 'Graph structure: nodes, links, and append operations.'
+    file_path: lib/vnext_genai/graph.ex
+    function: GenAI.Graph
+    kind: module
+    line: 3
+    locations:
+      - file_path: lib/vnext_genai/graph.ex
+        line: 3
+    token: 𓎯𔋕𓜝𓫎
+    updated_at: 2026-10-27T02:49:02.626287Z
+  8eed36db-6cff-581c-88e2-35d645d48992:
+    created_at: 2026-10-27T02:49:02.626274Z
+    description: 'Legacy top-level API: chat, stream, and inference entry points.'
+    file_path: lib/genai.ex
+    function: GenAI legacy entry module
+    kind: file
+    line: 3
+    locations:
+      - file_path: lib/genai.ex
+        line: 3
+    token: 𓉿𓄭𓇊𓩂
+    updated_at: 2026-10-27T02:49:02.626274Z
+  9b5636f2-d88a-5eeb-a2dc-77be1fe92423:
+    created_at: 2026-10-27T02:49:02.626316Z
+    description: 'Entry point for the genai_core library: classifiers, pipelines, fork threads, tool sources.'
+    file_path: README.md
+    function: genai-core README
+    kind: file
+    line: 2
+    locations:
+      - file_path: README.md
+        line: 2
+    token: 𔂍𔀄𓄨𓂃
+    updated_at: 2026-10-27T02:49:02.626316Z
+  9cfb3a25-3eda-575e-a576-1a4fb7bcfafb:
+    created_at: 2026-10-27T02:49:02.626295Z
+    description: 'Stream handler dispatch: begin_stream, event handling, finish normalization.'
+    file_path: lib/vnext_genai/stream_handler/behaviour.ex
+    function: GenAI.StreamHandler
+    kind: interface
+    line: 3
+    locations:
+      - file_path: lib/vnext_genai/stream_handler/behaviour.ex
+        line: 3
+    token: 𓞇𓨭𔋫𓰻
+    updated_at: 2026-10-27T02:49:02.626295Z
+  edccec9f-f15f-51ef-ba05-efffcb1959cc:
+    created_at: 2026-10-27T02:49:02.626324Z
+    description: 'Main thread protocol: model/tool/setting builders and inference dispatch.'
+    file_path: lib/vnext_genai/thread/thread_protocol.ex
+    function: GenAI.ThreadProtocol
+    kind: interface
+    line: 3
+    locations:
+      - file_path: lib/vnext_genai/thread/thread_protocol.ex
+        line: 3
+    token: 𔒿𓼾𓖾𓮼
+    updated_at: 2026-10-27T02:49:02.626324Z
+  fae19efc-9a32-572c-9519-490776c76a6e:
+    created_at: 2026-10-27T02:49:02.626313Z
+    description: Explicit classifier dispatch with validated request/result boundaries.
+    file_path: lib/vnext_genai/classifier/router.ex
+    function: GenAI.Classifier.Router
+    kind: module
+    line: 3
+    locations:
+      - file_path: lib/vnext_genai/classifier/router.ex
+        line: 3
+    token: 𓹿𓢨𓬦𓓞
+    updated_at: 2026-10-27T02:49:02.626313Z

@@ -8,7 +8,10 @@ the crown jewels are (1) provider API keys/orgs that flow through session state 
 outbound request headers, and (2) prompt/message content, which commonly carries
 user PII and proprietary context. The library executes inside the consuming
 application's trust domain and makes credentialed egress calls to inference/media
-providers on its behalf.
+providers on its behalf. The 0.4.x additions (typed classifiers, conversation
+pipelines, fork threads) stay inside the same trust domain: classifier dispatch is
+explicit adapter invocation (same credentialed egress channel), and pipeline
+selectors are data-only (JSON-path/XPath/regex — no shell execution).
 
 Grounding: components and data flows in [PROJ-ARCH.md](PROJ-ARCH.md); implementing
 directories in [PROJ-LAYOUT.md](PROJ-LAYOUT.md).
@@ -49,11 +52,17 @@ graph LR
 | T-006 | Medium | Supply chain | Hex deps (Finch, Jason, Floki) enter every consumer build | Mitigated (mix.lock pinning, optional deps) |
 | T-007 | Low | Info disclosure | `Logger` used in session paths; accidental state inspection could emit keys | Partial |
 | T-008 | Low | EoP | Tool registry invokes consumer-configured modules — arbitrary code by design | Accepted (config is trusted) |
+| T-009 | Low | Info disclosure | Pipeline frames and `Fork.Result` values embed extracted payloads + branch paths; consumer logging/serialization of results leaks content | Open (consumer responsibility) |
 
 ## Mitigation Coverage
 
-0 mitigated · 3 partial/documented · 3 accepted · 2 open-with-owner (T-002, T-005 —
-both require consumer-side input validation; guidance belongs in README/CONTRIBUTING).
+1 mitigated (T-006) · 2 partial (T-001, T-007) · 1 documented (T-003) · 2 accepted
+(T-004, T-008) · 3 open (T-002, T-005, T-009 — consumer-side by design). Structural
+mitigations in the 0.4.x surface: pipeline selectors never execute shell commands
+(data-only JSON-path/XPath/regex); fork trees are bounded (≤64 uniquely-id branches,
+isolated leaves) and extraction turns are discarded, capping fan-out and
+history-rewrite risk. Open items require consumer-side input validation and result
+logging hygiene.
 
 ## Residual Risk
 
