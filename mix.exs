@@ -99,7 +99,10 @@ defmodule GenAICore.MixProject do
       {:ex_doc, "~> 0.40", only: [:dev, :test], optional: true, runtime: false},
 
       # Static Analysis: Type Checking
-      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false, optional: true}
+      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false, optional: true},
+
+      # Security: Dependency Vulnerability Auditing
+      {:mix_audit, "~> 2.1", only: :dev, runtime: false, optional: true}
       # {:credo, "~> 1.0", runtime: false},
     ]
 
