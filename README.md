@@ -160,5 +160,5 @@ via the encoder protocol.
 
 Session threads model advanced flows as graphs of nodes and links
 (`GenAI.Graph.Node`, `GenAI.Graph.Link`) with a matching protocol for rendering
-a graph as a Mermaid diagram (`GenAI.MermaidProtocol`), useful for inspecting
+a graph as a Mermaid diagram (`GenAI.Graph.MermaidProtocol`), useful for inspecting
 execution plans of optimization and grid-search loops.
